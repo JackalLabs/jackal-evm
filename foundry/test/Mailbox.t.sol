@@ -111,25 +111,28 @@ contract mailboxTest is Test {
         // hyperlane mono-repo tests 3 dispatches and checks to make sure the nonce increasese each time
         // we're skipping that for now
 
+        // NOTE: so we took out this loop and it appeared that the test passed. But it seems that taking out the loop
+        // and not using 'n' cause this function to be bypassed completely? 
 
-        // NOTE: The TestPostDispatchHook just sets the quote to 0, this isn't really practical for 
-        // estimating the gas cost on testnet and main net 
-        // EDIT NOTE: Is the fee inside the PostDispatchHook meant to pay the validators of the ISM?
+        for (uint256 i = 0; i < n; i += 3) {
+            nonce = mailbox.nonce();
 
-        quote = mailbox.quoteDispatch(remoteDomain, recipientb32, largeBytes);
-        expectDispatch(requiredHook, defaultHook, defaultMetadata, body);
-        id = mailbox.dispatch{value: quote}(
-            remoteDomain,
-            recipientb32, 
-            body
-        );
+            // The TestPostDispatchHook just sets the quote to 0, this isn't really practical for 
+            // estimating the gas cost on testnet and main net 
+            quote = mailbox.quoteDispatch(remoteDomain, recipientb32, largeBytes);
+            expectDispatch(requiredHook, defaultHook, defaultMetadata, body);
+            id = mailbox.dispatch{value: quote}(
+                remoteDomain,
+                recipientb32, 
+                body
+            );
+            assertEq(mailbox.latestDispatchedId(), id);
+            console.log("the quote is:", quote);
 
-        // if the mail did dispatch the message, then the returned if should have been updated 
-        console.log("latest dispatch id is:", bytesToHexString(mailbox.latestDispatchedId()));
-        console.log("id is:", bytesToHexString(id));
+            // assertEq(nonce, i); 
 
-        assertEq(mailbox.latestDispatchedId(), id);
-        console.log("the quote is:", quote);
+        }
+
     }
 
     function bytesToHexString(bytes32 data) internal pure returns (string memory) {
