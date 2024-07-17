@@ -77,11 +77,17 @@ contract MailboxScript is Script {
         bytes memory body = new bytes(10);
 
         uint256 quote;
+        uint32 nonce;
+        bytes32 id;
 
         // This calls TestPostDispatchHook which just sets a hard coded fee for now
         quote = mailbox.quoteDispatch(remoteDomain, recipientb32, body);
         expectDispatch(requiredHook, defaultHook, metadataPlaceholder, body);
-
+        id = mailbox.dispatch{value: quote}(
+            remoteDomain,
+            recipientb32,
+            body
+        );
 
         vm.stopBroadcast();
     }
