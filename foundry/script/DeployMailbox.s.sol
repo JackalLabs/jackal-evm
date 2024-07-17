@@ -56,6 +56,12 @@ contract MailboxScript is Script {
             address(requiredHook)
         );
 
+        // One of these hooks is not being called, let's try and figure out which one 
+        console.log("defaultHook is:", address(defaultHook));
+        console.log("requiredHook is:", address(requiredHook));
+
+        // NOTE: Upon logging, we see that 'defaultHook' is not being called 
+
         // Verify ownership
         address mailboxOwner = mailbox.owner();
         require(mailboxOwner == owner, "Owner not set correctly");
