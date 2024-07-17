@@ -280,6 +280,7 @@ contract Mailbox is IMailbox, Indexed, Versioned, OwnableUpgradeable {
         bytes calldata metadata,
         IPostDispatchHook hook
     ) public payable virtual returns (bytes32) {
+        console.log("dispatching message now...");
         if (address(hook) == address(0)) {
             hook = defaultHook;
         }
