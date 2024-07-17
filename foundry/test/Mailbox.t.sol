@@ -85,12 +85,17 @@ contract mailboxTest is Test {
         bytes calldata body, // seems like the test runner isn't really passing anything into here?
         bytes calldata metadata
     ) public {
+        console.log("Starting test_dispatch");
+
         // I don't think we're going to use a hook for now 
         bytes memory prefixedMetadata = abi.encodePacked(
             StandardHookMetadata.VARIANT,
             metadata
         );
         bytes calldata defaultMetadata = metadata[0:0];
+
+        console.log("default metadata is:", bytesToHexString(defaultMetadata));
+
         uint256 quote;
         uint32 nonce;
         bytes32 id;
@@ -133,6 +138,18 @@ contract mailboxTest is Test {
         for (uint i = 0; i < 32; i++) {
             str[i*2] = alphabet[uint(uint8(data[i] >> 4))];
             str[1+i*2] = alphabet[uint(uint8(data[i] & 0x0f))];
+        }
+        return string(str);
+    }
+
+    function bytesToHexString(bytes calldata data) internal pure returns (string memory) {
+        bytes memory alphabet = "0123456789abcdef";
+        bytes memory str = new bytes(2 + data.length * 2);
+        str[0] = '0';
+        str[1] = 'x';
+        for (uint i = 0; i < data.length; i++) {
+            str[2+i*2] = alphabet[uint(uint8(data[i] >> 4))];
+            str[3+i*2] = alphabet[uint(uint8(data[i] & 0x0f))];
         }
         return string(str);
     }
