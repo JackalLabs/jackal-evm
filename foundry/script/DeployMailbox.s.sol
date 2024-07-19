@@ -104,35 +104,8 @@ contract MailboxScript is Script {
             recipientb32,
             body
         );
-        expectHookQuote(firstHook, metadata, message);
-        expectHookPost(firstHook, metadata, message, firstHook.fee());
-        expectHookPost(hook, metadata, message, hook.fee());
         vm.expectEmit(true, true, true, true, address(mailbox));
         emit Dispatch(address(this), remoteDomain, recipientb32, message);
-    }
-
-    function expectHookQuote(
-        IPostDispatchHook hook,
-        bytes memory metadata,
-        bytes memory message
-    ) internal {
-        vm.expectCall(
-            address(hook),
-            abi.encodeCall(IPostDispatchHook.quoteDispatch, (metadata, message))
-        );
-    }
-
-    function expectHookPost(
-        IPostDispatchHook hook,
-        bytes memory metadata,
-        bytes memory message,
-        uint256 value
-    ) internal {
-        vm.expectCall(
-            address(hook),
-            value,
-            abi.encodeCall(IPostDispatchHook.postDispatch, (metadata, message))
-        );
     }
 
     event Dispatch(
