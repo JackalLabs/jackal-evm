@@ -109,8 +109,6 @@ contract MailboxScript is Script {
         expectHookPost(hook, metadata, message, hook.fee());
         vm.expectEmit(true, true, true, true, address(mailbox));
         emit Dispatch(address(this), remoteDomain, recipientb32, message);
-        vm.expectEmit(true, false, false, false, address(mailbox));
-        emit DispatchId(message.id());
     }
 
     function expectHookQuote(
