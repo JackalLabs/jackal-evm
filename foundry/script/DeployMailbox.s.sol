@@ -73,7 +73,7 @@ contract MailboxScript is Script {
     function run() public {
         address anvilAccount = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
-        vm.startBroadcast();
+        vm.startBroadcast(anvilAccount);
             // Make the next transaction come from anvilAccount
 
         // don't need prefixedMetadata yet 
@@ -90,14 +90,12 @@ contract MailboxScript is Script {
         console.log("The quote is:", quote);
 
         expectDispatch(anvilAccount,requiredHook, defaultHook, metadataPlaceholder, body);
-        vm.prank(anvilAccount);
         id = mailbox.dispatch{value: 1000}(
             remoteDomain,
             recipientb32,
             body
             // NOTE: we didn't put metadata in here so it will be "0x" (empty metadata)
         );
-
         vm.stopBroadcast();
     }
 
