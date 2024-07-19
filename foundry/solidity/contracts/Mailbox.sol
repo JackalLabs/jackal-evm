@@ -301,6 +301,7 @@ contract Mailbox is IMailbox, Indexed, Versioned, OwnableUpgradeable {
         nonce += 1;
         console.log("emitting events now...");
 
+        console.log("sender of dispatch is", msg.sender);
         emit Dispatch(msg.sender, destinationDomain, recipientAddress, message);
         // emit DispatchId(id);
         console.log("we just finished emitting both events");
