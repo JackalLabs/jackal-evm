@@ -87,6 +87,7 @@ contract MailboxScript is Script {
             remoteDomain,
             recipientb32,
             body
+            // NOTE: we didn't put metadata in here so it will be "0x" (empty metadata)
         );
 
         vm.stopBroadcast();
