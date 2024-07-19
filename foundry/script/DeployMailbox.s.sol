@@ -82,8 +82,10 @@ contract MailboxScript is Script {
 
         // This calls TestPostDispatchHook which just sets a hard coded fee for now
         quote = mailbox.quoteDispatch(remoteDomain, recipientb32, body);
+        console.log("The quote is:", quote);
+
         expectDispatch(requiredHook, defaultHook, metadataPlaceholder, body);
-        id = mailbox.dispatch{value: quote}(
+        id = mailbox.dispatch{value: 1000}(
             remoteDomain,
             recipientb32,
             body
