@@ -73,8 +73,11 @@ contract MailboxScript is Script {
     function run() public {
         address anvilAccount = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
-        vm.startBroadcast(anvilAccount);
-            // Make the next transaction come from anvilAccount
+        uint256 deployerPrivateKey;
+        deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+
+        vm.startBroadcast(deployerPrivateKey);
+        // Make the next transaction come from anvilAccount
 
         // don't need prefixedMetadata yet 
 
