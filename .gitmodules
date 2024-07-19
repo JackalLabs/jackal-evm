@@ -1,0 +1,3 @@
+[submodule "sandboxes/events/lib/forge-std"]
+	path = sandboxes/events/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
