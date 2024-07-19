@@ -61,9 +61,7 @@ contract mailboxTest is Test {
             address(requiredHook)
         );
 
-        
-
-
+    
         // Verify ownership
         address mailboxOwner = mailbox.owner();
         require(mailboxOwner == owner, "Owner not set correctly");

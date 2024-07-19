@@ -299,8 +299,12 @@ contract Mailbox is IMailbox, Indexed, Versioned, OwnableUpgradeable {
 
         latestDispatchedId = id;
         nonce += 1;
+        console.log("emitting events now...");
+
         emit Dispatch(msg.sender, destinationDomain, recipientAddress, message);
         emit DispatchId(id);
+        console.log("we just finished emitting both events");
+
 
         /// INTERACTIONS ///
         uint256 requiredValue = requiredHook.quoteDispatch(metadata, message);
