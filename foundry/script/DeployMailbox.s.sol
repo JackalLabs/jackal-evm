@@ -106,6 +106,7 @@ contract MailboxScript is Script {
         );
         vm.expectEmit(true, true, true, true, address(mailbox));
         console.log("The address we expected to be the dispatcher is:", msg.sender);
+        console.log("Balance of msg.sender:", address(msg.sender).balance);
         emit Dispatch(msg.sender, remoteDomain, recipientb32, message); 
         // NOTE: we accidentally made the sender of dispatch the address of this contract--address(this)--instead of the test runner--msg.sender
     }
