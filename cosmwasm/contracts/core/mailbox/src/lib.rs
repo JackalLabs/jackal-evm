@@ -1,3 +1,4 @@
+pub mod contract;
 mod state;
 
 pub const MAILBOX_VERSION: u8 = 3;

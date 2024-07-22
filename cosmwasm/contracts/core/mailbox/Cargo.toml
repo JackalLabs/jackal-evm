@@ -13,6 +13,7 @@ cosmwasm-std = "1.5.0"         # Adapt this version to match your CosmWasm versi
 cosmwasm-schema = "1.4.0"      # For schema generation
 cw-storage-plus = "1.1.0"      # For advanced storage structures
 serde = { version = "1.0.145", default-features = false, features = ["derive"] }
+hpl-interface = "=0.0.6-rc4"
 
 
 [features]
