@@ -1,24 +1,3 @@
-[package]
-name = "hpl-mailbox"
-version = "0.1.0"
-authors = ["jackal labs"]
-edition = "2021"  
-
-
-[lib]
-crate-type = ["cdylib", "rlib"]  # For CosmWasm smart contracts
-
-
-[dependencies]
-cosmwasm-std = "1.5.0"         # Adapt this version to match your CosmWasm version
-cosmwasm-schema = "1.4.0"      # For schema generation
-cw-storage-plus = "1.1.0"      # For advanced storage structures
-serde = { version = "1.0.145", default-features = false, features = ["derive"] }
-
-
-[features]
-# Optional features can be defined here, if necessary
-
 [workspace]
 members = [
    "contracts/core/mailbox",
