@@ -34,6 +34,8 @@ contract MailboxScript is Script {
     address owner;
 
     function setUp() public {
+        address anvilAccount = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
         mailbox = new TestMailbox(localDomain);
         recipient = new TestRecipient(); 
         recipientb32 = address(recipient).addressToBytes32();
@@ -48,9 +50,9 @@ contract MailboxScript is Script {
         owner = msg.sender;
 
         // Without 'prank()', the caller of initialize would actually be the address of 'MailboxScript' instead of 'owner'
-        vm.prank(owner);
+        vm.prank(anvilAccount);
         mailbox.initialize(
-            owner,
+            anvilAccount,
             address(defaultIsm),
             address(defaultHook),
             address(requiredHook)
@@ -64,12 +66,18 @@ contract MailboxScript is Script {
 
         // Verify ownership
         address mailboxOwner = mailbox.owner();
-        require(mailboxOwner == owner, "Owner not set correctly");
+        require(mailboxOwner == anvilAccount, "Owner not set correctly");
  
     }
 
     function run() public {
-        vm.startBroadcast();
+        address anvilAccount = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+
+        uint256 deployerPrivateKey;
+        deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+
+        vm.startBroadcast(deployerPrivateKey);
+        // Make the next transaction come from anvilAccount
 
         // don't need prefixedMetadata yet 
 
@@ -84,18 +92,18 @@ contract MailboxScript is Script {
         quote = mailbox.quoteDispatch(remoteDomain, recipientb32, body);
         console.log("The quote is:", quote);
 
-        expectDispatch(requiredHook, defaultHook, metadataPlaceholder, body);
+        expectDispatch(anvilAccount,requiredHook, defaultHook, metadataPlaceholder, body);
         id = mailbox.dispatch{value: 1000}(
             remoteDomain,
             recipientb32,
             body
             // NOTE: we didn't put metadata in here so it will be "0x" (empty metadata)
         );
-
         vm.stopBroadcast();
     }
 
     function expectDispatch(
+        address dispatcher,
         TestPostDispatchHook firstHook,
         TestPostDispatchHook hook,
         bytes memory metadata,
@@ -109,7 +117,7 @@ contract MailboxScript is Script {
         vm.expectEmit(true, true, true, true, address(mailbox));
         console.log("The address we expected to be the dispatcher is:", msg.sender);
         console.log("Balance of msg.sender:", address(msg.sender).balance);
-        emit Dispatch(msg.sender, remoteDomain, recipientb32, message); 
+        emit Dispatch(dispatcher, remoteDomain, recipientb32, message); 
         // NOTE: we accidentally made the sender of dispatch the address of this contract--address(this)--instead of the test runner--msg.sender
     }
 
