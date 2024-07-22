@@ -1,5 +1,5 @@
-1. cast send 0x1D7519FC24be7ad9948427c866440c997975b9A0 \
---private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
+1. cast send <Test Public Key> \
+--private-key <Test Private Key> \
 --value $(cast tw 1)
 
 2. Make sure you're on Node version 18.16.0
@@ -13,7 +13,7 @@
 	
 	
 	hyperlane core deploy --dry-run localeth
-    --from-address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+    --from-address <Test Private Key>
 
 
 https://docs.hyperlane.xyz/docs/guides/deploy-hyperlane-local-agents#4-run-a-relayer
