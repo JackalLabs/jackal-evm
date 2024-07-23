@@ -12,7 +12,6 @@ use crate::{
     event::emit_instantiated,
     state::{Config, CONFIG, NONCE},
     CONTRACT_NAME, CONTRACT_VERSION,
-
 };
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -50,4 +49,27 @@ pub fn instantiate(
     // hpl_ownable::initialize(deps.storage, &owner)?;
 
     Ok(Response::new().add_event(emit_instantiated(owner)))
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn execute(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: ExecuteMsg,
+) -> Result<Response, ContractError> {
+    use crate::execute;
+    use ExecuteMsg::*;
+
+    // If Jackal is only using the mailbox as the receiver from EVM, we don't need ownable, hooks, or dispatch, atm? 
+    match msg {
+        Ownable(msg) => todo!(),
+
+        SetDefaultIsm { ism } => execute::set_default_ism(deps, info, ism),
+        SetDefaultHook { hook } => todo!(),
+        SetRequiredHook { hook } => todo!(),
+
+        Dispatch(msg) => todo!(),
+        Process { metadata, message } => todo!(),
+    }
 }
