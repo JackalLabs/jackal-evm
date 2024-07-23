@@ -4,3 +4,5 @@
 # Ignore other potential environment files
 *.env
 
+# Cosmwasm build target
+cosmwasm/target
