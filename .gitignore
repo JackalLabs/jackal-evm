@@ -3,3 +3,6 @@
 
 # Ignore other potential environment files
 *.env
+
+# Ignore all target directories
+target/

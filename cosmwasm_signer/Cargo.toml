@@ -1,0 +1,11 @@
+[package]
+name = "cosmwasm_signer"
+version = "0.1.0"
+authors = ["jackal labs"]
+description = "a sandbox cosmwasm signer"
+edition = "2021"  
+
+[dependencies]
+cosmrs = "0.17.0"  
+tokio = "1.39.1"
+serde_json = "1.0.120"
