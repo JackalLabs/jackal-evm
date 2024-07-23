@@ -1,9 +1,0 @@
-[workspace]
-members = [
-   "contracts/core/mailbox",
-   # Add other paths if there are more packages in the workspace
-]
-
-# This is optional and can be used to define workspace-wide settings
-[profile.release]
-opt-level = 3

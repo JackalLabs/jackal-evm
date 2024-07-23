@@ -1,4 +1,0 @@
-[dependencies]
-cosmrs = "0.17.0"  
-tokio = "1.39.1"
-serde_json = "1.0.120"
