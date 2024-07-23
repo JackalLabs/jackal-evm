@@ -8,6 +8,18 @@ pub enum ContractError {
 
     #[error("invalid config. reason: {reason:?}")]
     InvalidConfig { reason: String },
+
+    #[error("invalid message version: {version:?}")]
+    InvalidMessageVersion { version: u8 },
+
+    #[error("invalid destination domain: {domain:?}")]
+    InvalidDestinationDomain { domain: u32 },
+
+    #[error("message already delivered")]
+    AlreadyDeliveredMessage {},
+
+    #[error("ism verify failed")]
+    VerifyFailed {},
 }
 
 impl ContractError {

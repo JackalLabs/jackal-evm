@@ -70,6 +70,6 @@ pub fn execute(
         SetRequiredHook { hook } => todo!(),
 
         Dispatch(msg) => todo!(),
-        Process { metadata, message } => todo!(),
+        Process { metadata, message } => execute::process(deps, env, info, metadata, message),
     }
 }
