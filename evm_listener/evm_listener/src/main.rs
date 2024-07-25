@@ -4,7 +4,6 @@ use web3::Web3;
 
 #[tokio::main]
 async fn main() -> web3::Result<()> {
-    // Connect to the Anvil instance
     let transport = WebSocket::new("ws://localhost:8545").await?;
     let web3 = Web3::new(transport);
 
