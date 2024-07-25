@@ -1,16 +1,19 @@
+extern crate bip39;
+extern crate hex;
+
 use cosmos_sdk::tendermint::Error;
 use cosmrs::{
     bank::MsgSend,
     crypto::secp256k1,
     tx::{self, AccountNumber, Fee, Msg, SignDoc, SignerInfo},
     Coin,
-    bip32,
-
+    bip32::{XPrv, DerivationPath, Seed, Mnemonic}, // using the bip32 that was re-imported by cosmrs
 };
 
 use thiserror::Error;
-
 use std::{panic, str::{self, FromStr}};
+use bip39::{Language};
+use hex::ToHex;
 
 /// jackal chain id
 const CHAIN_ID: &str = "puppy-1";
@@ -30,52 +33,25 @@ const DENOM: &str = "ujkl";
 /// Example memo
 const MEMO: &str = "test memo";
 
-struct SafeSigningKeyDisplay {
-    key: cosmrs::crypto::secp256k1::SigningKey,
-}
-
-impl std::fmt::Debug for SafeSigningKeyDisplay {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("SigningKey")
-         .field("key", &"***sensitive information hidden***")
-         .finish()
-    }
-}
+/// Devnet seed phrase
+const SEED: &str = "fork draw talk diagram fragile online style lecture ecology lawn dress hat modify member leg pluck leaf depend subway grit trumpet tongue crucial stumble";
 
 fn main() {
 
-    env_logger::init();
+    let mnemonic = Mnemonic::new(SEED, Default::default()).unwrap();
+    let seed = mnemonic.to_seed(""); 
+    let root_xprv = XPrv::new(&seed).expect("failed to get root xprv");
 
-    let seed = "fork draw talk diagram fragile online style lecture ecology lawn dress hat";
 
-    let path_str = "m/44'/0'/0'/0/0"; // placeholder
-    let path = parse_derivation_path(path_str).expect("Failed to parse derivation path");
+    let child_path = "m/44'/118'/0'/0/0";
+    let sender_private_key = secp256k1::SigningKey::derive_from_path(seed, &child_path.parse().expect("no child_path")).expect("failed to generate private key");
+    let child_xpub = sender_private_key.public_key();
 
-        // Usage in your match statement
-    match secp256k1::SigningKey::derive_from_path(seed, &path) {
-        Ok(key) => {
-            let safe_key_display = SafeSigningKeyDisplay { key };
-            log::info!("Sender private key derived successfully: {:?}", safe_key_display);
-        },
-        Err(e) => {
-            log::error!("Failed to derive sender private key: {}", e);
-        }
-    }
+    let signing_key = sender_private_key;
+    let verification_key = child_xpub;
 
-    println!("Hello, world!");
-
-    // This is nice and all, but we need to get the account associated with the private key inside our test suite 
-    let sender_private_key = secp256k1::SigningKey::random();
-    let sender_public_key = sender_private_key.public_key();
-    let sender_account_id = sender_public_key.account_id("jkl").expect("failed to get account");
-    log::info!("{}", sender_account_id);
+    let sender_account_id = verification_key.account_id("jkl").expect("failed to get account");
+    
     println!("{}", sender_account_id);
 
 }
-
-// Assuming the necessary imports and module structure
-fn parse_derivation_path(path_str: &str) -> Result<bip32::DerivationPath, bip32::Error> {
-    let path = bip32::DerivationPath::from_str(path_str)?;
-    Ok(path)
-}
-
