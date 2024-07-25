@@ -116,7 +116,9 @@ pub fn process(
     Ok(Response::new().add_message(handle_msg).add_events(vec![
         emit_process_id(id),
         emit_process(
-            config.local_domain,
+            decoded_msg.origin_domain, 
+            // supposed to emit the origin domain the msg got sent from? 
+            // before, this was 'config.local_domain'
             decoded_msg.sender,
             decoded_msg.recipient,
         ),
