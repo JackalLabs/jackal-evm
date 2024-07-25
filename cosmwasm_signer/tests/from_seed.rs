@@ -3,8 +3,10 @@ extern crate bip32;
 extern crate hex;
 
 use bip39::{Language};
-use bip32::{XPrv, DerivationPath, Seed, Mnemonic};
+use bip32::{XPrv, DerivationPath, Seed, Mnemonic}; // WARNING: This is importing bip32 directly, not the one that cosmrs re-imported and wrapped 
 use hex::ToHex;
+
+use cosmrs::crypto::secp256k1;
 
 #[cfg(test)]
 mod tests {
@@ -21,21 +23,14 @@ mod tests {
 
         // ATOM HD path: m/44'/118'/0'/0/0  
         let child_path = "m/44'/118'/0'/0/0";
-        let child_xprv = XPrv::derive_from_path(&seed, &child_path.parse().expect("no child_path")).expect("no child_xprv");
+        // let child_xprv = XPrv::derive_from_path(&seed, &child_path.parse().expect("no child_path")).expect("no child_xprv");
 
-        let child_xpub = child_xprv.public_key();
+        let sender_private_key = secp256k1::SigningKey::derive_from_path(seed, &child_path.parse().expect("no child_path")).expect("failed to generate private key");
 
-        let signing_key = child_xprv.private_key();
-        let verification_key = child_xpub.public_key();
+        let child_xpub = sender_private_key.public_key();
+
+        let signing_key = sender_private_key;
+        let verification_key = child_xpub;
         println!("{:?}", verification_key)
-
-
     }
-
-
-
-
-
-
-
 }
