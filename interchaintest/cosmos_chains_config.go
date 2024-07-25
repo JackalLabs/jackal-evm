@@ -106,6 +106,9 @@ var chainSpecs = []*interchaintest.ChainSpec{
 			TrustingPeriod: "508h",
 			NoHostMount:    false,
 			ModifyGenesis:  modifyGenesisAtPath(genesisAllowICH, "app_state"),
+			HostPortOverride: map[int]int{
+				26657: 16657,
+			},
 		},
 	},
 }

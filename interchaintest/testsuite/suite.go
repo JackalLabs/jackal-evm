@@ -3,9 +3,11 @@ package testsuite
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 
 	dockerclient "github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
@@ -269,6 +271,22 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	// Start the relayer and set the cleanup function.
 	err = s.Relayer.StartRelayer(ctx, s.ExecRep, s.PathName)
 	s.Require().NoError(err)
+
+	// NOTE: not really sure where to pass this in atm
+	usingPorts := nat.PortMap{}
+
+	caninedConfig := s.ChainB.Config()
+
+	if caninedConfig.HostPortOverride != nil {
+		for intP, extP := range caninedConfig.HostPortOverride {
+			usingPorts[nat.Port(fmt.Sprintf("%d/tcp", intP))] = []nat.PortBinding{
+				{
+					HostPort: fmt.Sprintf("%d", extP),
+				},
+			}
+		}
+		fmt.Printf("Port Overrides: %v. Using: %v\n", caninedConfig.HostPortOverride, usingPorts)
+	}
 
 	t.Cleanup(
 		func() {
