@@ -16,7 +16,9 @@ serde = { version = "1.0", features = ["derive"] }
 cosmos_sdk = "0.1" # Hypothetical crate for Cosmos SDK interaction
 thiserror = "1.0"
 
-bip39 = "1.0"
+bip39 = "2.0.0"
+bip32 = "0.5.2"
+hex = "0.4.3"
 
 log = "0.4"
 env_logger = "0.9"

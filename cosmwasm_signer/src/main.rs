@@ -46,21 +46,21 @@ fn main() {
 
     env_logger::init();
 
-    // let seed = "fork draw talk diagram fragile online style lecture ecology lawn dress hat";
+    let seed = "fork draw talk diagram fragile online style lecture ecology lawn dress hat";
 
-    // let path_str = "m/44'/0'/0'/0/0"; // placeholder
-    // let path = parse_derivation_path(path_str).expect("Failed to parse derivation path");
+    let path_str = "m/44'/0'/0'/0/0"; // placeholder
+    let path = parse_derivation_path(path_str).expect("Failed to parse derivation path");
 
-    //     // Usage in your match statement
-    // match secp256k1::SigningKey::derive_from_path(seed, &path) {
-    //     Ok(key) => {
-    //         let safe_key_display = SafeSigningKeyDisplay { key };
-    //         log::info!("Sender private key derived successfully: {:?}", safe_key_display);
-    //     },
-    //     Err(e) => {
-    //         log::error!("Failed to derive sender private key: {}", e);
-    //     }
-    // }
+        // Usage in your match statement
+    match secp256k1::SigningKey::derive_from_path(seed, &path) {
+        Ok(key) => {
+            let safe_key_display = SafeSigningKeyDisplay { key };
+            log::info!("Sender private key derived successfully: {:?}", safe_key_display);
+        },
+        Err(e) => {
+            log::error!("Failed to derive sender private key: {}", e);
+        }
+    }
 
     println!("Hello, world!");
 
