@@ -35,6 +35,7 @@ mod tests {
         let root_xprv = XPrv::new(&seed).expect("failed to get root xprv");
 
         // NOTE: cannot rememember where to find canine-chain HD path so we're using ATOM's for now
+        // UPDATE: canine-chain uses the same HD path as ATOM 
         // ATOM HD path: m/44'/118'/0'/0/0  
         let child_path = "m/44'/118'/0'/0/0";
         // let child_xprv = XPrv::derive_from_path(&seed, &child_path.parse().expect("no child_path")).expect("no child_xprv");
