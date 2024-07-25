@@ -25,7 +25,8 @@ mod tests {
         // NOTE: can pass some of this back into cosmwasm_signer/src/main.rs once you're done dissecting
         let seed_phrase = "fork draw talk diagram fragile online style lecture ecology lawn dress hat modify member leg pluck leaf depend subway grit trumpet tongue crucial stumble";
         let mnemonic = Mnemonic::new(seed_phrase, Default::default()).unwrap();
-        let seed = mnemonic.to_seed("password"); 
+        let seed = mnemonic.to_seed(""); // upon inspecting the cosmos-sdk, it seems like key generation takes a default password of ""
+
         // NOTE: good chance canine-chain generates the seed with a different password/salt?
         // isn't this fine though? two accounts can have the same seed phrase but if the final seed was generated differently,
         // they will have different addresses
@@ -47,6 +48,8 @@ mod tests {
 
         let sender_account_id = verification_key.account_id("jkl").expect("failed to get account");
         
+        // UPDATE: we just confirmed that the account address created from the above seed phrase is the same as 
+        // the address canine-chain uses! 
         println!("{:?}", sender_account_id)
     }
 }
