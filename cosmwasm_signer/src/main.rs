@@ -30,6 +30,18 @@ const DENOM: &str = "ujkl";
 /// Example memo
 const MEMO: &str = "test memo";
 
+struct SafeSigningKeyDisplay {
+    key: cosmrs::crypto::secp256k1::SigningKey,
+}
+
+impl std::fmt::Debug for SafeSigningKeyDisplay {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SigningKey")
+         .field("key", &"***sensitive information hidden***")
+         .finish()
+    }
+}
+
 fn main() {
 
     env_logger::init();
@@ -39,12 +51,19 @@ fn main() {
     let path_str = "m/44'/0'/0'/0/0"; // placeholder
     let path = parse_derivation_path(path_str).expect("Failed to parse derivation path");
 
-    let sender_private_key = secp256k1::SigningKey::derive_from_path(seed, &path);
-
+        // Usage in your match statement
+    match secp256k1::SigningKey::derive_from_path(seed, &path) {
+        Ok(key) => {
+            let safe_key_display = SafeSigningKeyDisplay { key };
+            log::info!("Sender private key derived successfully: {:?}", safe_key_display);
+        },
+        Err(e) => {
+            log::error!("Failed to derive sender private key: {}", e);
+        }
+}
 
     println!("Hello, world!");
 }
-
 
 // Assuming the necessary imports and module structure
 fn parse_derivation_path(path_str: &str) -> Result<bip32::DerivationPath, bip32::Error> {
