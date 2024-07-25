@@ -19,7 +19,8 @@ mod tests {
         let seed = mnemonic.to_seed("password");
         let root_xprv = XPrv::new(&seed).expect("failed to get root xprv");
 
-        let child_path = "m/0/2147483647'/1/2147483646'";
+        // ATOM HD path: m/44'/118'/0'/0/0  
+        let child_path = "m/44'/118'/0'/0/0";
         let child_xprv = XPrv::derive_from_path(&seed, &child_path.parse().expect("no child_path")).expect("no child_xprv");
 
         let child_xpub = child_xprv.public_key();
