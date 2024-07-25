@@ -46,7 +46,7 @@ fn main() {
 
     env_logger::init();
 
-    let seed = "fork draw talk diagram fragile online style lecture ecology lawn dress hat modify member leg pluck leaf depend subway grit trumpet tongue crucial stumble";
+    let seed = "fork draw talk diagram fragile online style lecture ecology lawn dress hat";
 
     let path_str = "m/44'/0'/0'/0/0"; // placeholder
     let path = parse_derivation_path(path_str).expect("Failed to parse derivation path");
