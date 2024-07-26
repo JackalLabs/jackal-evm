@@ -4,6 +4,7 @@ extern crate hex;
 use cosmos_sdk::tendermint::Error;
 use cosmrs::{
     bank::MsgSend,
+    cosmwasm::MsgExecuteContract,
     crypto::secp256k1,
     tx::{self, AccountNumber, Fee, Msg, SignDoc, SignerInfo},
     Coin,
@@ -23,7 +24,7 @@ use tendermint::chain::Id;
 const CHAIN_ID: &str = "puppy-1";
 
 /// RPC port
-const RPC_PORT: u16 = 50109; // provided by docker image of canine-chain booted up by interchaintest suite
+const RPC_PORT: u16 = 59331; // provided by docker image of canine-chain booted up by interchaintest suite
 
 /// Expected account number
 const ACCOUNT_NUMBER: AccountNumber = 13;
@@ -79,10 +80,19 @@ fn main() {
     .to_any()
     .unwrap();
 
+    // TODO: deploy mailbox to local docker before calling the below
+    // execute CosmWasm mailbox
+    let mailbox_execute_msg = MsgExecuteContract {
+        sender: todo!(), // jkl13w0fse6k9tvrq6zn68smdl6ln4s7kmh96wlrdu
+        contract: todo!(),
+        msg: todo!(), // just json
+        funds: todo!(),  
+    }.to_any().unwrap();
+
     let chain_id_str = "puppy-1";
     let chain_id = Id::from_str(chain_id_str).expect("Failed to create chain ID");
 
-    let sequence_number = 6; // TODO: in prod, will need to query for this for the specific account, and increment it 
+    let sequence_number = 0; // TODO: in prod, will need to query for this for the specific account, and increment it 
     let gas = 100_000u64;
     let fee = Fee::from_amount_and_gas(amount, gas);
 
