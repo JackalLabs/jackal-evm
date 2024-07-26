@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	logger "github.com/JackalLabs/jackal-hyperlane/logger"
 	mysuite "github.com/JackalLabs/jackal-hyperlane/testsuite"
 	"github.com/JackalLabs/storage-outpost/e2e/interchaintest/types"
 	"github.com/stretchr/testify/suite"
@@ -26,6 +27,12 @@ type ContractTestSuite struct {
 func (s *ContractTestSuite) SetupContractTestSuite(ctx context.Context, encoding string) {
 	// This starts the chains, relayer, creates the user accounts, and creates the ibc clients and connections.
 	s.SetupSuite(ctx, chainSpecs)
+
+	logger.InitLogger()
+	// Upload and Instantiate the contract on canined:
+	codeId, err := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/mailbox.wasm")
+	s.Require().NoError(err)
+	logger.LogInfo(codeId)
 
 }
 
