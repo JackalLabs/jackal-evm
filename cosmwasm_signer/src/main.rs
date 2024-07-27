@@ -39,8 +39,7 @@ const DENOM: &str = "ujkl";
 const MEMO: &str = "test memo";
 
 /// Devnet seed phrase
-const SEED: &str = "fork draw talk diagram fragile online style lecture ecology lawn dress hat modify member leg pluck leaf depend subway grit trumpet tongue crucial stumble";
-
+const SEED: &str = "brief enhance flee chest rabbit matter chaos clever lady enable luggage arrange hint quarter change float embark canoe chalk husband legal dignity music web";
 fn main() {
 
     let mnemonic = Mnemonic::new(SEED, Default::default()).unwrap();
