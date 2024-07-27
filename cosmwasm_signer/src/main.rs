@@ -82,7 +82,7 @@ fn main() {
     // TODO: deploy mailbox to local docker before calling the below
     // execute CosmWasm mailbox
     let mailbox_execute_msg = MsgExecuteContract {
-        sender: todo!(), // jkl13w0fse6k9tvrq6zn68smdl6ln4s7kmh96wlrdu
+        sender: todo!(), // jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg
         contract: todo!(),
         msg: todo!(), // just json
         funds: todo!(),  

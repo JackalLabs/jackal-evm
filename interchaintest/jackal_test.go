@@ -25,7 +25,7 @@ func (s *ContractTestSuite) TestJackalChainInit() {
 	s.SetupContractTestSuite(ctx, encoding)
 
 	// This is the user in our cosmwasm_signer, so we ensure they have funds
-	s.FundAddressChainB(ctx, "jkl13w0fse6k9tvrq6zn68smdl6ln4s7kmh96wlrdu")
+	s.FundAddressChainB(ctx, "jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg")
 
 	s.Run(fmt.Sprintf("TestSendCustomIcaMesssagesSuccess-%s", encoding), func() {
 
