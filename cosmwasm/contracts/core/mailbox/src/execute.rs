@@ -99,6 +99,8 @@ pub fn process(
 
     ensure!(verify, ContractError::VerifyFailed {});
 
+    // NOTE: For POC, don't need to send it to recipient, we could just send it to wasm bindings contract
+    
     // This all makes sense, but how does the relayer even cause this process function to execute in the first place?
     // How will it find the execute entry point?
     let handle_msg = wasm_execute(
@@ -111,7 +113,6 @@ pub fn process(
         .wrap(),
         vec![],
     )?;
-
 
     Ok(Response::new().add_message(handle_msg).add_events(vec![
         emit_process_id(id),
