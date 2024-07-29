@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
+	"time"
 
 	logger "github.com/JackalLabs/jackal-hyperlane/logger"
 	mysuite "github.com/JackalLabs/jackal-hyperlane/testsuite"
@@ -38,6 +39,8 @@ func (s *ContractTestSuite) SetupContractTestSuite(ctx context.Context, encoding
 
 	// TODO: instantiate the contract
 	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), codeId, instantiateMsg, false, "--gas", "500000", "--admin", s.UserB.KeyName())
+	time.Sleep(10 * time.Hour)
+
 	s.Require().NoError(err)
 	logger.LogInfo(contractAddr)
 }
