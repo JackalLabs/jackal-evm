@@ -1,7 +1,8 @@
 use std::any::Any;
 
+use web3::contract::{Contract, Options};
 use web3::futures::{ future, StreamExt };
-use web3::transports::WebSocket;
+use web3::transports::{Http, WebSocket};
 use web3::types::BlockId;
 use web3::Web3;
 
@@ -40,12 +41,42 @@ async fn get_next_contract_address(web3: Web3<WebSocket>) -> Result<(), web3::Er
     let dispatch_sig= web3::signing::keccak256(b"Dispatch(address,uint32,bytes32,bytes)");
 */
 
+async fn deploy_test_contract(web3: Web3<Http>) -> web3::contract::Result<()> {
+    let abi = include_bytes!("build/TestEvent.abi");
+    let bytecode = include_str!("build/TestEvent.bin");
+    
+    let accounts = web3.eth().accounts().await?;
+
+    let contract = Contract::deploy(web3.eth(), abi)?
+        .confirmations(0)
+        .options(Options::with(|opt| {
+            opt.gas = Some(3_000_000.into());
+        }))
+        .execute(bytecode, (), accounts[0])
+        .await?;
+
+    println!("Test contract deployed at: {}", contract.address());
+
+    let dispatch_hash = contract.call("dispatchEvent", (42_u64,), accounts[0], Options::default()).await?;
+    println!("Event dispatched, transaction hash: {:?}", dispatch_hash);
+    
+    let dispatch_receipt = web3.eth().transaction_receipt(dispatch_hash).await?;
+    if let Some(receipt) = dispatch_receipt {
+        for log in receipt.logs {
+            println!("Bytes: {:?}", String::from_utf8(log.data.0.to_vec()));
+        }
+    }
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> web3::Result<()> {
     // Connect to local evm chain
-    let transport = WebSocket::new("ws://localhost:8545").await?;
-    let web3 = Web3::new(transport);
-    let whatever = get_next_contract_address(web3).await;
+    let socket = WebSocket::new("ws://localhost:8545").await?;
+    let web3_http = Web3::new(Http::new("http://localhost:8545")?);
+    let web3_soc = Web3::new(socket);
+    //let whatever = get_next_contract_address(web3).await;
+    let test_contract_result = deploy_test_contract(web3_http).await;
     // Close the application and return Ok
     Ok(())
 }
