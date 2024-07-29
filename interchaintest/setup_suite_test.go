@@ -37,7 +37,7 @@ func (s *ContractTestSuite) SetupContractTestSuite(ctx context.Context, encoding
 	instantiateMsg := types.NewMailboxInstantiateMsg("hrp", admin, 2)
 
 	// TODO: instantiate the contract
-	contractAddr, err := s.ChainA.InstantiateContract(ctx, s.UserA.KeyName(), codeId, instantiateMsg, false, "--gas", "500000", "--admin", s.UserA.KeyName())
+	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), codeId, instantiateMsg, false, "--gas", "500000", "--admin", s.UserB.KeyName())
 	s.Require().NoError(err)
 	logger.LogInfo(contractAddr)
 }
