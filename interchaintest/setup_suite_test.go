@@ -7,7 +7,7 @@ import (
 
 	logger "github.com/JackalLabs/jackal-hyperlane/logger"
 	mysuite "github.com/JackalLabs/jackal-hyperlane/testsuite"
-	"github.com/JackalLabs/storage-outpost/e2e/interchaintest/types"
+	types "github.com/JackalLabs/jackal-hyperlane/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -16,10 +16,8 @@ import (
 type ContractTestSuite struct {
 	mysuite.TestSuite
 
-	Contract              *types.IcaContract
-	IcaAddress            string
-	FaucetOutpostContract *types.IcaContract
-	FaucetJKLHostAddress  string
+	IcaAddress           string
+	FaucetJKLHostAddress string
 }
 
 // SetupContractAndChannel starts the chains, relayer, creates the user accounts, creates the ibc clients and connections,
@@ -34,6 +32,14 @@ func (s *ContractTestSuite) SetupContractTestSuite(ctx context.Context, encoding
 	s.Require().NoError(err)
 	logger.LogInfo(codeId)
 
+	admin := s.UserB.FormattedAddress()
+
+	instantiateMsg := types.NewMailboxInstantiateMsg("hrp", admin, 2)
+
+	// TODO: instantiate the contract
+	contractAddr, err := s.ChainA.InstantiateContract(ctx, s.UserA.KeyName(), codeId, instantiateMsg, false, "--gas", "500000", "--admin", s.UserA.KeyName())
+	s.Require().NoError(err)
+	logger.LogInfo(contractAddr)
 }
 
 func TestWithContractTestSuite(t *testing.T) {
