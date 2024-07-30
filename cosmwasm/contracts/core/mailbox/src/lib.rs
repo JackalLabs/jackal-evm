@@ -1,4 +1,5 @@
 pub mod contract;
+mod msg;
 mod error;
 mod event;
 pub mod execute;

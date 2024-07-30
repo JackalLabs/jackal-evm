@@ -3,15 +3,18 @@ use cosmwasm_std::entry_point;
 use cosmwasm_std::{ensure, Deps, DepsMut, Empty, Env, MessageInfo, QueryResponse, Response};
 
 use hpl_interface::{
-    core::mailbox::{ExecuteMsg, InstantiateMsg, MailboxHookQueryMsg, MailboxQueryMsg, QueryMsg},
+    core::mailbox::{InstantiateMsg, MailboxHookQueryMsg, MailboxQueryMsg, QueryMsg},
     to_binary,
 };
+
+use hpl_interface::core::mailbox::ExecuteMsg as ExternalExecuteMsg;
 
 use crate::{
     error::ContractError,
     event::emit_instantiated,
     state::{Config, CONFIG, NONCE},
     CONTRACT_NAME, CONTRACT_VERSION,
+    msg::ExecuteMsg,
 };
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -63,14 +66,20 @@ pub fn execute(
 
     // If Jackal is only using the mailbox as the receiver from EVM, we don't need ownable, hooks, or dispatch, atm? 
     match msg {
-        Ownable(msg) => todo!(),
-
-        SetDefaultIsm { ism } => execute::set_default_ism(deps, info, ism),
-        SetDefaultHook { hook } => todo!(),
-        SetRequiredHook { hook } => todo!(),
-
-        Dispatch(msg) => todo!(),
-        Process { metadata, message } => execute::process(deps, env, info, metadata, message),
-        Signer {} => execute::signer(deps, env, info)
+        ExecuteMsg::External(external_msg) => {
+            // Handle the external enum variants imported from hpl-interface
+            match external_msg {
+                ExternalExecuteMsg::Ownable(_) => todo!(),
+                ExternalExecuteMsg::SetDefaultIsm { ism } => execute::set_default_ism(deps, info, ism),
+                ExternalExecuteMsg::SetDefaultHook { hook } => todo!(),
+                ExternalExecuteMsg::SetRequiredHook { hook } => todo!(),
+                ExternalExecuteMsg::Dispatch(_) => todo!(),
+                ExternalExecuteMsg::Process { metadata, message } => execute::process(deps, env, info, metadata, message),
+            }
+        },
+        ExecuteMsg::Signer { } => {
+            execute::signer(deps, env, info)
+        }
     }
+
 }
