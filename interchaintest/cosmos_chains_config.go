@@ -107,7 +107,7 @@ var chainSpecs = []*interchaintest.ChainSpec{
 			NoHostMount:    false,
 			ModifyGenesis:  modifyGenesisAtPath(genesisAllowICH, "app_state"),
 			HostPortOverride: map[int]int{
-				26657: 16657,
+				16657: 26657,
 			},
 		},
 	},
