@@ -10,8 +10,10 @@ use cosmrs::{
     Coin,
     bip32::{XPrv, DerivationPath, Seed, Mnemonic}, // using the bip32 that was re-imported by cosmrs
     rpc,
+    AccountId,
 };
 
+use cosmwasm_std::{Addr, Binary};
 use thiserror::Error;
 use std::{panic, str::{self, FromStr}};
 use bip39::{Language};
@@ -20,14 +22,16 @@ use tendermint_rpc::{Client, HttpClient, endpoint::abci_query::AbciQuery, Respon
 use tendermint_rpc::endpoint::status::Response as StatusResponse;
 use tendermint::chain::Id;
 
+use mailbox::msg::ExecuteMsg;
+
 /// jackal chain id
 const CHAIN_ID: &str = "puppy-1";
 
 /// RPC port
-const RPC_PORT: u16 = 59331; // provided by docker image of canine-chain booted up by interchaintest suite
+const RPC_PORT: u16 = 55140; // provided by docker image of canine-chain booted up by interchaintest suite
 
 /// Expected account number
-const ACCOUNT_NUMBER: AccountNumber = 13;
+const ACCOUNT_NUMBER: AccountNumber = 12;
 
 /// Bech32 prefix for an account
 const ACCOUNT_PREFIX: &str = "jkl";
@@ -79,23 +83,28 @@ fn main() {
     .to_any()
     .unwrap();
 
+    let msg = ExecuteMsg::Signer {};
+    let json_msg = serde_json::to_string(&msg).unwrap();
+    let json_msg_binary = Binary::from(json_msg.into_bytes());
+
     // TODO: deploy mailbox to local docker before calling the below
     // execute CosmWasm mailbox
     let mailbox_execute_msg = MsgExecuteContract {
-        sender: todo!(), // jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg
-        contract: todo!(),
-        msg: todo!(), // just json
-        funds: todo!(),  
+        sender: AccountId::from_str("jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg").unwrap(),
+        contract: AccountId::from_str("jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr").unwrap(),
+        msg: json_msg_binary.to_vec(), // just json
+        funds: [].to_vec(),  
     }.to_any().unwrap();
 
     let chain_id_str = "puppy-1";
     let chain_id = Id::from_str(chain_id_str).expect("Failed to create chain ID");
 
-    let sequence_number = 0; // TODO: in prod, will need to query for this for the specific account, and increment it 
-    let gas = 100_000u64;
+    // on fresh run, expected sequence is 3 
+    let sequence_number = 7; // TODO: in prod, will need to query for this for the specific account, and increment it 
+    let gas = 500_000u64;
     let fee = Fee::from_amount_and_gas(amount, gas);
 
-    let tx_body = tx::BodyBuilder::new().msg(msg_send).memo(MEMO).finish();
+    let tx_body = tx::BodyBuilder::new().msg(mailbox_execute_msg).memo(MEMO).finish();
     let auth_info =
         SignerInfo::single_direct(Some(verification_key), sequence_number).auth_info(fee);
     let sign_doc = SignDoc::new(&tx_body, &auth_info, &chain_id, ACCOUNT_NUMBER).unwrap();
@@ -114,6 +123,9 @@ fn main() {
         if tx_commit_response.tx_result.code.is_err() {
             panic!("tx_result error: {:?}", tx_commit_response.tx_result);
         }
+
+        let tx_hash = tx_commit_response.hash;
+        println!("{}", tx_hash)
     })
 
 }

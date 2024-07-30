@@ -453,6 +453,7 @@ dependencies = [
  "env_logger",
  "hex",
  "log",
+ "mailbox",
  "reqwest",
  "serde",
  "serde_json",

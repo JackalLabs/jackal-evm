@@ -1,6 +1,7 @@
 use cosmwasm_schema::cw_serde;
 use hpl_interface::core::mailbox::ExecuteMsg as ExternalExecuteMsg;
 use cosmwasm_std::{DepsMut, Env, HexBinary, MessageInfo, Response, StdError, StdResult};
+use serde::{Serialize, Deserialize};
 
 // NOTE: we mistakenly previously tried to add a 'signer' variant to the hpl_interface::ExecuteMsg variant
 // and this is why our compiler was not recognizing the 'signer' variant.

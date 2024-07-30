@@ -6,6 +6,7 @@ description = "a sandbox cosmwasm signer"
 edition = "2021"  
 
 [dependencies]
+mailbox = { path = "../cosmwasm/contracts/core/mailbox"}
 cosmrs = { version = "0.17.0", features = ["rpc", "cosmwasm"] }
 tokio = "1.39.1"
 serde_json = "1.0.120"
