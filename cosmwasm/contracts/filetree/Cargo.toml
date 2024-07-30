@@ -1,0 +1,27 @@
+[package]
+name = "filetree"
+version = "0.1.0"
+authors = ["Bi Phan <bi@jackallabs.io>"]
+edition = "2021"
+
+exclude = [
+  # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
+  "contract.wasm",
+  "hash.txt",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+cosmwasm-schema = "1.1"
+cosmwasm-std = "1.1"
+cosmwasm-storage = "1.1"
+cw-storage-plus = "0.15"
+jackal-bindings = { version = "0.1.0", path = "../../packages/bindings" }
+cw2 = "0.15"
+schemars = "0.8"
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+thiserror = "1.0"
