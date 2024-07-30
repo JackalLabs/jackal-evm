@@ -1,1 +1,1 @@
-ae7bb413494c99adf9bcf6aa27e11870b1ab29afa6c980f171aebefd46fd59d5  mailbox.wasm
+4b8c5613e785fbafed52148aee7f422d1c6ffcb22cc4d143814e84ea0bdfafdf  mailbox.wasm
