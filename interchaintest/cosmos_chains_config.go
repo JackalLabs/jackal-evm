@@ -93,8 +93,8 @@ var chainSpecs = []*interchaintest.ChainSpec{
 			ChainID: "puppy-1",
 			Images: []ibc.DockerImage{
 				{
-					Repository: "biphan4/canine-chain", // FOR LOCAL IMAGE USE: Docker Image Name
-					Version:    "0.0.21",               // FOR LOCAL IMAGE USE: Docker Image Tag
+					Repository: "biphan4/wasm-bindings ", // FOR LOCAL IMAGE USE: Docker Image Name
+					Version:    "0.0.0",                  // FOR LOCAL IMAGE USE: Docker Image Tag
 				},
 			},
 			Bin:            "canined",
@@ -107,7 +107,7 @@ var chainSpecs = []*interchaintest.ChainSpec{
 			NoHostMount:    false,
 			ModifyGenesis:  modifyGenesisAtPath(genesisAllowICH, "app_state"),
 			HostPortOverride: map[int]int{
-				16657: 26657,
+				16657: 26657, // NOTE: tried switching these around and it still doesn't work
 			},
 		},
 	},
