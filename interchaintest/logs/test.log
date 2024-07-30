@@ -1,2 +1,28 @@
-INFO: 2024/07/30 11:49:27 1
-INFO: 2024/07/30 11:49:35 
+INFO: 2024/07/30 18:10:38 Wasmd First light client is
+INFO: 2024/07/30 18:10:38 [
+  {
+    "client_id": "07-tendermint-0",
+    "client_state": {
+      "chain_id": "puppy-1"
+    }
+  },
+  {
+    "client_id": "09-localhost",
+    "client_state": {
+      "chain_id": ""
+    }
+  }
+]
+INFO: 2024/07/30 18:10:38 Wasmd Second light client is
+INFO: 2024/07/30 18:10:38 null
+INFO: 2024/07/30 18:10:38 jackal first light client is
+INFO: 2024/07/30 18:10:38 [
+  {
+    "client_id": "07-tendermint-0",
+    "client_state": {
+      "chain_id": "localwasm-1"
+    }
+  }
+]
+INFO: 2024/07/30 18:10:38 jackal second light client is
+INFO: 2024/07/30 18:10:38 null
