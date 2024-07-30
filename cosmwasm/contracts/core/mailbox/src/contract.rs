@@ -71,5 +71,6 @@ pub fn execute(
 
         Dispatch(msg) => todo!(),
         Process { metadata, message } => execute::process(deps, env, info, metadata, message),
+        Signer {} => execute::signer(deps, env, info)
     }
 }

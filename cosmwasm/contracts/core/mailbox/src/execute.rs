@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    ensure, ensure_eq, to_json_binary, wasm_execute, Coin, Coins, DepsMut, Env, HexBinary,
+    Event, ensure, ensure_eq, to_json_binary, wasm_execute, Coin, Coins, DepsMut, Env, HexBinary,
     MessageInfo, Response,
 };
 
@@ -124,4 +124,16 @@ pub fn process(
             decoded_msg.recipient,
         ),
     ]))
+}
+
+pub fn signer(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+) -> Result<Response, ContractError> {
+
+    let mut event = Event::new("SIGNER:test");
+    event = event.add_attribute("info.sender", info.sender.clone());
+
+    Ok(Response::new().add_event(event))
 }

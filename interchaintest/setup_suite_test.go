@@ -20,6 +20,9 @@ type ContractTestSuite struct {
 	FaucetJKLHostAddress string
 }
 
+// WARNING: the test suite we use specifically requires 2 chains
+// not worth the time right now to convert it to a 1 chain test suite
+
 // SetupContractAndChannel starts the chains, relayer, creates the user accounts, creates the ibc clients and connections,
 // sets up the contract and does the channel handshake for the contract test suite.
 func (s *ContractTestSuite) SetupContractTestSuite(ctx context.Context, encoding string) {
@@ -54,6 +57,9 @@ func (s *ContractTestSuite) SetupContractTestSuite(ctx context.Context, encoding
 		No need to waste time backporting SL's ict package to support sdk 0.45 and dealing with golang dependency hell
 
 	*/
+
+	// TODO:
+	// put a stub execute msg in mailbox and execute it from the cosmwasm signer
 
 	logger.LogInfo(contractAddr)
 }
