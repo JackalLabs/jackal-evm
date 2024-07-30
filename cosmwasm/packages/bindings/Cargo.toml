@@ -1,0 +1,15 @@
+[package]
+name = "jackal-bindings"
+version = "0.1.0"
+authors = ["Bi Phan <bi@jackallabs.io>"]
+edition = "2021"
+description = "Bindings for CustomMsg for the Jackal blockchain. CustomQuery likely not needed"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cosmwasm-schema = "1.1"
+cosmwasm-std = "1.1"
+schemars = "0.8"
+serde = { version = "1.0", default-features = false, features = ["derive"] }
