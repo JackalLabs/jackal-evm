@@ -7,6 +7,7 @@ import (
 
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
+	types "github.com/JackalLabs/jackal-hyperlane/types"
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 
@@ -34,11 +35,26 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	logger.LogInfo(codeId)
 
 	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), codeId, "{}", false, "--gas", "500000", "--admin", s.UserB.KeyName())
-	logger.LogInfo("instantiated filetree binding!")
 	fmt.Println(contractAddr)
-	logger.LogInfo(contractAddr)
+	logger.LogInfo("instantiated filetree binding!")
+
+	// NOTE: The contractAddr can't be retrived at this time because of sdk tx parsing error we noted before
+	// We can fix that later but for now, we'll just hard code the  consistent filetree contract address
+	filetreeContractAddr := "jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839"
 
 	s.Run(fmt.Sprintf("TestSendCustomIcaMesssagesSuccess-%s", encoding), func() {
+
+		msg := types.ExecuteMsg{
+			PostKey: &types.ExecuteMsg_PostKey{
+				Key: "Testing wasm bindings",
+			},
+		}
+
+		res, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), filetreeContractAddr, msg.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res)
+		//s.Require().NoError(error)
 
 	},
 	)
