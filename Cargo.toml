@@ -4,7 +4,8 @@ members = [
    "cosmwasm/contracts/core/mailbox",
    "cosmwasm/contracts/filetree",
    "cosmwasm/packages/bindings",
-   "cosmwasm_signer",
+   "cosmwasm_signer", "sandboxes/my-redis",
+   "sandboxes/my-redis",
 
    # Add other paths if there are more packages in the workspace
 ]
