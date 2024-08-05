@@ -6,6 +6,7 @@ members = [
    "cosmwasm/packages/bindings",
    "cosmwasm_signer", "sandboxes/my-redis",
    "sandboxes/my-redis",
+   "simple_relayer"
 
    # Add other paths if there are more packages in the workspace
 ]

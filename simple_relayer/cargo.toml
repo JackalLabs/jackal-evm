@@ -1,0 +1,12 @@
+[package]
+name = "simple_relayer"
+version = "0.1.0"
+authors = ["jackal labs"]
+description = "a simple EVM<>Cosmos relayer"
+edition = "2021"  
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+cosmrs = { version = "0.17.0", features = ["rpc", "cosmwasm"] }
+dotenv = "0.15"
+anyhow = "1.0"
