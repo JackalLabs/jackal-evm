@@ -2,7 +2,7 @@
 members = [
    # ".", NOTE: the root likely doesn't need to be a cargo project 
    "cosmwasm/contracts/core/mailbox",
-   "cosmwasm_signer",
+   "cosmwasm_signer", "evm_listener/evm_listener",
    # Add other paths if there are more packages in the workspace
 ]
 
