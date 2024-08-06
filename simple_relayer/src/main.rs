@@ -31,7 +31,7 @@ use tendermint_rpc::endpoint::status::Response as StatusResponse;
 use tendermint::chain::Id;
 
 /// RPC port
-const RPC_PORT: u16 = 55140; // provided by docker image of canine-chain booted up by interchaintest suite
+const RPC_PORT: u16 = 59610; // provided by docker image of canine-chain booted up by interchaintest suite
 
 /// Denom name
 const DENOM: &str = "ujkl";
@@ -85,7 +85,7 @@ async fn main() -> Result<()> {
 
 async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
     let mut interval = interval(Duration::from_secs(5));
-    let mut sequence_number = 2;
+    let mut sequence_number = 5;
 
     loop {
         interval.tick().await;
@@ -147,9 +147,6 @@ fn generate_account_id_from_seed(seed_phrase: String) -> Result<(AccountId, secp
     
     // Convert mnemonic to seed
     let seed = mnemonic.to_seed(""); 
-    
-    // Derive root extended private key
-    let root_xprv = XPrv::new(&seed)?; // WARNING: we never used this before?
 
     // Define the derivation path
     let child_path = "m/44'/118'/0'/0/0";

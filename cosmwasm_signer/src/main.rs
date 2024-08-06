@@ -50,7 +50,6 @@ fn main() {
     let seed = mnemonic.to_seed(""); 
     let root_xprv = XPrv::new(&seed).expect("failed to get root xprv");
 
-
     let child_path = "m/44'/118'/0'/0/0";
     let sender_private_key = secp256k1::SigningKey::derive_from_path(seed, &child_path.parse().expect("no child_path")).expect("failed to generate private key");
     let child_xpub = sender_private_key.public_key();
