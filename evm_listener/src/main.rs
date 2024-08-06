@@ -48,6 +48,7 @@ async fn main() -> web3::Result<()> {
     let accounts = web3_http.eth().accounts().await?;
     let contract = deploy_test_contract(web3_http).await.expect("Could not deploy test contract!");
     let contract_address = contract.address();
+    println!("Contract deployed at address: {:?}", contract_address);
     
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
     let contract_event_data_listener = create_event_data_listener(&web3_socket, contract_address).await?;
