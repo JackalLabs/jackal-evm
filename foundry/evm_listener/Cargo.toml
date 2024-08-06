@@ -1,0 +1,11 @@
+[package]
+name = "evm_listener"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cosmrs = "0.17.0"  # Or the latest version
+web3 = "0.19.0"
+tokio = { version = "1.39.1", features = ["full"] }
+serde = { version = "1.0.204", features = ["derive"] }
+serde_json = "1.0.120"
