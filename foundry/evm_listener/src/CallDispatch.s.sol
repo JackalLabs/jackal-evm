@@ -9,14 +9,17 @@ contract CallDispatch is Script {
     MockEvent public contractInstance;
 
     function run() external {
-        address contractAddress = 0x7a2088a1bFc9d81c55368AE168C2C02570cB814F;
+        address contractAddress = 0x7a2088a1bFc9d81c55368AE168C2C02570cB814F;  // Use the checksummed address
         contractInstance = MockEvent(contractAddress);
 
         uint256 count = 0;
         while (true) {
             string memory message = string(abi.encodePacked("Message ", Strings.toString(count)));
-            contractInstance.dispatchEvent(message);
-            console.log("Dispatched event with message:", message);
+            try contractInstance.dispatchEvent{gas: 500000}(message) {
+                console.log("Dispatched event with message:", message);
+            } catch {
+                console.log("Transaction reverted with message:", message);
+            }
             count++;
 
             // Wait a bit before sending the next message
