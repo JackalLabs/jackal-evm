@@ -29,9 +29,10 @@ use hex::ToHex;
 use tendermint_rpc::{Client, HttpClient, endpoint::abci_query::AbciQuery, Response};
 use tendermint_rpc::endpoint::status::Response as StatusResponse;
 use tendermint::chain::Id;
+use filetree::msg::ExecuteMsg;
 
 /// RPC port
-const RPC_PORT: u16 = 59610; // provided by docker image of canine-chain booted up by interchaintest suite
+const RPC_PORT: u16 = 60235; // provided by docker image of canine-chain booted up by interchaintest suite
 
 /// Denom name
 const DENOM: &str = "ujkl";
@@ -87,22 +88,30 @@ async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_
     let mut interval = interval(Duration::from_secs(5));
     let mut sequence_number = 5;
 
+    // filetreeContractAddr := "jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839"
+
+
     loop {
         interval.tick().await;
 
-        // create the transaction
         let amount = Coin {
             amount: 50u8.into(), 
             denom: DENOM.parse().unwrap(),
         };
 
-        let msg_send = MsgSend {
-            from_address: account.clone(),
-            to_address: AccountId::from_str("jkl19gwxcq9646e4ndgxldr6ygqx0562ul5frpvt00").unwrap(), // just a random address
-            amount: vec![amount.clone()],
-        }
-        .to_any()
-        .unwrap();
+        // create the transaction
+        let key_value = format!("string from EVM event goes here with sequence: {}", sequence_number);
+        let msg = ExecuteMsg::PostKey { key: key_value };
+        let json_msg = serde_json::to_string(&msg).unwrap();
+        let json_msg_binary = Binary::from(json_msg.into_bytes());
+    
+        // execute CosmWasm mailbox
+        let mailbox_execute_msg = MsgExecuteContract {
+            sender: AccountId::from_str("jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg").unwrap(),
+            contract: AccountId::from_str("jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839").unwrap(),
+            msg: json_msg_binary.to_vec(), // just json
+            funds: [].to_vec(),  
+        }.to_any().unwrap();
 
         let chain_id_str = "puppy-1";
         let chain_id = Id::from_str(chain_id_str).expect("Failed to create chain ID");
@@ -113,7 +122,7 @@ async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_
         let gas = 500_000u64;
         let fee = Fee::from_amount_and_gas(amount, gas);
 
-        let tx_body = tx::BodyBuilder::new().msg(msg_send).memo(MEMO).finish();
+        let tx_body = tx::BodyBuilder::new().msg(mailbox_execute_msg).memo(MEMO).finish();
         let auth_info =
         SignerInfo::single_direct(Some(public_key), used_sequence).auth_info(fee);
 
