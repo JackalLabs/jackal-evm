@@ -1,29 +1,29 @@
 use web3::contract::{Contract, Options};
 use web3::futures::StreamExt;
 use web3::transports::{Http, WebSocket};
-use web3::types::{Address, FilterBuilder, H160};
+use web3::types::{FilterBuilder, H160};
 use web3::Web3;
 
-async fn listen_contract_events(web3_socket: &Web3<WebSocket>, address: H160) -> web3::Result<()> {
+async fn create_event_data_listener(web3_socket: &Web3<WebSocket>, address: H160) -> web3::Result<tokio::task::JoinHandle<()>> {
     let filter = FilterBuilder::default()
         .address(vec![address])
         .build();
 
     let sub = Web3::eth_subscribe(web3_socket).subscribe_logs(filter).await?;
 
-    sub.for_each(|log| async{
-        match log {
-            Ok(log) => {
-                println!("Got log: {:?}", log);
+    Ok(tokio::spawn(async move {
+        sub.for_each(|log| async{
+            match log {
+                Ok(log) => {
+                    println!("DATA: {:?}", String::from_utf8(log.data.0.to_vec()));
+                }
+                Err(e) => eprintln!("Error: {:?}", e)
             }
-            Err(e) => eprintln!("Error: {:?}", e)
-        }
-    }).await;
-
-    Ok(())
+        }).await;
+    }))
 }
 
-async fn deploy_mailbox(web3: Web3<Http>) -> web3::Result<Address> {
+async fn deploy_test_contract(web3: Web3<Http>) -> web3::Result<Contract<Http>> {
     let abi = include_bytes!("build/TestEvent.abi");
     let bytecode = include_str!("build/TestEvent.bin");
     
@@ -31,7 +31,7 @@ async fn deploy_mailbox(web3: Web3<Http>) -> web3::Result<Address> {
 
     let contract = Contract::deploy(web3.eth(), abi)
         .map_err(|e| web3::Error::from(e.to_string()))?
-        .confirmations(0)
+        .confirmations(1)
         .options(Options::with(|opt| {
             opt.gas = Some(3_000_000.into());
         }))
@@ -39,20 +39,20 @@ async fn deploy_mailbox(web3: Web3<Http>) -> web3::Result<Address> {
         .await
         .map_err(|e| web3::Error::from(e.to_string()))?;
 
-    Ok(contract.address())
+    Ok(contract)
 }
 
 #[tokio::main]
 async fn main() -> web3::Result<()> {
     let web3_http = Web3::new(Http::new("http://localhost:8545")?);
-    let contract_address = deploy_mailbox(web3_http).await.expect("Could not deploy and run dispatch event!");
+    let accounts = web3_http.eth().accounts().await?;
+    let contract = deploy_test_contract(web3_http).await.expect("Could not deploy test contract!");
+    let contract_address = contract.address();
     
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
-    listen_contract_events(&web3_socket, contract_address).await?;
-    Ok(())
-}
+    let contract_event_data_listener = create_event_data_listener(&web3_socket, contract_address).await?;
 
-#[cfg(test)]
-mod test {
-    
+    contract.call("dispatchEvent", (42_u64,), accounts[0], Options::default()).await.map_err(|e| web3::Error::from(e.to_string()))?;
+    contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
+    Ok(())
 }
