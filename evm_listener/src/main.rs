@@ -24,8 +24,8 @@ async fn create_event_data_listener(web3_socket: &Web3<WebSocket>, address: H160
 }
 
 async fn deploy_test_contract(web3: Web3<Http>) -> web3::Result<Contract<Http>> {
-    let abi = include_bytes!("build/TestEvent.abi");
-    let bytecode = include_str!("build/TestEvent.bin");
+    let abi = include_bytes!("build/MockEvent.abi");
+    let bytecode = include_str!("build/MockEvent.bin");
     
     let accounts = web3.eth().accounts().await?;
 
@@ -53,7 +53,7 @@ async fn main() -> web3::Result<()> {
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
     let contract_event_data_listener = create_event_data_listener(&web3_socket, contract_address).await?;
 
-    contract.call("dispatchEvent", (42_u64,), accounts[0], Options::default()).await.map_err(|e| web3::Error::from(e.to_string()))?;
+    contract.call("dispatchEvent", ("Hello, World!".to_string(),), accounts[0], Options::default()).await.map_err(|e| web3::Error::from(e.to_string()))?;
     contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
     Ok(())
 }
