@@ -4,7 +4,7 @@
 //! At a regular interval, the relayer polls the current chain's mailbox for 
 //! signed checkpoints and submits them as checkpoints on the remote mailbox.
 
-use tokio::time::{interval, Duration};
+use tokio::{sync::mpsc, time::{interval, Duration}};
 use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
@@ -31,8 +31,15 @@ use tendermint_rpc::endpoint::status::Response as StatusResponse;
 use tendermint::chain::Id;
 use filetree::msg::ExecuteMsg;
 
+use web3::contract::{Contract, Options};
+use web3::futures::StreamExt;
+use web3::transports::{Http, WebSocket};
+use web3::types::{FilterBuilder, H160, Log};
+use web3::{ethabi, Web3};
+use ethabi::{decode, ParamType};
+
 /// RPC port
-const RPC_PORT: u16 = 60235; // provided by docker image of canine-chain booted up by interchaintest suite
+const RPC_PORT: u16 = 63148; // provided by docker image of canine-chain booted up by interchaintest suite
 
 /// Denom name
 const DENOM: &str = "ujkl";
@@ -90,6 +97,21 @@ async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_
 
     // filetreeContractAddr := "jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839"
 
+    // Set up WebSocket connection and event listener for EVM
+    let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
+    
+    // Channel to receive the event data from the listener
+    let (event_tx, mut event_rx) = mpsc::channel::<String>(10);
+
+    let address_str = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+    let address = H160::from_str(address_str).expect("Invalid address format");
+
+    // Spawn the event listener task
+    tokio::spawn(async move {
+        let contract_event_data_listener = create_event_data_listener(&web3_socket, address, event_tx.clone()).await?;
+        contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
+        Ok::<(), web3::Error>(())
+    });
 
     loop {
         interval.tick().await;
@@ -99,8 +121,19 @@ async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_
             denom: DENOM.parse().unwrap(),
         };
 
-        // create the transaction
-        let key_value = format!("string from EVM event goes here with sequence: {}", sequence_number);
+        // Receive the event value from the channel
+        let event_value = match event_rx.recv().await {
+        Some(value) => value,
+        None => {
+            eprintln!("Failed to receive event value");
+            continue; // Skip this iteration if no event value is received
+        }
+    };
+
+    // Use the received event value in the key_value string
+    let key_value = format!("{} with sequence: {}", event_value, sequence_number);
+
+            
         let msg = ExecuteMsg::PostKey { key: key_value };
         let json_msg = serde_json::to_string(&msg).unwrap();
         let json_msg_binary = Binary::from(json_msg.into_bytes());
@@ -170,4 +203,48 @@ fn generate_account_id_from_seed(seed_phrase: String) -> Result<(AccountId, secp
     let sender_account_id = public_key.account_id("jkl")?;
 
     Ok((sender_account_id, sender_private_key))
+}
+
+async fn create_event_data_listener(
+    web3_socket: &Web3<WebSocket>, 
+    address: H160, 
+    event_tx: mpsc::Sender<String>
+) -> web3::Result<tokio::task::JoinHandle<()>> {
+    let filter = FilterBuilder::default()
+        .address(vec![address])
+        .build();
+
+    let sub = Web3::eth_subscribe(web3_socket).subscribe_logs(filter).await?;
+
+    Ok(tokio::spawn(async move {
+        sub.for_each(|log| async {
+            match log {
+                Ok(log) => {
+                    if let Some(value) = decode_event_data(&log) {
+                        // Send the event value through the channel
+                        if let Err(e) = event_tx.send(value).await {
+                            eprintln!("Failed to send event value: {:?}", e);
+                        }
+                    } else {
+                        println!("Failed to decode event value");
+                    }
+                }
+                Err(e) => eprintln!("Error: {:?}", e),
+            }
+        }).await;
+    }))
+}
+
+
+
+fn decode_event_data(log: &Log) -> Option<String> {
+    // Decode only the 'value' part of the log data (skip 'sender' and 'message')
+    let decoded_data = decode(
+        &[ParamType::String], // Only decode the 'string value' part
+        &log.data.0,
+    ).ok()?;
+
+    // Extract and return the 'value' string
+    let value = decoded_data[0].clone().to_string();
+    Some(value)
 }

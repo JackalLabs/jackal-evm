@@ -2938,6 +2938,7 @@ dependencies = [
  "tendermint-rpc 0.38.1",
  "thiserror",
  "tokio",
+ "web3",
 ]
 
 [[package]]
