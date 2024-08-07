@@ -59,7 +59,6 @@ async fn deploy_test_contract(web3: Web3<Http>) -> web3::Result<Contract<Http>> 
 
     Ok(contract)
 }
-
 #[tokio::main]
 async fn main() -> web3::Result<()> {
     let web3_http = Web3::new(Http::new("http://localhost:8545")?);
@@ -71,7 +70,20 @@ async fn main() -> web3::Result<()> {
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
     let contract_event_data_listener = create_event_data_listener(&web3_socket, contract_address).await?;
 
-    contract.call("dispatchEvent", ("Hello, World!".to_string(),), accounts[0], Options::default()).await.map_err(|e| web3::Error::from(e.to_string()))?;
-    contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
-    Ok(())
+    let mut counter = 0;
+
+    loop {
+        let message = format!("Message from the EVM {}", counter);
+        match contract.call("dispatchEvent", (message.clone(),), accounts[0], Options::default()).await {
+            Ok(_) => println!("Dispatched event with message: {}", message),
+            Err(e) => eprintln!("Error dispatching event: {:?}", e),
+        }
+        counter += 1;
+
+        // Optional: Add a delay between each call to avoid spamming the network too fast
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+    }
+
+    // contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
+    // Ok(())
 }
