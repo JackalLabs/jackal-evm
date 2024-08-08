@@ -1678,6 +1678,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "jkl-evm-relay"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bip32",
+ "bip39",
+ "cosmos_sdk",
+ "cosmrs",
+ "cosmwasm-std",
+ "dotenv",
+ "env_logger",
+ "filetree",
+ "hex",
+ "log",
+ "mailbox",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tendermint 0.37.0",
+ "tendermint-rpc 0.38.1",
+ "thiserror",
+ "tokio",
+ "toml 0.8.19",
+ "web3",
+]
+
+[[package]]
 name = "js-sys"
 version = "0.3.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"

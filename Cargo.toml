@@ -8,7 +8,8 @@ members = [
    "sandboxes/my-redis",
    "sandboxes/my-redis",
    "simple_relayer",
-   "evm_listener"
+   "evm_listener",
+   "relayer",
    # Add other paths if there are more packages in the workspace
 ]
 

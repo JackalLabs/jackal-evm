@@ -1,0 +1,37 @@
+[package]
+name = "jkl-evm-relay"
+version = "0.1.0"
+authors = ["jackal labs"]
+description = "a relayer for the jackal protocol to interop with EVM"
+edition = "2021" 
+
+[dependencies]
+filetree = { path = "../cosmwasm/contracts/filetree"}
+tokio = { version = "1.39.1", features = ["full"] }
+cosmrs = { version = "0.17.0", features = ["rpc", "cosmwasm"] }
+dotenv = "0.15"
+anyhow = "1.0"
+
+mailbox = { path = "../cosmwasm/contracts/core/mailbox"}
+serde_json = "1.0.120"
+
+cosmwasm-std = "1.0"
+reqwest = "0.11"
+serde = { version = "1.0", features = ["derive"] }
+cosmos_sdk = "0.1" # Hypothetical crate for Cosmos SDK interaction
+thiserror = "1.0"
+
+bip39 = "2.0.0"
+bip32 = "0.5.2"
+hex = "0.4.3"
+
+log = "0.4"
+env_logger = "0.9"
+
+tendermint-rpc = { version = "0.38.1", features = ["http-client"] }
+tendermint = "0.37"
+
+web3 = "0.19.0"
+
+toml = "0.8.19"
+

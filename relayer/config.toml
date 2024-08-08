@@ -1,0 +1,8 @@
+# The private key used for signing Cosmos SDK transactions
+cosmos_seed_phrase = "seed"
+
+# The WebSocket URL to subscribe to EVM events from a Solidity contract
+evm_websocket_url = "socket"
+
+# The RPC URL for broadcasting transactions to a Cosmos SDK-based blockchain
+cosmos_rpc_url = "rpc"
