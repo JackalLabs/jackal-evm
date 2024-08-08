@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	logger "github.com/JackalLabs/jackal-hyperlane/logger"
-	mysuite "github.com/JackalLabs/jackal-hyperlane/testsuite"
-	types "github.com/JackalLabs/jackal-hyperlane/types"
+	logger "github.com/JackalLabs/jackal-evm/logger"
+	mysuite "github.com/JackalLabs/jackal-evm/testsuite"
+	types "github.com/JackalLabs/jackal-evm/types"
 	"github.com/stretchr/testify/suite"
 )
 

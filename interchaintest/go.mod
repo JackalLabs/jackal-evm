@@ -1,4 +1,4 @@
-module github.com/JackalLabs/jackal-hyperlane
+module github.com/JackalLabs/jackal-evm
 
 go 1.21
 

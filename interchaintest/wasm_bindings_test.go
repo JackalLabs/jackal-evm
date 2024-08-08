@@ -7,7 +7,7 @@ import (
 
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
-	types "github.com/JackalLabs/jackal-hyperlane/types"
+	types "github.com/JackalLabs/jackal-evm/types"
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 

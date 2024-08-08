@@ -39,7 +39,7 @@ use web3::{ethabi, Web3};
 use ethabi::{decode, ParamType};
 
 /// RPC port
-const RPC_PORT: u16 = 63148; // provided by docker image of canine-chain booted up by interchaintest suite
+const RPC_PORT: u16 = 55710; // provided by docker image of canine-chain booted up by interchaintest suite
 
 /// Denom name
 const DENOM: &str = "ujkl";
