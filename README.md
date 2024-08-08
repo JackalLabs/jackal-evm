@@ -1,7 +1,7 @@
-# jackal-hyperlane
+# jackal-evm
 
-Integrating hyperlane to bring Jackal Storage to the EVM ecosystem. 
+Jackal's native solution to interop with every EVM compatible chain, built with CosmWasm, WasmBindings, Solidity, and Tokio. 
 
-This project is a collaboration between jackal labs, hyperlane core team, many things, and strangelove.
+This project is WIP and rapidly being developed for testnet deployment.
 
-TODO: write this out fully and give everyone love <3. 
+TODO: acknowledge contributors and road map. 
