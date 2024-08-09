@@ -8,4 +8,4 @@
 target/
 
 # config for relayer
-/relayer/cargo.toml
+/relayer/config.toml
