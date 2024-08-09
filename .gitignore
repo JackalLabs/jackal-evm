@@ -6,3 +6,6 @@
 
 # Ignore all target directories
 target/
+
+# config for relayer
+/relayer/cargo.toml
