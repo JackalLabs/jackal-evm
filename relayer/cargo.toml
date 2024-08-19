@@ -35,3 +35,5 @@ web3 = "0.19.0"
 
 toml = "0.8.19"
 
+cosmos-sdk-proto = "0.24.0"
+tonic = "0.12.1"

@@ -2,6 +2,7 @@ mod config;
 mod relayer;
 mod signer;
 mod network;
+mod query;
 
 use config::Config;
 use relayer::Relayer;
