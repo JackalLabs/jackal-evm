@@ -1,9 +1,11 @@
 mod config;
 mod relayer;
 mod signer;
+mod network;
 
 use config::Config;
 use relayer::Relayer;
+use network::create_event_data_listener;
 use log::info;
 use std::path::Path;
 

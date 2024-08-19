@@ -26,6 +26,7 @@ use web3::{ethabi};
 use ethabi::{decode, ParamType};
 use anyhow::Result;
 use web3::futures::StreamExt;
+use crate::network::create_event_data_listener;
 
 /// Denom name
 const DENOM: &str = "ujkl";
@@ -71,39 +72,9 @@ impl Relayer {
     }
 }
 
-async fn create_event_data_listener(
-    web3_socket: &Web3<WebSocket>, 
-    address: H160, 
-    event_tx: mpsc::Sender<String>
-) -> web3::Result<tokio::task::JoinHandle<()>> {
-    let filter = FilterBuilder::default()
-        .address(vec![address])
-        .build();
-
-    let sub = Web3::eth_subscribe(web3_socket).subscribe_logs(filter).await?;
-
-    Ok(tokio::spawn(async move {
-        sub.for_each(|log| async {
-            match log {
-                Ok(log) => {
-                    if let Some(value) = decode_event_data(&log) {
-                        // Send the event value through the channel
-                        if let Err(e) = event_tx.send(value).await {
-                            eprintln!("Failed to send event value: {:?}", e);
-                        }
-                    } else {
-                        println!("Failed to decode event value");
-                    }
-                }
-                Err(e) => eprintln!("Error: {:?}", e),
-            }
-        }).await;
-    }))
-}
-
 async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
     let mut interval = interval(Duration::from_secs(5));
-    let mut sequence_number: u64 = 5;
+    let mut sequence_number: u64 = 185; // NOTE: DO NOW - really need to query for this number
 
     // Set up WebSocket connection and event listener for EVM
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
@@ -190,17 +161,4 @@ async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_
         sequence_number += 1;
 
     }
-}
-
-
-fn decode_event_data(log: &Log) -> Option<String> {
-    // Decode only the 'value' part of the log data (skip 'sender' and 'message')
-    let decoded_data = decode(
-        &[ParamType::String], // Only decode the 'string value' part
-        &log.data.0,
-    ).ok()?;
-
-    // Extract and return the 'value' string
-    let value = decoded_data[0].clone().to_string();
-    Some(value)
 }
