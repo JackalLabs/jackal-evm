@@ -27,6 +27,7 @@ use ethabi::{decode, ParamType};
 use anyhow::Result;
 use web3::futures::StreamExt;
 use crate::network::create_event_data_listener;
+use crate::query::get_account_sequence_number;
 
 /// Denom name
 const DENOM: &str = "ujkl";
@@ -74,7 +75,23 @@ impl Relayer {
 
 async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
     let mut interval = interval(Duration::from_secs(5));
-    let mut sequence_number: u64 = 262; // NOTE: DO NOW - really need to query for this number
+
+    // Define the address and gRPC URL
+    let address = "jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg".to_string(); // Replace with the actual address
+    let grpc_url = "http://localhost:50456".to_string(); // Replace with the actual gRPC URL
+
+    let mut sequence_number: u64 = 0;
+
+            // Call the function and handle the result
+        match get_account_sequence_number(address, grpc_url).await {
+            Ok(sequence) => {
+                sequence_number = sequence;
+            },
+            Err(e) => {
+                eprintln!("Failed to get account sequence number: {}", e);
+                return Err(e.into()); // Exit early if there's an error
+            }
+        }
 
     // Set up WebSocket connection and event listener for EVM
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);

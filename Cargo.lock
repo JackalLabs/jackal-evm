@@ -1881,6 +1881,8 @@ dependencies = [
  "hex",
  "log",
  "mailbox",
+ "prost 0.13.1",
+ "prost-types 0.12.6",
  "reqwest",
  "serde",
  "serde_json",

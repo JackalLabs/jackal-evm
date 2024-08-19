@@ -37,3 +37,5 @@ toml = "0.8.19"
 
 cosmos-sdk-proto = "0.24.0"
 tonic = "0.12.1"
+prost-types = "0.12"
+prost = "0.13.1"
