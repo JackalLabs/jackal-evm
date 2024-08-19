@@ -93,7 +93,7 @@ async fn main() -> Result<()> {
 
 async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
     let mut interval = interval(Duration::from_secs(5));
-    let mut sequence_number = 5;
+    let mut sequence_number: u64 = 5;
 
     // filetreeContractAddr := "jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839"
 

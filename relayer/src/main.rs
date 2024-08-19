@@ -19,8 +19,10 @@ async fn main() {
     println!("{}", config.cosmos_seed_phrase);
     println!("{}", config.evm_websocket_url);
 
-    info!("Starting relayer service...");
+    println!("starting relayer service");
 
     let relayer = Relayer::new(config);
     relayer.run().await.expect("Relayer service failed");
+    println!("relayer running");
+
 }
