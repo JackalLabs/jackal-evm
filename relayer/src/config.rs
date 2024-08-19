@@ -8,6 +8,7 @@ pub struct Config {
     pub cosmos_seed_phrase: String,
     pub evm_websocket_url: String,
     pub cosmos_rpc_url: String,
+    pub evm_contract_address: String,
 }
 
 impl Config {

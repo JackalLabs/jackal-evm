@@ -59,7 +59,7 @@ impl Relayer {
         
 
         // Spawn a task for sending tokens periodically
-        tokio::spawn(start_token_sender(rpc_client.clone(), account_id.clone(), signing_key.public_key(), signing_key));
+        tokio::spawn(start_token_sender(self.config.evm_contract_address.clone(),rpc_client.clone(), account_id.clone(), signing_key.public_key(), signing_key));
 
     // Keep the main thread alive
     loop {
@@ -72,9 +72,9 @@ impl Relayer {
     }
 }
 
-async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
+async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
     let mut interval = interval(Duration::from_secs(5));
-    let mut sequence_number: u64 = 185; // NOTE: DO NOW - really need to query for this number
+    let mut sequence_number: u64 = 262; // NOTE: DO NOW - really need to query for this number
 
     // Set up WebSocket connection and event listener for EVM
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
@@ -82,8 +82,7 @@ async fn start_token_sender(client: rpc::HttpClient, account: AccountId, public_
     // Channel to receive the event data from the listener
     let (event_tx, mut event_rx) = mpsc::channel::<String>(10);
 
-    let address_str = "0xbc71f5687cfd36f64ae6b4549186ee3a6ee259a4";
-    let address = H160::from_str(address_str).expect("Invalid address format");
+    let address = H160::from_str(&evm_contract_address).expect("Invalid address format");
 
     // Spawn the event listener task
     tokio::spawn(async move {
