@@ -867,6 +867,8 @@ version = "0.1.0"
 dependencies = [
  "crossbeam",
  "dashmap",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 
