@@ -27,7 +27,11 @@ use ethabi::{decode, ParamType};
 use anyhow::Result;
 use web3::futures::StreamExt;
 use crate::network::create_event_data_listener;
-use crate::query::get_account_sequence_number;
+use crate::query::query_account;
+
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+use std::error::Error;
 
 /// Denom name
 const DENOM: &str = "ujkl";
@@ -82,10 +86,14 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
 
     let mut sequence_number: u64 = 0;
 
+    let rest_client: Client = Client::new();
+    // NOTE: gotta take this from config
+    let url = "http://localhost:53220/cosmos/auth/v1beta1/accounts/jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg";
+
             // Call the function and handle the result
-        match get_account_sequence_number(address, grpc_url).await {
-            Ok(sequence) => {
-                sequence_number = sequence;
+        match query_account(&rest_client, url).await {
+            Ok(account_response) => {
+                sequence_number = account_response.account.sequence.parse::<u64>()? - 1; // WARNING: NOTE - just a stop measure, shouldn't need to always subtract 1
             },
             Err(e) => {
                 eprintln!("Failed to get account sequence number: {}", e);
