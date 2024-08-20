@@ -1,0 +1,11 @@
+[package]
+name = "demo-queue"
+version = "0.1.0"
+authors = ["jackal labs"]
+description = "a relayer for the jackal protocol to interop with EVM"
+edition = "2021" 
+
+[dependencies]
+crossbeam = "0.8"
+tokio = { version = "1.39.1", features = ["full"] }
+

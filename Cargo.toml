@@ -7,6 +7,7 @@ members = [
    "cosmwasm_signer", 
    "sandboxes/my-redis",
    "sandboxes/my-redis",
+   "sandboxes/queue",
    "simple_relayer",
    "evm_listener",
    "relayer",
