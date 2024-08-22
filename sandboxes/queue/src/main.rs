@@ -21,7 +21,7 @@ fn main() {
     // Spawn a producer thread
     let producer_log_file = Arc::clone(&log_file);
     let producer = thread::spawn(move || {
-        for i in 1..=100 {
+        for i in 1..=500 {
             match sender.send(i) {
                 Ok(_) => {
                     println!("Produced: {}", i);
