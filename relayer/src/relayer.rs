@@ -93,7 +93,7 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
             // Call the function and handle the result
         match query_account(&rest_client, url).await {
             Ok(account_response) => {
-                sequence_number = account_response.account.sequence.parse::<u64>()? - 1; // WARNING: NOTE - just a stop measure, shouldn't need to always subtract 1
+                sequence_number = account_response.account.sequence.parse::<u64>()?; // WARNING: NOTE - just a stop measure, shouldn't need to always subtract 1
             },
             Err(e) => {
                 eprintln!("Failed to get account sequence number: {}", e);
@@ -180,9 +180,6 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
 
         let tx_hash = tx_commit_response.hash;
         println!("{}", tx_hash);
-
-        // increase the sequence number if the tx succeeds
-        sequence_number += 1;
 
     }
 }
