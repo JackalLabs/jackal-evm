@@ -32,6 +32,10 @@ use crate::query::query_account;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
+use tokio::sync::Mutex;
+use std::collections::VecDeque;
+use std::sync::Arc;
+use crate::queue::BoundedQueue;
 
 /// Denom name
 const DENOM: &str = "ujkl";
@@ -93,13 +97,13 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
     let mut sequence_number: u64 = 0;
 
     let rest_client: Client = Client::new();
-    // NOTE: gotta take this from config
+    // TODO: gotta take this from config
     let url = "http://localhost:53220/cosmos/auth/v1beta1/accounts/jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg";
 
             // Call the function and handle the result
         match query_account(&rest_client, url).await {
             Ok(account_response) => {
-                sequence_number = account_response.account.sequence.parse::<u64>()?; // WARNING: NOTE - just a stop measure, shouldn't need to always subtract 1
+                sequence_number = account_response.account.sequence.parse::<u64>()?; 
             },
             Err(e) => {
                 eprintln!("Failed to get account sequence number: {}", e);
@@ -116,12 +120,26 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
     // Convert evm contract address to H60 
     let address = H160::from_str(&evm_contract_address).expect("Invalid address format");
 
-    // Spawn the event listener task
-    tokio::spawn(async move {
-        let contract_event_data_listener = create_event_data_listener(&web3_socket, address, event_tx.clone()).await?;
-        contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
-        Ok::<(), web3::Error>(())
-    });
+    // TODO: Rigorously test to make sure it doesn't need a larger capacity 
+    // Could also set the capacity to 10000?
+    // Add resource monitoring
+
+    // Bounded queue with a capacity of 1000
+    let bounded_queue = Arc::new(Mutex::new(BoundedQueue::new(1000)));
+
+    // Receive data from the event listener and enqueueing it
+
+    {
+        let bounded_queue = bounded_queue.clone(); // TODO: double check this is memory efficient
+        tokio::spawn(async move {
+            let contract_event_data_listener =
+                create_event_data_listener(&web3_socket, address, event_tx.clone()).await?;
+            contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
+            Ok::<(), web3::Error>(())
+        });
+    }
+
+
 
     loop {
         interval.tick().await;

@@ -4,20 +4,20 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 
 // Add this struct to manage the queue
-struct BoundedQueue {
+pub(crate) struct BoundedQueue {
     queue: VecDeque<String>,
     max_size: usize,
 }
 
 impl BoundedQueue {
-    fn new(max_size: usize) -> Self {
+    pub(crate) fn new(max_size: usize) -> Self {
         BoundedQueue {
             queue: VecDeque::with_capacity(max_size),
             max_size,
         }
     }
 
-    fn enqueue(&mut self, value: String) {
+    pub(crate) fn enqueue(&mut self, value: String) {
         if self.queue.len() < self.max_size {
             self.queue.push_back(value);
         } else {
@@ -26,7 +26,7 @@ impl BoundedQueue {
         }
     }
 
-    fn dequeue(&mut self) -> Option<String> {
+    pub(crate) fn dequeue(&mut self) -> Option<String> {
         self.queue.pop_front()
     }
 }
