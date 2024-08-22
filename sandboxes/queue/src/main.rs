@@ -7,7 +7,7 @@ use std::time::Duration;
 
 fn main() {
     // Create a bounded queue with a capacity of 10
-    let (sender, receiver) = bounded::<i32>(10);
+    let (sender, receiver) = bounded::<String>(10);
 
     // Create a Mutex-protected file handle for logging
     let log_file = Arc::new(Mutex::new(
@@ -21,12 +21,13 @@ fn main() {
     // Spawn a producer thread
     let producer_log_file = Arc::clone(&log_file);
     let producer = thread::spawn(move || {
-        for i in 1..=500 {
-            match sender.send(i) {
+        for i in 1..=100 {
+            let unique_string = format!("Item-{}", i);
+            match sender.send(unique_string.clone()) {
                 Ok(_) => {
-                    println!("Produced: {}", i);
+                    println!("Produced: {}", unique_string);
                     let mut file = producer_log_file.lock().unwrap();
-                    writeln!(file, "Produced: {}", i).expect("Failed to write to log file");
+                    writeln!(file, "Produced: {}", unique_string).expect("Failed to write to log file");
                 }
                 Err(err) => {
                     println!("Failed to send: {}", err);
