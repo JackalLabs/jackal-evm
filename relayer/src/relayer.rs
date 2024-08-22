@@ -54,6 +54,11 @@ impl Relayer {
 
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
 
+        // TODO: NOTE - This might be a good method for rigorously testing the program.
+        // Every single piece of data received from the channel will be its own unique filetree entry
+        // On canine-chain, we back up the entries to a json file so we can confirm that the channel actually works
+        // A lot of manual labour here but building out a truely complete integration test would take much longer
+
         // We sign with our private key 
         let (account_id, signing_key) = signer::generate_account_id_from_seed(&self.config.cosmos_seed_phrase)?;
 
@@ -78,6 +83,7 @@ impl Relayer {
 }
 
 async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
+    // TODO: make this shorter
     let mut interval = interval(Duration::from_secs(5));
 
     // Define the address and gRPC URL
@@ -107,6 +113,7 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
     // Channel to receive the event data from the listener
     let (event_tx, mut event_rx) = mpsc::channel::<String>(10);
 
+    // Convert evm contract address to H60 
     let address = H160::from_str(&evm_contract_address).expect("Invalid address format");
 
     // Spawn the event listener task

@@ -3,6 +3,7 @@ mod relayer;
 mod signer;
 mod network;
 mod query;
+mod queue;
 
 use config::Config;
 use relayer::Relayer;
