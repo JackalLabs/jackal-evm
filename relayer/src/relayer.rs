@@ -113,7 +113,8 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
 
     // Set up WebSocket connection and event listener for EVM
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
-    
+    println!("WebSocket connection established"); // Debugging print
+
     // Channel to receive the event data from the listener
     let (event_tx, mut event_rx) = mpsc::channel::<String>(10);
 
@@ -134,6 +135,8 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
         tokio::spawn(async move {
             let contract_event_data_listener =
                 create_event_data_listener(&web3_socket, address, event_tx.clone()).await?;
+                println!("Event listener started"); // Debugging print
+
             
             // Listener processing
             contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;

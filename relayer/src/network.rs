@@ -29,6 +29,8 @@ pub(crate) async fn create_event_data_listener(
         .address(vec![address])
         .build();
 
+    println!("Filter: {:?}", filter); // Debugging print
+
     let sub = Web3::eth_subscribe(web3_socket).subscribe_logs(filter).await?;
 
     Ok(tokio::spawn(async move {
