@@ -168,6 +168,7 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
                 // Dequeue the event value
                 if let Some(event_value) = queue.dequeue() {
                     // If an event value was successfully dequeued, process it
+                    println!("event dequeued: {}", event_value);
 
                     let amount = Coin {
                         amount: 50u8.into(), 
