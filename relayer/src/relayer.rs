@@ -94,23 +94,6 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
     let address = "jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg".to_string(); // Replace with the actual address
     let grpc_url = "http://localhost:57374".to_string(); // Replace with the actual gRPC URL
 
-    let mut sequence_number: u64 = 0;
-
-    let rest_client: Client = Client::new();
-    // TODO: gotta take this from config
-    let url = "http://localhost:57376/cosmos/auth/v1beta1/accounts/jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg";
-
-            // Call the function and handle the result
-        match query_account(&rest_client, url).await {
-            Ok(account_response) => {
-                sequence_number = account_response.account.sequence.parse::<u64>()?; 
-            },
-            Err(e) => {
-                eprintln!("Failed to get account sequence number: {}", e);
-                return Err(e.into()); // Exit early if there's an error
-            }
-        }
-
     // Set up WebSocket connection and event listener for EVM
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
     println!("WebSocket connection established"); // Debugging print
@@ -162,13 +145,29 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
             loop {
                 interval.tick().await;
 
+                let mut sequence_number: u64 = 0;
+
+                let rest_client: Client = Client::new();
+                // TODO: gotta take this from config
+                let url = "http://localhost:57376/cosmos/auth/v1beta1/accounts/jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg";
+            
+                // TODO: WARNING - this error handling needs major improvements
+                // query for account's sequence no.
+                match query_account(&rest_client, url).await {
+                    Ok(account_response) => {
+                        sequence_number = account_response.account.sequence.parse::<u64>().expect("could not parse sequence no."); 
+                    },
+                    Err(e) => {
+                        eprintln!("Failed to get account sequence number: {}", e);
+                    }
+                }
+
                 // Lock the queue to safely access it
                 let mut queue = bounded_queue.lock().await;
 
                 // Dequeue the event value
                 if let Some(event_value) = queue.dequeue() {
                     // If an event value was successfully dequeued, process it
-                    println!("event dequeued");
 
                     let amount = Coin {
                         amount: 50u8.into(), 
