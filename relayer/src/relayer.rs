@@ -194,15 +194,12 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
                     let chain_id_str = "puppy-1";
                     let chain_id = Id::from_str(chain_id_str).expect("Failed to create chain ID");
                 
-                    // on fresh run, expected sequence is 3 
-                    // NOTE: This sequence number might need to be declared outside the loop?
-                    let used_sequence = sequence_number + 1; // TODO: in prod, will need to query for this for the specific account, and increment it 
                     let gas = 500_000u64;
                     let fee = Fee::from_amount_and_gas(amount, gas);
             
                     let tx_body = tx::BodyBuilder::new().msg(mailbox_execute_msg).memo(MEMO).finish();
                     let auth_info =
-                    SignerInfo::single_direct(Some(public_key), used_sequence).auth_info(fee);
+                    SignerInfo::single_direct(Some(public_key), sequence_number).auth_info(fee);
             
                     // sign the transaction
                     let sign_doc = SignDoc::new(&tx_body, &auth_info, &chain_id, ACCOUNT_NUMBER).unwrap();
