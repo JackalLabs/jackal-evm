@@ -92,13 +92,13 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
 
     // Define the address and gRPC URL
     let address = "jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg".to_string(); // Replace with the actual address
-    let grpc_url = "http://localhost:50456".to_string(); // Replace with the actual gRPC URL
+    let grpc_url = "http://localhost:57374".to_string(); // Replace with the actual gRPC URL
 
     let mut sequence_number: u64 = 0;
 
     let rest_client: Client = Client::new();
     // TODO: gotta take this from config
-    let url = "http://localhost:53220/cosmos/auth/v1beta1/accounts/jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg";
+    let url = "http://localhost:57376/cosmos/auth/v1beta1/accounts/jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg";
 
             // Call the function and handle the result
         match query_account(&rest_client, url).await {
@@ -130,81 +130,106 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
     // Receive data from the event listener and enqueueing it
 
     {
-        let bounded_queue = bounded_queue.clone(); // TODO: double check this is memory efficient
+        let bounded_queue = bounded_queue.clone();
         tokio::spawn(async move {
             let contract_event_data_listener =
                 create_event_data_listener(&web3_socket, address, event_tx.clone()).await?;
+            
+            // Listener processing
             contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
+            
+            // Are we not looping to process the data?
+
+            // Process received event data and enqueue it
+            while let Some(event_value) = event_rx.recv().await {
+                println!("Received event: {}", event_value); // Debugging print
+                let mut queue = bounded_queue.lock().await;
+                queue.enqueue(event_value);
+            }
             Ok::<(), web3::Error>(())
         });
     }
 
+    // Process data from queue to sign and broadcast
+    { 
+        let bounded_queue = bounded_queue.clone();
+        tokio::spawn(async move {
+            loop {
+                interval.tick().await;
 
+                // Lock the queue to safely access it
+                let mut queue = bounded_queue.lock().await;
 
-    loop {
-        interval.tick().await;
+                // Dequeue the event value
+                if let Some(event_value) = queue.dequeue() {
+                    // If an event value was successfully dequeued, process it
+                    println!("event dequeued");
 
-        let amount = Coin {
-            amount: 50u8.into(), 
-            denom: DENOM.parse().unwrap(),
-        };
-
-        // Receive the event value from the channel
-        let event_value = match event_rx.recv().await {
-        Some(value) => value,
-        None => {
-            eprintln!("Failed to receive event value");
-            continue; // Skip this iteration if no event value is received
-        }
-    };
-
-    // Use the received event value in the key_value string
-    let key_value = format!("{} with sequence: {}", event_value, sequence_number);
-    println!("event value: {}", event_value);
-
+                    let amount = Coin {
+                        amount: 50u8.into(), 
+                        denom: DENOM.parse().unwrap(),
+                    };
             
-        let msg = ExecuteMsg::PostKey { key: key_value };
-        let json_msg = serde_json::to_string(&msg).unwrap();
-        let json_msg_binary = Binary::from(json_msg.into_bytes());
-    
-        // execute CosmWasm mailbox
-        let mailbox_execute_msg = MsgExecuteContract {
-            sender: AccountId::from_str("jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg").unwrap(),
-            contract: AccountId::from_str("jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839").unwrap(),
-            msg: json_msg_binary.to_vec(), // just json
-            funds: [].to_vec(),  
-        }.to_any().unwrap();
+                    // Use the dequeued event value in the key_value string
+                    let key_value = format!("{} with sequence: {}", event_value, sequence_number);
+                    println!("event value: {}", event_value);
+            
+                    let msg = ExecuteMsg::PostKey { key: key_value };
+                    let json_msg = serde_json::to_string(&msg).unwrap();
+                    let json_msg_binary = Binary::from(json_msg.into_bytes());
+                
+                    // execute CosmWasm mailbox
+                    let mailbox_execute_msg = MsgExecuteContract {
+                        sender: AccountId::from_str("jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg").unwrap(),
+                        contract: AccountId::from_str("jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839").unwrap(),
+                        msg: json_msg_binary.to_vec(), // just json
+                        funds: [].to_vec(),  
+                    }.to_any().unwrap();
+            
+                    let chain_id_str = "puppy-1";
+                    let chain_id = Id::from_str(chain_id_str).expect("Failed to create chain ID");
+                
+                    // on fresh run, expected sequence is 3 
+                    // NOTE: This sequence number might need to be declared outside the loop?
+                    let used_sequence = sequence_number + 1; // TODO: in prod, will need to query for this for the specific account, and increment it 
+                    let gas = 500_000u64;
+                    let fee = Fee::from_amount_and_gas(amount, gas);
+            
+                    let tx_body = tx::BodyBuilder::new().msg(mailbox_execute_msg).memo(MEMO).finish();
+                    let auth_info =
+                    SignerInfo::single_direct(Some(public_key), used_sequence).auth_info(fee);
+            
+                    // sign the transaction
+                    let sign_doc = SignDoc::new(&tx_body, &auth_info, &chain_id, ACCOUNT_NUMBER).unwrap();
+                    let tx_raw = sign_doc.sign(&signing_key).unwrap();
+            
+                    // broadcast the transaction 
+                    let tx_commit_response = tx_raw.broadcast_commit(&client).await.unwrap();
 
-        let chain_id_str = "puppy-1";
-        let chain_id = Id::from_str(chain_id_str).expect("Failed to create chain ID");
-    
-        // on fresh run, expected sequence is 3 
-        // NOTE: This sequence number might need to be declared outside the loop?
-        let used_sequence = sequence_number + 1; // TODO: in prod, will need to query for this for the specific account, and increment it 
-        let gas = 500_000u64;
-        let fee = Fee::from_amount_and_gas(amount, gas);
+                    // TODO: The tx may fail because of traffic, so we can't simply panic
+                    // Instead of panicking, we should return an error for this specific broadcast
+                    
+                    // Because there is a queue, it may be a few seconds or 10s of seconds between their signing the 
+                    // EVM transaction and the corresponding cosmos transaction actually being attempted
+                    // Perhaps the js layer can check to see if the cosmos tx has gone through?
+                    // Surely this check can happen while the file is being uploaded so the user doesn't wait?
 
-        let tx_body = tx::BodyBuilder::new().msg(mailbox_execute_msg).memo(MEMO).finish();
-        let auth_info =
-        SignerInfo::single_direct(Some(public_key), used_sequence).auth_info(fee);
+                    // If the tx fails, should we re-enqueue the value?
 
-        // sign the transaction
-        let sign_doc = SignDoc::new(&tx_body, &auth_info, &chain_id, ACCOUNT_NUMBER).unwrap();
-        let tx_raw = sign_doc.sign(&signing_key).unwrap();
-
-        // broadcast the transaction 
-        let tx_commit_response = tx_raw.broadcast_commit(&client).await.unwrap();
-
-        if tx_commit_response.check_tx.code.is_err() {
-            panic!("check_tx failed: {:?}", tx_commit_response.check_tx);
-        }
-
-        if tx_commit_response.tx_result.code.is_err() {
-            panic!("tx_result error: {:?}", tx_commit_response.tx_result);
-        }
-
-        let tx_hash = tx_commit_response.hash;
-        println!("{}", tx_hash);
-
+                    if tx_commit_response.check_tx.code.is_err() {
+                        panic!("check_tx failed: {:?}", tx_commit_response.check_tx);
+                    }
+            
+                    if tx_commit_response.tx_result.code.is_err() {
+                        panic!("tx_result error: {:?}", tx_commit_response.tx_result);
+                    }
+            
+                    let tx_hash = tx_commit_response.hash;
+                    println!("{}", tx_hash);
+            
+                }
+            }
+        });
     }
+    Ok(())
 }
