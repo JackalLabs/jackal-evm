@@ -138,18 +138,20 @@ async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClien
                 println!("Event listener started"); // Debugging print
 
             
-            // Listener processing
-            contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
-            
-            // Are we not looping to process the data?
-
-            // Process received event data and enqueue it
-            while let Some(event_value) = event_rx.recv().await {
+            // This loop now runs independently of the event listener
+        loop {
+            // Continuously process received events
+            if let Some(event_value) = event_rx.recv().await {
                 println!("Received event: {}", event_value); // Debugging print
                 let mut queue = bounded_queue.lock().await;
                 queue.enqueue(event_value);
+            } else {
+                // If the channel is closed, break the loop
+                break;
             }
-            Ok::<(), web3::Error>(())
+        }
+
+        Ok::<(), web3::Error>(())
         });
     }
 
