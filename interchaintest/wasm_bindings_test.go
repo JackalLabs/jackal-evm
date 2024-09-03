@@ -35,7 +35,13 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	logger.LogInfo(codeId)
 
 	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), codeId, "{}", false, "--gas", "500000", "--admin", s.UserB.KeyName())
+	// s.Require().NoError(err)
+	// NOTE: The above errors only when trying to parse the tx hash, but the instantiate still succeeded
+	// We can query for the contract address instead
+	// TODO: query for contract address
 	fmt.Println(contractAddr)
+	logger.LogInfo(contractAddr)
+
 	logger.LogInfo("instantiated filetree binding!")
 
 	// NOTE: The contractAddr can't be retrived at this time because of sdk tx parsing error we noted before
@@ -60,3 +66,6 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	)
 	time.Sleep(time.Duration(10) * time.Hour)
 }
+
+// log address of bindings contract
+// create bindings factory contract
