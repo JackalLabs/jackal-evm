@@ -5,9 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	logger "github.com/JackalLabs/jackal-evm/logger"
 	mysuite "github.com/JackalLabs/jackal-evm/testsuite"
-	types "github.com/JackalLabs/jackal-evm/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -28,40 +26,9 @@ type ContractTestSuite struct {
 func (s *ContractTestSuite) SetupContractTestSuite(ctx context.Context, encoding string) {
 	// This starts the chains, relayer, creates the user accounts, and creates the ibc clients and connections.
 	s.SetupSuite(ctx, chainSpecs)
-
-	logger.InitLogger()
-	// Upload and Instantiate the contract on canined:
-	codeId, err := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/mailbox.wasm")
-	s.Require().NoError(err)
-	logger.LogInfo(codeId)
-
-	admin := s.UserB.FormattedAddress()
-
-	instantiateMsg := types.NewMailboxInstantiateMsg("hrp", admin, 2)
-
-	// TODO: instantiate the contract
-	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), codeId, instantiateMsg, false, "--gas", "500000", "--admin", s.UserB.KeyName())
-	// time.Sleep(10 * time.Hour)
-	// s.Require().NoError(err)
-
-	/*
-		// NOTE: The mailbox is in fact being instantiated with the following address: jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr
-		// Unfortunately we get the below error when quering for the tx hash:
-
-		failed to get transaction 7AB73BD5B1ED8535761FA2CCAF3986E2ECCB72DDD634EAAF3CBEAC68F892F09C: unable to
-		resolve type URL /cosmwasm.wasm.v1.MsgInstantiateContract: tx parse error [cosmos/cosmos-sdk@v0.47.10/x/auth/tx/decoder.go:42]
-
-		I believe this is because canine-chain is running cosmos-sdk 0.45 and SL's interchaintest (ict) package only supports sdk 0.47+
-		canine-chain is upgrading to 0.47 or 0.50 soon, so we can just use hard values to bypass this error for now
-
-		No need to waste time backporting SL's ict package to support sdk 0.45 and dealing with golang dependency hell
-
-	*/
-
 	// TODO:
 	// put a stub execute msg in mailbox and execute it from the cosmwasm signer
 
-	logger.LogInfo(contractAddr)
 }
 
 func TestWithContractTestSuite(t *testing.T) {
@@ -77,3 +44,17 @@ func toJSONString(v any) string {
 	}
 	return string(bz)
 }
+
+/*
+	// NOTE: Contracts can in fact be instantiated
+	// Unfortunately we get the below error when quering for the tx hash:
+
+	failed to get transaction 7AB73BD5B1ED8535761FA2CCAF3986E2ECCB72DDD634EAAF3CBEAC68F892F09C: unable to
+	resolve type URL /cosmwasm.wasm.v1.MsgInstantiateContract: tx parse error [cosmos/cosmos-sdk@v0.47.10/x/auth/tx/decoder.go:42]
+
+	I believe this is because canine-chain is running cosmos-sdk 0.45 and SL's interchaintest (ict) package only supports sdk 0.47+
+	canine-chain is upgrading to 0.47 or 0.50 soon, so we can just use hard values to bypass this error for now
+
+	No need to waste time backporting SL's ict package to support sdk 0.45 and dealing with golang dependency hell
+
+*/

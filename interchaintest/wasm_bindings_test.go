@@ -34,6 +34,8 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	s.Require().NoError(err)
 	logger.LogInfo(codeId)
 
+	// TODO: we should actually deploy the factory first
+
 	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), codeId, "{}", false, "--gas", "500000", "--admin", s.UserB.KeyName())
 	// s.Require().NoError(err)
 	// NOTE: The above errors only when trying to parse the tx hash, but the instantiate still succeeded
