@@ -5,4 +5,9 @@ use thiserror::Error;
 pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
+
+    #[error("Bindings contract already created for this user. Bindings Contract Address: {0}")]
+    AlreadyCreated(String),
 }
+
+
