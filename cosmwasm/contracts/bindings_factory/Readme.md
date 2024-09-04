@@ -19,4 +19,14 @@ The assignment of the 'creator' field is controlled by our 'wasmbindings' packag
 
 Users are not permitted to overwrite or set these fields. 
 
+## Building the Contract
 
+Run the following command in the root directory of this repository:
+
+```text
+docker run --rm -v "$(pwd)":/code \
+  --mount type=volume,source="devcontract_cache_burner",target=/code/contracts/burner/target \
+  --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+  cosmwasm/optimizer:0.15.1 /code/cosmwasm/contracts/bindings_factory
+
+```
