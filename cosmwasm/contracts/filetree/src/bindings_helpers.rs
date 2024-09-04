@@ -125,6 +125,29 @@ impl BindingsCode {
         .into())
     }
 
-    // We aren't implementing `instantiate2` for now 
+    // If instantiate2 can work on canine-chain, we don't need the call back or the 'map_user_bindings' function at all
+    // Example here:
+    // Thank you Serdar <3 
+    // https://github.com/srdtrk/cw-ica-controller/blob/main/src/helpers.rs 
+
+    
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
