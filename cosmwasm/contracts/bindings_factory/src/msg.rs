@@ -8,9 +8,13 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
 
-    // need 'create bindings' 
+    CreateBindings {
+        // Not really sure what I need right now 
+    },
 
-    // need 'map user bindings' because bindings address can only be mapped on call back 
+    MapUserBindings {
+        // Not really sure what I need right now 
+    }
 
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
