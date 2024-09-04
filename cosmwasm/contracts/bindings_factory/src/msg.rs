@@ -12,6 +12,11 @@ pub enum ExecuteMsg {
         // Not really sure what I need right now 
     },
 
+    CreateBindingsV2 {
+        // This makes use of CosmWasm's 'instantiate2' API, which pre computes the contract address.
+        // If it works on canine-chain, will save us a lot of code
+    },
+
     MapUserBindings {
         // Not really sure what I need right now 
     },
