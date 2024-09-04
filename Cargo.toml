@@ -3,6 +3,7 @@ members = [
    # ".", NOTE: the root likely doesn't need to be a cargo project 
    "cosmwasm/contracts/core/mailbox",
    "cosmwasm/contracts/filetree",
+   "cosmwasm/contracts/bindings_factory",
    "cosmwasm/packages/bindings",
    "cosmwasm_signer", 
    "sandboxes/my-redis",

@@ -14,7 +14,7 @@ pub enum ExecuteMsg {
 
     MapUserBindings {
         // Not really sure what I need right now 
-    }
+    },
 
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 

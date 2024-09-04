@@ -23,12 +23,11 @@ pub fn instantiate(
     // NOTE: admin should be set in the wasm.Instanstiate protobuf msg
     // Setting it into contract state is actually useless when wasmd checks for migration permissions
     
-    // This contract cannot have an owner because it needs to be called by all users to map their outpost
-    // We have a check below which ensures that users cannot call 'map' twice 
+    // TODO: set owner?
 
     STATE.save(
         deps.storage,
-        &ContractState::new(msg.storage_outpost_code_id),
+        &ContractState::new(msg.bindings_code_id),
     )?;
     Ok(Response::default())
 }
