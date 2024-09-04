@@ -66,7 +66,6 @@ pub fn post_key(
     let res = Response::new()
         .add_attribute("method", "post_key")
         .add_message(post_key_msg);
-
     Ok(res)
 }
 
