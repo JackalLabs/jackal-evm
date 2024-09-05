@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
@@ -38,8 +39,12 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/filetree.wasm")
 	s.Require().NoError(error)
 
+	// codeId is string and needs to be converted to uint64
+	BindingsCodeIdAsInt, err := strconv.ParseInt(BindingsCodeId, 10, 64)
+	s.Require().NoError(err)
+
 	// Instantiate the factory, giving it the codeId of the filetree bindings contract
-	instantiateMsg := testtypes.InstantiateMsg{BindingsCodeId: BindingsCodeId}
+	instantiateMsg := testtypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
 
 	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
 	// s.Require().NoError(err)
@@ -56,7 +61,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	// We can fix that later but for now, we'll just hard code the  consistent factory contract address
 
 	// TODO: is this going to be different?
-	factoryContractAddr := "jkl1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq59a839"
+	factoryContractAddr := "jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr"
 	fmt.Println(factoryContractAddr)
 
 	// s.Run(fmt.Sprintf("TestSendCustomIcaMesssagesSuccess-%s", encoding), func() {
