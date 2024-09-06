@@ -113,7 +113,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		filetreeMsg := filetreetypes.ExecuteMsg{
 			PostKey: &filetreetypes.ExecuteMsg_PostKey{
-				Key: fmt.Sprintf("%s has a public key", bobEvmAddress),
+				Key: fmt.Sprintf("%s has a public key", aliceEvmAddress),
 			},
 		}
 		crossContractExecuteMsg := factorytypes.ExecuteMsg{
@@ -127,6 +127,23 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res3)
+
+		filetreeMsg2 := filetreetypes.ExecuteMsg{
+			PostKey: &filetreetypes.ExecuteMsg_PostKey{
+				Key: fmt.Sprintf("%s has a public key", bobEvmAddress),
+			},
+		}
+		crossContractExecuteMsg2 := factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &bobEvmAddress,
+				Msg:        &filetreeMsg2,
+			},
+		}
+
+		res4, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg2.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res4)
 
 	},
 	)
