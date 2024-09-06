@@ -197,8 +197,9 @@ mod execute {
         let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
         let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
 
+        
         // Execute the bindings contract with given msg
-        let cosmos_msg = bindings_contract.call(msg)?;
+        let cosmos_msg = bindings_contract.execute(msg)?;
 
         Ok(Response::new().add_message(cosmos_msg)) 
     }
