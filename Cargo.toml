@@ -4,6 +4,7 @@ members = [
    "cosmwasm/contracts/core/mailbox",
    "cosmwasm/contracts/filetree",
    "cosmwasm/contracts/bindings_factory",
+   "cosmwasm/contracts/shared",
    "cosmwasm/packages/bindings",
    "sandboxes/my-redis",
    "sandboxes/my-redis",

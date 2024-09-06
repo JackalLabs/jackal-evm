@@ -37,6 +37,7 @@ cw-storage-plus = "1.1.0"
 cw2 = "1.1.0"
 # storage-outpost = { path = "../../..", default-features = false }
 filetree = { path = "../filetree", default-features = false}
+shared = { version = "0.1.0", path = "../shared" }
 schemars = "0.8.10"
 serde = { version = "1.0.145", default-features = false, features = ["derive"] }
 serde-json-wasm = "0.5.1"

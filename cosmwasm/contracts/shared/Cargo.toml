@@ -1,5 +1,5 @@
 [package]
-name = "filetree"
+name = "shared"
 version = "0.1.0"
 authors = ["Bi Phan <bi@jackallabs.io>"]
 edition = "2021"
@@ -21,8 +21,6 @@ cosmwasm-std = "1.1"
 cosmwasm-storage = "1.1"
 cw-storage-plus = "0.15"
 jackal-bindings = { version = "0.1.0", path = "../../packages/bindings" }
-shared = { version = "0.1.0", path = "../shared" }
-
 cw2 = "0.15"
 schemars = "0.8"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
