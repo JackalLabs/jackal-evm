@@ -159,7 +159,7 @@ mod execute {
             env.block.time.seconds().to_string(), 
         )?;
 
-        USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &user_evm_address, &bindings_contract_address.as_str())?; // again, info.sender is actually the outpost address
+        USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &user_evm_address, &bindings_contract_address.to_string())?; // again, info.sender is actually the outpost address
 
         // TODO: map evm address <> bindings contract here 
 
@@ -200,7 +200,7 @@ mod execute {
             // return Err(ContractError::MissingLock {  })
         }
 
-    USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &"evm address goes here", &info.sender.as_str())?; // again, info.sender is actually the bindings address
+    USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &"evm address goes here", &info.sender.to_string())?; // again, info.sender is actually the bindings address
 
     let mut event = Event::new("FACTORY:map_bindings_bindings");
         event = event.add_attribute("info.sender", &info.sender.to_string());
