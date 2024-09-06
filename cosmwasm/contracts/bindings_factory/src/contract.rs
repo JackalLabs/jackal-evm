@@ -62,7 +62,8 @@ mod execute {
     use cosmwasm_std::{Addr, BankMsg, Coin, CosmosMsg, Uint128, Event, to_json_binary};
     use crate::state::{self, USER_ADDR_TO_BINDINGS_ADDR, LOCK};
 
-    use filetree::{bindings_helpers::{BindingsCode, BindingsContract}, msg::InstantiateMsg};
+    use filetree::{bindings_helpers::{BindingsCode, BindingsContract}, 
+    msg::{InstantiateMsg, ExecuteMsg as filetreeExecuteMsg}};
 
     use super::*;
 
@@ -175,7 +176,7 @@ mod execute {
         env: Env,
         info: MessageInfo,
         evm_address: String,
-        msg: String,
+        msg: filetreeExecuteMsg
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
 
