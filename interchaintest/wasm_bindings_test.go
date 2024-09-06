@@ -64,8 +64,9 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
+		aliceEvmAddress := "alice_Ox1" // Declare a variable holding the string
 		msg := factorytypes.ExecuteMsg{
-			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{},
+			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{UserEvmAddress: &aliceEvmAddress},
 		}
 
 		res, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, msg.ToString(), "--gas", "500000")
