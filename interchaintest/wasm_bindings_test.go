@@ -77,7 +77,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		fmt.Println(res)
 		//s.Require().NoError(error)
 
-		bindingsAddressFromMap, addressErr := testsuite.GetBindingsAddressFromFactoryMap(ctx, s.ChainA, factoryContractAddress, aliceEvmAddress)
+		bindingsAddressFromMap, addressErr := testsuite.GetBindingsAddressFromFactoryMap(ctx, s.ChainB, factoryContractAddress, aliceEvmAddress)
 		s.Require().NoError(addressErr)
 		var mappedOutpostAddress string
 		if err := json.Unmarshal(bindingsAddressFromMap.Data, &mappedOutpostAddress); err != nil {
