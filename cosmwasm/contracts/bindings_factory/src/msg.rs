@@ -1,4 +1,5 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
+use filetree::msg_helper_for_factory::ExecuteMsgForFactory;
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -24,7 +25,7 @@ pub enum ExecuteMsg {
 
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
-        msg:         FiletreeExecuteMsg, // Just raw JSON? 
+        msg:         ExecuteMsgForFactory, // Just raw JSON? 
     },
 
 }
@@ -43,7 +44,6 @@ pub enum FiletreeExecuteMsg {
         trackingnumber: String,
     },
 }
-
 
 
 #[cw_serde]

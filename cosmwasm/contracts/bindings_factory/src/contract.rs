@@ -64,7 +64,8 @@ mod execute {
     use crate::msg::FiletreeExecuteMsg;
 
     use filetree::{bindings_helpers::{BindingsCode, BindingsContract}, 
-    msg::InstantiateMsg};
+    msg::InstantiateMsg,
+    msg_helper_for_factory::ExecuteMsgForFactory};
 
     use super::*;
 
@@ -177,7 +178,7 @@ mod execute {
         env: Env,
         info: MessageInfo,
         evm_address: String,
-        msg: FiletreeExecuteMsg
+        msg: ExecuteMsgForFactory
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
 
