@@ -41,7 +41,9 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::CreateBindings {} => execute::create_bindings(deps, env, info),
-        ExecuteMsg::CreateBindingsV2 {} => execute::create_bindings_v2(deps, env, info),
+        ExecuteMsg::CreateBindingsV2 {
+            user_evm_address
+        } => execute::create_bindings_v2(deps, env, info, user_evm_address),
         ExecuteMsg::MapUserBindings {} => execute::map_user_bindings(deps, env, info),
         ExecuteMsg::CallBindings { evm_address, msg } => todo!(),
     }
@@ -112,6 +114,7 @@ mod execute {
         deps: DepsMut,
         env: Env,
         info: MessageInfo,
+        user_evm_address: String,
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
         // WARNING: This function is called by the user, so we cannot error:unauthorized if info.sender != admin 
@@ -121,10 +124,14 @@ mod execute {
         // Check if key already exists and disallow multiple bindings creations 
         // If key exists, we don't care what the address is, just the mere existence of the key means an bindings was 
         // already created
-            
-        if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &info.sender.to_string())? {
+        
+        // If bindings contract already made for this account, don't make another one
+        if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &user_evm_address)? {
             return Err(ContractError::AlreadyCreated(value))
         }
+
+        // TODO: Because instantiate2 works, I don't think we even need this lock now
+        // Set this such that only the owner of the factory can call it 
 
         // If we set the lock to be the owner of the factory -- do we even really need the lock?
         let _lock = LOCK.save(deps.storage, &info.sender.to_string(), &true);
@@ -135,7 +142,7 @@ mod execute {
         let instantiate_msg = filetree::msg::InstantiateMsg {};
 
         let label
-         = format!("bindings contract-owned by: {}", &info.sender.to_string());
+         = format!("bindings contract-owned by: {}", &user_evm_address);
 
         // 'instantiate2' has the ability to pre compute the binding's contract address
         // We are only instantiating on Jackal--if 'instantiate2' works on Jackal, we can get rid of the lock and callback mechanism 
@@ -151,6 +158,8 @@ mod execute {
             // WARNING: is it okay to use current block time as salt? The ica-controller only uses this as a fallback option
             env.block.time.seconds().to_string(), 
         )?;
+
+        // TODO: map evm address <> bindings contract here 
 
         let mut event = Event::new("FACTORY: create_binding");
         event = event.add_attribute("pre-computed bindings contract address:", contract_addr.as_str()); // WARNING: not 100% sure 'as_str' returns bech32 format
