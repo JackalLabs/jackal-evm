@@ -11,6 +11,7 @@ use jackal_bindings::{JackalMsg};
 
 // Consider adding migration info?
 
+#[cfg(not(feature = "no_exports"))] 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut,
@@ -28,6 +29,7 @@ pub fn instantiate(
         .add_attribute("owner", info.sender))
 }
 
+#[cfg(not(feature = "no_exports"))] 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut,
