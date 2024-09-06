@@ -77,14 +77,6 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		fmt.Println(res)
 		//s.Require().NoError(error)
 
-		bindingsAddressFromMap, addressErr := testsuite.GetBindingsAddressFromFactoryMap(ctx, s.ChainB, factoryContractAddress, aliceEvmAddress)
-		s.Require().NoError(addressErr)
-		var mappedOutpostAddress string
-		if err := json.Unmarshal(bindingsAddressFromMap.Data, &mappedOutpostAddress); err != nil {
-			log.Fatalf("Error parsing response data: %v", err)
-		}
-		logger.LogInfo("alice's bindings contract is", bindingsAddressFromMap)
-
 		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
 		msg2 := factorytypes.ExecuteMsg{
 			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{UserEvmAddress: &bobEvmAddress},
@@ -96,29 +88,24 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		fmt.Println(res2)
 		//s.Require().NoError(error)
 
-		bobBindingsAddressFromMap, addressErr := testsuite.GetBindingsAddressFromFactoryMap(ctx, s.ChainB, factoryContractAddress, bobEvmAddress)
-		s.Require().NoError(addressErr)
-		var bobMappedOutpostAddress string
-		if err := json.Unmarshal(bobBindingsAddressFromMap.Data, &bobMappedOutpostAddress); err != nil {
-			log.Fatalf("Error parsing response data: %v", err)
-		}
-		logger.LogInfo("bob's bindings contract is", bobMappedOutpostAddress)
-		logger.LogInfo("********************************")
-
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(addressErr)
 
-		// Create a slice to hold the decoded user bindings
-		var decodedBindingsMap []UserBinding
+		// Create a slice of slices to hold the decoded user bindings
+		var decodedBindingsMap [][]string
 
-		// Unmarshal the response data into the slice of UserBinding structs
+		// Unmarshal the response data into the slice of slices of strings
 		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
 			log.Fatalf("Error parsing response data: %v", err)
 		}
 
 		// Log the decoded map
 		for _, binding := range decodedBindingsMap {
-			logger.LogInfo("User Address:", binding.UserAddress, "Bindings Address:", binding.BindingsAddress)
+			if len(binding) == 2 {
+				logger.LogInfo("User Address:", binding[0], "Bindings Address:", binding[1])
+			} else {
+				logger.LogError("Invalid binding format:", binding)
+			}
 		}
 
 	},
