@@ -86,8 +86,10 @@ impl Relayer {
     }
 }
 
+// TODO: rename this function
 async fn start_token_sender(evm_contract_address: String, client: rpc::HttpClient, account: AccountId, public_key: PublicKey, signing_key: secp256k1::SigningKey) -> Result<()> {
     // TODO: make this shorter
+    // Not too short or else we run into a sequence mismatch error?
     let mut interval = interval(Duration::from_secs(5));
 
     // Define the address and gRPC URL

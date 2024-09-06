@@ -246,6 +246,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d86b93f97252c47b41663388e6d155714a9d0c398b99f1005cbc5f978b29f445"
 
 [[package]]
+name = "bindings-factory"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-storage-plus 1.2.0",
+ "cw2 1.1.2",
+ "filetree",
+ "schemars",
+ "serde",
+ "serde-json-wasm",
+ "thiserror",
+]
+
+[[package]]
 name = "bip32"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -600,28 +615,6 @@ checksum = "66de2ab9db04757bcedef2b5984fbe536903ada4a8a9766717a4a71197ef34f6"
 dependencies = [
  "cosmwasm-std",
  "serde",
-]
-
-[[package]]
-name = "cosmwasm_signer"
-version = "0.1.0"
-dependencies = [
- "bip32",
- "bip39",
- "cosmos_sdk",
- "cosmrs",
- "cosmwasm-std",
- "env_logger",
- "hex",
- "log",
- "mailbox",
- "reqwest",
- "serde",
- "serde_json",
- "tendermint 0.37.0",
- "tendermint-rpc 0.38.1",
- "thiserror",
- "tokio",
 ]
 
 [[package]]
@@ -3225,32 +3218,6 @@ checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
 dependencies = [
  "digest 0.10.7",
  "rand_core 0.6.4",
-]
-
-[[package]]
-name = "simple_relayer"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bip32",
- "bip39",
- "cosmos_sdk",
- "cosmrs",
- "cosmwasm-std",
- "dotenv",
- "env_logger",
- "filetree",
- "hex",
- "log",
- "mailbox",
- "reqwest",
- "serde",
- "serde_json",
- "tendermint 0.37.0",
- "tendermint-rpc 0.38.1",
- "thiserror",
- "tokio",
- "web3",
 ]
 
 [[package]]

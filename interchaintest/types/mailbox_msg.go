@@ -1,5 +1,6 @@
 package types
 
+// TODO: should we delete this folder?
 // helper functions to create json msgs for CosmWasm instantiate, execute, and migrate
 import (
 	"encoding/json"

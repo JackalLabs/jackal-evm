@@ -1,3 +1,4 @@
+use cosmrs::tendermint::serializers::from_str;
 use web3::contract::{Contract, Options};
 use web3::futures::StreamExt;
 use web3::transports::{Http, WebSocket};
@@ -5,9 +6,23 @@ use web3::types::{FilterBuilder, H160, Log};
 use web3::{ethabi, Web3};
 use ethabi::{decode, ParamType};
 
-async fn create_event_data_listener(web3_socket: &Web3<WebSocket>, address: H160) -> web3::Result<tokio::task::JoinHandle<()>> {
+use serde_json::Value;
+use web3::ethabi::{self, RawLog};
+use web3::ethabi::{Event, ParamType};
+
+async fn create_event_data_listener(web3_socket: &Web3<WebSocket>) -> web3::Result<tokio::task::JoinHandle<()>> {
+    let dispatch_event = Event {
+        name: "Dispatch".into(),
+        inputs: vec![
+            ethabi::EventParam { name: "sender".into(), kind: ParamType::Address, indexed: true },
+            ethabi::EventParam { name: "value".into(), kind: ParamType::Uint(256), indexed: false },
+            ethabi::EventParam { name: "message".into(), kind: ParamType::String, indexed: false },
+        ],
+        anonymous: false,
+    };
+    
     let filter = FilterBuilder::default()
-        .address(vec![address])
+        .topics(Some(vec![dispatch_event.signature()]), None, None, None)
         .build();
 
     let sub = Web3::eth_subscribe(web3_socket).subscribe_logs(filter).await?;
@@ -16,11 +31,27 @@ async fn create_event_data_listener(web3_socket: &Web3<WebSocket>, address: H160
         sub.for_each(|log| async{
             match log {
                 Ok(log) => {
-                    if let Some(value) = decode_event_data(&log) {
-                        println!("Value received: {}", value);
-                    } else {
-                        println!("Failed to decode event value");
-                    }
+                    match &dispatch_event.parse_log(RawLog {
+                        topics: log.topics,
+                        data: log.data.0
+                    }) {
+                        Ok(event) => {
+                            println!("{:?}", event.params[2].value);
+                            if let ethabi::Token::String(message) = &event.params[2].value {
+                                match serde_json::from_str::<Value>(message) {
+                                    Ok(json) => {
+                                        if let Some(name) = json.get("name") {
+                                            println!("Got the json name! It's: {}", name);
+                                        }else {
+                                            eprintln!("Could not get the json name!");
+                                        }
+                                    },
+                                    Err(e) => eprintln!("Error parsing into Json: {:?}", e),
+                                }
+                            }
+                        },
+                        Err(e) => eprintln!("Failed to parse log: {:?}", e)
+                    };
                 }
                 Err(e) => eprintln!("Error: {:?}", e)
             }
@@ -65,11 +96,9 @@ async fn main() -> web3::Result<()> {
     let web3_http = Web3::new(Http::new("http://localhost:8545")?);
     let accounts = web3_http.eth().accounts().await?;
     let contract = deploy_test_contract(web3_http).await.expect("Could not deploy test contract!");
-    let contract_address = contract.address();
-    println!("Contract deployed at address: {:?}", contract_address);
     
     let web3_socket = Web3::new(WebSocket::new("ws://localhost:8545").await?);
-    let contract_event_data_listener = create_event_data_listener(&web3_socket, contract_address).await?;
+    let contract_event_data_listener = create_event_data_listener(&web3_socket).await?;
 
     contract.call("dispatchEvent", ("Hello, World!".to_string(),), accounts[0], Options::default()).await.map_err(|e| web3::Error::from(e.to_string()))?;
     contract_event_data_listener.await.map_err(|e| web3::Error::from(e.to_string()))?;
