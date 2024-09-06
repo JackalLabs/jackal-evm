@@ -11,8 +11,6 @@ type ExecuteMsg struct {
 	PostKey *ExecuteMsg_PostKey `json:"post_key,omitempty"`
 }
 
-// `CreateTransferChannel` is opening a transfer channel
-// for development purposees only. Not using ChannelOpenInitOptions
 type ExecuteMsg_PostKey struct {
 	Key string `json:"key"`
 }
