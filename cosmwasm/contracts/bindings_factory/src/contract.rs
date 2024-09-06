@@ -80,7 +80,7 @@ mod execute {
         // already created
             
         if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &info.sender.to_string())? {
-            return Err(ContractError::AlreadyCreated(value))
+            return Err(ContractError::AlreadyCreated(value.to_string()))
         }
 
         // If we set the lock to be the owner of the factory -- do we even really need the lock?
@@ -127,7 +127,7 @@ mod execute {
         
         // If bindings contract already made for this account, don't make another one
         if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &user_evm_address)? {
-            return Err(ContractError::AlreadyCreated(value))
+            return Err(ContractError::AlreadyCreated(value.to_string()))
         }
 
         // TODO: Because instantiate2 works, I don't think we even need this lock now
@@ -148,7 +148,7 @@ mod execute {
         // We are only instantiating on Jackal--if 'instantiate2' works on Jackal, we can get rid of the lock and callback mechanism 
         // And we can save it right away
 
-        let (cosmos_msg, contract_addr) = bindings_code_id.instantiate2(
+        let (cosmos_msg, bindings_contract_address) = bindings_code_id.instantiate2(
             deps.api,
             &deps.querier,
             &env,
@@ -159,10 +159,12 @@ mod execute {
             env.block.time.seconds().to_string(), 
         )?;
 
+        USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &user_evm_address, &bindings_contract_address.as_str())?; // again, info.sender is actually the outpost address
+
         // TODO: map evm address <> bindings contract here 
 
         let mut event = Event::new("FACTORY: create_binding");
-        event = event.add_attribute("pre-computed bindings contract address:", contract_addr.as_str()); // WARNING: not 100% sure 'as_str' returns bech32 format
+        event = event.add_attribute("pre-computed bindings contract address:", bindings_contract_address.as_str()); // WARNING: not 100% sure 'as_str' returns bech32 format
 
         Ok(Response::new().add_message(cosmos_msg).add_event(event)) 
     }
@@ -198,7 +200,7 @@ mod execute {
             // return Err(ContractError::MissingLock {  })
         }
 
-    USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &"evm address goes here", &info.sender.to_string())?; // again, info.sender is actually the bindings address
+    USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &"evm address goes here", &info.sender.as_str())?; // again, info.sender is actually the bindings address
 
     let mut event = Event::new("FACTORY:map_bindings_bindings");
         event = event.add_attribute("info.sender", &info.sender.to_string());
