@@ -85,6 +85,25 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		}
 		logger.LogInfo("alice's bindings contract is", bindingsAddressFromMap)
 
+		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
+		msg2 := factorytypes.ExecuteMsg{
+			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{UserEvmAddress: &bobEvmAddress},
+		}
+
+		res2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, msg2.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res2)
+		//s.Require().NoError(error)
+
+		bobBindingsAddressFromMap, addressErr := testsuite.GetBindingsAddressFromFactoryMap(ctx, s.ChainB, factoryContractAddress, bobEvmAddress)
+		s.Require().NoError(addressErr)
+		var bobMappedOutpostAddress string
+		if err := json.Unmarshal(bobBindingsAddressFromMap.Data, &bobMappedOutpostAddress); err != nil {
+			log.Fatalf("Error parsing response data: %v", err)
+		}
+		logger.LogInfo("bob's bindings contract is", bobMappedOutpostAddress)
+
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)
