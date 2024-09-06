@@ -43,7 +43,6 @@ pub fn execute(
         ExecuteMsg::CreateBindings {
             user_evm_address
         } => execute::create_bindings(deps, env, info, user_evm_address),
-        ExecuteMsg::MapUserBindings {} => execute::map_user_bindings(deps, env, info),
         ExecuteMsg::CallBindings { evm_address, msg } => todo!(),
     }
 }
@@ -122,54 +121,6 @@ mod execute {
         event = event.add_attribute("pre-computed bindings contract address:", bindings_contract_address.as_str()); // WARNING: not 100% sure 'as_str' returns bech32 format
 
         Ok(Response::new().add_message(cosmos_msg).add_event(event)) 
-    }
-
-    pub fn map_user_bindings(
-        deps: DepsMut,
-        env: Env,
-        info: MessageInfo, //info.sender will be the bindings's address 
-        // bindings_owner: String, 
-    ) -> Result<Response, ContractError> {
-        // Mapping needed:
-        // evm address <> bindings address
-        // because of cross contract calls, the info.sender of this would be the bindings address, so we would need the evm address
-        // to be propagated from above
-
-        // TODO: 
-        // if instantiate2 worked, we don't need this function
-
-        // this contract can't have an owner because it needs to be called back by every bindings it instantiates 
-
-        // Load the lock state for the bindings owner
-        let lock = LOCK.may_load(deps.storage, &"evm address goes here")?; // WARNING-just hardcoding for testing 
-
-        // Check if the lock exists and is true
-        if let Some(true) = lock {
-            // If it does, overwrite it with false
-            LOCK.save(deps.storage, &"evm address goes here", &false)?;
-        } else {
-            // This function can only get called if the Lock was set in 'create_bindings'
-            // If it doesn't exist or is false, return an unauthorized error
-
-            // TODO: put error back
-            // return Err(ContractError::MissingLock {  })
-        }
-
-    USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &"evm address goes here", &info.sender.to_string())?; // again, info.sender is actually the bindings address
-
-    let mut event = Event::new("FACTORY:map_bindings_bindings");
-        event = event.add_attribute("info.sender", &info.sender.to_string());
-
-    // DOCUMENT: note in README that a successful bindings creation shall return the address in the tx.res.attribute 
-    // and a failure will throw 'AlreadyCreated' contractError
-
-    // NOTE: calling '.add_attribute' just adds a key value pair to the main wasm attribute 
-    // WARNING: is it possible at all that these bytes are non-deterministic?
-    // This can't be because we take from 'info.sender' which only exists if this function is called in the first place
-    // This function is called only if the bindings executes the callback, otherwise the Tx was abandoned while sitting in the 
-    // mem pool
-
-    Ok(Response::new().add_event(event)) // this data is not propagated back up to the tx resp of the 'create_bindings' call
     }
 }
 
