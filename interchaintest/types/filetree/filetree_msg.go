@@ -1,4 +1,4 @@
-package types
+package filetree
 
 // helper functions to create json msgs for CosmWasm instantiate, execute, and migrate
 import (
