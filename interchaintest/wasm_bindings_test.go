@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
+	testsuite "github.com/JackalLabs/jackal-evm/testsuite"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
 	factorytypes "github.com/JackalLabs/jackal-evm/types/bindingsfactory"
@@ -75,7 +77,13 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		fmt.Println(res)
 		//s.Require().NoError(error)
 
-		// Could also just use a querier
+		bindingsAddressFromMap, addressErr := testsuite.GetBindingsAddressFromFactoryMap(ctx, s.ChainA, factoryContractAddress, aliceEvmAddress)
+		s.Require().NoError(addressErr)
+		var mappedOutpostAddress string
+		if err := json.Unmarshal(bindingsAddressFromMap.Data, &mappedOutpostAddress); err != nil {
+			log.Fatalf("Error parsing response data: %v", err)
+		}
+		logger.LogInfo("alice's bindings contract is", bindingsAddressFromMap)
 
 	},
 	)
