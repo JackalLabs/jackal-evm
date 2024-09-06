@@ -4,6 +4,6 @@ contract TestEvent {
     event Dispatch(address indexed sender, uint256 value, string message);
 
     function dispatchEvent(uint256 value) public {
-        emit Dispatch(msg.sender, value, "Dispatch bytes received!");
+        emit Dispatch(msg.sender, value, '{"name": "John", "age": 30}');
     }
 } 
