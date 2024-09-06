@@ -39,3 +39,34 @@ func GetBindingsAddressFromFactoryMap(ctx context.Context, chain *cosmos.CosmosC
 	}
 	return queryClient.SmartContractState(ctx, params)
 }
+
+// GetAllUserBindingsAddresses queries the contract for all user bindings addresses
+func GetAllUserBindingsAddresses(ctx context.Context, chain *cosmos.CosmosChain, factoryContractAddress string) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	grpcConn, err := grpc.Dial(
+		chain.GetHostGRPCAddress(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer grpcConn.Close()
+
+	queryClient := wasmtypes.NewQueryClient(grpcConn)
+
+	// Create the query message for fetching all user bindings addresses
+	queryData := map[string]interface{}{
+		"get_all_user_bindings_addresses": struct{}{},
+	}
+
+	queryDataBytes, err := json.Marshal(queryData)
+	if err != nil {
+		return nil, err
+	}
+
+	params := &wasmtypes.QuerySmartContractStateRequest{
+		Address:   factoryContractAddress,
+		QueryData: queryDataBytes,
+	}
+
+	return queryClient.SmartContractState(ctx, params)
+}

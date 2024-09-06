@@ -103,6 +103,23 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 			log.Fatalf("Error parsing response data: %v", err)
 		}
 		logger.LogInfo("bob's bindings contract is", bobMappedOutpostAddress)
+		logger.LogInfo("********************************")
+
+		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
+		s.Require().NoError(addressErr)
+
+		// Create a slice to hold the decoded user bindings
+		var decodedBindingsMap []UserBinding
+
+		// Unmarshal the response data into the slice of UserBinding structs
+		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
+			log.Fatalf("Error parsing response data: %v", err)
+		}
+
+		// Log the decoded map
+		for _, binding := range decodedBindingsMap {
+			logger.LogInfo("User Address:", binding.UserAddress, "Bindings Address:", binding.BindingsAddress)
+		}
 
 	},
 	)
@@ -120,4 +137,10 @@ func toString(msg any) string {
 	}
 
 	return string(bz)
+}
+
+// UserBinding represents a single user binding entry
+type UserBinding struct {
+	UserAddress     string `json:"0"` // Rust tuple index 0
+	BindingsAddress string `json:"1"` // Rust tuple index 1
 }

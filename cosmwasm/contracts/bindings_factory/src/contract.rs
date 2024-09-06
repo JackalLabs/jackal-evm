@@ -54,6 +54,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetContractState {} => to_json_binary(&query::state(deps)?),
         QueryMsg::GetUserBindingsAddress { user_address } => to_json_binary(&query::user_bindings_address(deps, user_address)?),
+        QueryMsg::GetAllUserBindingsAddresses {} => to_json_binary(&query::all_user_bindings_addresses(deps)?),
     }
 }
 
@@ -219,6 +220,8 @@ mod execute {
 }
 
 mod query {
+    use cosmwasm_std::Order;
+
     use crate::state::USER_ADDR_TO_BINDINGS_ADDR;
 
     use super::*;
@@ -231,6 +234,19 @@ mod query {
     /// Returns the bindings address this user owns
     pub fn user_bindings_address(deps: Deps, user_address: String) -> StdResult<String> {
         USER_ADDR_TO_BINDINGS_ADDR.load(deps.storage, &user_address)
+    }
+
+    /// Returns the entire map of user addresses to their bindings addresses
+    pub fn all_user_bindings_addresses(deps: Deps) -> StdResult<Vec<(String, String)>> {
+        let mut all_bindings = vec![];
+
+        let iter = USER_ADDR_TO_BINDINGS_ADDR.range(deps.storage, None, None, Order::Ascending);
+        for item in iter {
+            let (key, value) = item?;
+            all_bindings.push((key.to_string(), value));
+        }
+
+        Ok(all_bindings)
     }
 }
 

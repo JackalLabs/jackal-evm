@@ -38,4 +38,9 @@ pub enum QueryMsg {
     /// GetUserBindingsAddress returns the bindings contract address owned by the given user address
     #[returns(String)]
     GetUserBindingsAddress { user_address: String},
+    /// GetAllUserBindingsAddresses returns all user bindings addresses in a readable format
+    #[returns(Vec<(String, String)>)]
+    GetAllUserBindingsAddresses {},
+
 }
+
