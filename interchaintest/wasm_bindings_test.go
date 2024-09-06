@@ -12,6 +12,7 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
 	factorytypes "github.com/JackalLabs/jackal-evm/types/bindingsfactory"
+	filetreetypes "github.com/JackalLabs/jackal-evm/types/filetree"
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 
@@ -66,6 +67,8 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
+		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
+		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
 		aliceEvmAddress := "alice_Ox1" // Declare a variable holding the string
 		msg := factorytypes.ExecuteMsg{
 			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{UserEvmAddress: &aliceEvmAddress},
@@ -107,6 +110,40 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 				logger.LogError("Invalid binding format:", binding)
 			}
 		}
+
+		filetreeMsg := filetreetypes.ExecuteMsg{
+			PostKey: &filetreetypes.ExecuteMsg_PostKey{
+				Key: fmt.Sprintf("%s has a public key", aliceEvmAddress),
+			},
+		}
+		crossContractExecuteMsg := factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &filetreeMsg,
+			},
+		}
+
+		res3, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res3)
+
+		filetreeMsg2 := filetreetypes.ExecuteMsg{
+			PostKey: &filetreetypes.ExecuteMsg_PostKey{
+				Key: fmt.Sprintf("%s has a public key", bobEvmAddress),
+			},
+		}
+		crossContractExecuteMsg2 := factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &bobEvmAddress,
+				Msg:        &filetreeMsg2,
+			},
+		}
+
+		res4, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg2.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res4)
 
 	},
 	)

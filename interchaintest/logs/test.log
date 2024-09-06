@@ -1,5 +1,5 @@
-INFO: 2024/09/05 23:38:32 Wasmd First light client is
-INFO: 2024/09/05 23:38:32 [
+INFO: 2024/09/06 14:16:42 Wasmd First light client is
+INFO: 2024/09/06 14:16:42 [
   {
     "client_id": "07-tendermint-0",
     "client_state": {
@@ -13,10 +13,10 @@ INFO: 2024/09/05 23:38:32 [
     }
   }
 ]
-INFO: 2024/09/05 23:38:32 Wasmd Second light client is
-INFO: 2024/09/05 23:38:32 null
-INFO: 2024/09/05 23:38:33 jackal first light client is
-INFO: 2024/09/05 23:38:33 [
+INFO: 2024/09/06 14:16:42 Wasmd Second light client is
+INFO: 2024/09/06 14:16:42 null
+INFO: 2024/09/06 14:16:42 jackal first light client is
+INFO: 2024/09/06 14:16:42 [
   {
     "client_id": "07-tendermint-0",
     "client_state": {
@@ -24,9 +24,9 @@ INFO: 2024/09/05 23:38:33 [
     }
   }
 ]
-INFO: 2024/09/05 23:38:33 jackal second light client is
-INFO: 2024/09/05 23:38:33 null
-INFO: 2024/09/05 23:38:58 {
+INFO: 2024/09/06 14:16:42 jackal second light client is
+INFO: 2024/09/06 14:16:42 null
+INFO: 2024/09/06 14:17:10 {
   "id": "connection-0",
   "client_id": "07-tendermint-0",
   "versions": [
@@ -48,7 +48,7 @@ INFO: 2024/09/05 23:38:58 {
   },
   "delay_period": "0"
 }
-INFO: 2024/09/05 23:38:58 {
+INFO: 2024/09/06 14:17:10 {
   "id": "connection-localhost",
   "client_id": "09-localhost",
   "versions": [
@@ -70,8 +70,8 @@ INFO: 2024/09/05 23:38:58 {
   },
   "delay_period": "0"
 }
-INFO: 2024/09/05 23:38:58 The first canined connections are:
-INFO: 2024/09/05 23:38:58 {
+INFO: 2024/09/06 14:17:10 The first canined connections are:
+INFO: 2024/09/06 14:17:10 {
   "id": "connection-0",
   "client_id": "07-tendermint-0",
   "versions": [
@@ -93,7 +93,7 @@ INFO: 2024/09/05 23:38:58 {
   },
   "delay_period": "0"
 }
-INFO: 2024/09/05 23:39:47 
-INFO: 2024/09/05 23:39:47 instantiated factory
-INFO: 2024/09/05 23:40:01 User Address: alice_Ox1 Bindings Address: jkl1zgc7z5yyxl59mynqa2rql0mdh2lkftpvpwuvnmul8pqzrg759clquw4k44
-INFO: 2024/09/05 23:40:01 User Address: bob_Ox1 Bindings Address: jkl1lw7mqraey4u3d06k5e4pp80ulepsmpt24nxau6hnu3afksew0kvqwxtmg9
+INFO: 2024/09/06 14:17:58 
+INFO: 2024/09/06 14:17:58 instantiated factory
+INFO: 2024/09/06 14:18:12 User Address: alice_Ox1 Bindings Address: jkl1tqdsz27hp5kkuptyn5uxvprsd0n4ufdf52hrn0ekh77cdtlp95pqt8q37f
+INFO: 2024/09/06 14:18:12 User Address: bob_Ox1 Bindings Address: jkl1xeuk8jktdn2g9kzlvx684yv6excmfnvht00m9c30yz7p5qzrq58qn8pe7z

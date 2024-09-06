@@ -45,7 +45,7 @@ pub fn execute(
             user_evm_address
         } => execute::create_bindings_v2(deps, env, info, user_evm_address),
         ExecuteMsg::MapUserBindings {} => execute::map_user_bindings(deps, env, info),
-        ExecuteMsg::CallBindings { evm_address, msg } => todo!(),
+        ExecuteMsg::CallBindings { evm_address, msg } => execute::call_bindings(deps, env, info, evm_address, msg),
     }
 }
 
@@ -61,8 +61,11 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 mod execute {
     use cosmwasm_std::{Addr, BankMsg, Coin, CosmosMsg, Uint128, Event, to_json_binary};
     use crate::state::{self, USER_ADDR_TO_BINDINGS_ADDR, LOCK};
+    use shared::shared_msg::SharedExecuteMsg;
 
-    use filetree::{bindings_helpers::BindingsCode, msg::InstantiateMsg};
+    use filetree::{bindings_helpers::{BindingsCode, BindingsContract}, 
+    msg::InstantiateMsg,
+    msg_helper_for_factory::ExecuteMsgForFactory};
 
     use super::*;
 
@@ -168,6 +171,40 @@ mod execute {
         event = event.add_attribute("pre-computed bindings contract address:", bindings_contract_address.as_str()); // WARNING: not 100% sure 'as_str' returns bech32 format
 
         Ok(Response::new().add_message(cosmos_msg).add_event(event)) 
+    }
+
+    pub fn call_bindings(
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        evm_address: String,
+        msg: SharedExecuteMsg
+    ) -> Result<Response, ContractError> {
+        let state = STATE.load(deps.storage)?;
+
+        let mut bindings_address: String = String::new();
+
+        // Use may_load to attempt to retrieve the value associated with the key
+        if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &evm_address)? {
+        // If the key exists, return the value
+        bindings_address = value
+        } else {
+        // If the key does not exist, return the custom error
+            return Err(ContractError::DoesNotExist())
+        }
+
+        // If we set the lock to be the owner of the factory -- do we even really need the lock?
+        let _lock = LOCK.save(deps.storage, &info.sender.to_string(), &true);
+
+        // Convert the bech32 string back to 'Addr' type before passing to the filetree helper API
+        let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
+        let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
+
+        
+        // Execute the bindings contract with given msg
+        let cosmos_msg = bindings_contract.execute(msg)?;
+
+        Ok(Response::new().add_message(cosmos_msg)) 
     }
 
     pub fn map_user_bindings(
