@@ -12,8 +12,7 @@ type ExecuteMsg struct {
 }
 
 type ExecuteMsg_CreateBindingsV2 struct {
-	// TODO: add args
-	// Salt                   *string                `json:"salt,omitempty"`
+	UserEvmAddress *string `json:"user_evm_address,omitempty"`
 }
 
 // ToString returns a string representation of the message
