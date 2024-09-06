@@ -9,7 +9,7 @@ import (
 
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
-	testtypes "github.com/JackalLabs/jackal-evm/types"
+	factorytypes "github.com/JackalLabs/jackal-evm/types/bindingsfactory"
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 
@@ -44,7 +44,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	s.Require().NoError(err)
 
 	// Instantiate the factory, giving it the codeId of the filetree bindings contract
-	instantiateMsg := testtypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
+	instantiateMsg := factorytypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
 
 	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
 	// s.Require().NoError(err)
@@ -60,28 +60,24 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	// NOTE: The contractAddr can't be retrived at this time because of sdk tx parsing error we noted before
 	// We can fix that later but for now, we'll just hard code the  consistent factory contract address
 
-	// TODO: is this going to be different?
-	factoryContractAddr := "jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr"
-	fmt.Println(factoryContractAddr)
+	factoryContractAddress := "jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr"
 
-	// s.Run(fmt.Sprintf("TestSendCustomIcaMesssagesSuccess-%s", encoding), func() {
+	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
-	// 	msg := types.ExecuteMsg{
-	// 		PostKey: &types.ExecuteMsg_PostKey{
-	// 			Key: "Testing wasm bindings",
-	// 		},
-	// 	}
+		msg := factorytypes.ExecuteMsg{
+			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{},
+		}
 
-	// 	res, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), filetreeContractAddr, msg.ToString(), "--gas", "500000")
-	// 	// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-	// 	// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-	// 	fmt.Println(res)
-	// 	//s.Require().NoError(error)
+		res, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, msg.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res)
+		//s.Require().NoError(error)
 
-	// Could also just use a querier
+		// Could also just use a querier
 
-	// },
-	// )
+	},
+	)
 	time.Sleep(time.Duration(10) * time.Hour)
 }
 

@@ -1,5 +1,7 @@
 package bindingsfactory
 
+import "encoding/json"
+
 type InstantiateMsg struct {
 	BindingsCodeId int `json:"bindings_code_id"`
 }
@@ -12,4 +14,18 @@ type ExecuteMsg struct {
 type ExecuteMsg_CreateBindingsV2 struct {
 	// TODO: add args
 	// Salt                   *string                `json:"salt,omitempty"`
+}
+
+// ToString returns a string representation of the message
+func (m *ExecuteMsg) ToString() string {
+	return toString(m)
+}
+
+func toString(v any) string {
+	jsonBz, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(jsonBz)
 }
