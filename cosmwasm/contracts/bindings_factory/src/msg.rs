@@ -1,5 +1,4 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use filetree::msg::ExecuteMsg as filetreeExecuteMsg;
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -25,10 +24,27 @@ pub enum ExecuteMsg {
 
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
-        msg:         filetreeExecuteMsg, // Just raw JSON? 
+        msg:         FiletreeExecuteMsg, // Just raw JSON? 
     },
 
 }
+
+// Linker gets confused if we import filetree's msg types, so we can just our own copy with a different name
+#[cw_serde]
+pub enum FiletreeExecuteMsg {
+
+    PostKey {
+        key: String,
+    },
+
+    MakeRoot {
+        editors: String,
+        viewers: String,
+        trackingnumber: String,
+    },
+}
+
+
 
 #[cw_serde]
 #[derive(QueryResponses)]

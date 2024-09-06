@@ -61,9 +61,10 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 mod execute {
     use cosmwasm_std::{Addr, BankMsg, Coin, CosmosMsg, Uint128, Event, to_json_binary};
     use crate::state::{self, USER_ADDR_TO_BINDINGS_ADDR, LOCK};
+    use crate::msg::FiletreeExecuteMsg;
 
     use filetree::{bindings_helpers::{BindingsCode, BindingsContract}, 
-    msg::{InstantiateMsg, ExecuteMsg as filetreeExecuteMsg}};
+    msg::InstantiateMsg};
 
     use super::*;
 
@@ -176,7 +177,7 @@ mod execute {
         env: Env,
         info: MessageInfo,
         evm_address: String,
-        msg: filetreeExecuteMsg
+        msg: FiletreeExecuteMsg
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
 
