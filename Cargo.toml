@@ -5,13 +5,14 @@ members = [
    "cosmwasm/contracts/filetree",
    "cosmwasm/contracts/bindings_factory",
    "cosmwasm/packages/bindings",
-   "cosmwasm_signer", 
    "sandboxes/my-redis",
    "sandboxes/my-redis",
    "sandboxes/queue",
-   "simple_relayer",
    "evm_listener",
    "relayer",
+   # TODO: add the sandboxes/cosmwasm_signer and sandboxes/simple_relayer back here if you need it
+   # It's causing rust analyzer errors atm--not worth time sink.
+   
    # Add other paths if there are more packages in the workspace
 ]
 
