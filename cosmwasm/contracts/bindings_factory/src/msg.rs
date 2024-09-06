@@ -9,10 +9,6 @@ pub struct InstantiateMsg {
 pub enum ExecuteMsg {
 
     CreateBindings {
-        // Not really sure what I need right now 
-    },
-
-    CreateBindingsV2 {
         user_evm_address: String,
         // This makes use of CosmWasm's 'instantiate2' API, which pre computes the contract address.
         // If it works on canine-chain, will save us a lot of code
