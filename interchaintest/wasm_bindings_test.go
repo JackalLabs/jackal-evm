@@ -161,7 +161,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        "placeholder_merkle_data",                                                               // Replace with actual Merkle data
+				Merkle:        []byte("placeholder_merkle_data"),                                                       // Replace with actual Merkle data
 				FileSize:      100000000,                                                                               // Replace with actual file size
 				ProofInterval: 60,                                                                                      // Replace with actual proof interval
 				ProofType:     1,                                                                                       // Replace with actual proof type
