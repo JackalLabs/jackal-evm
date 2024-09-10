@@ -13,6 +13,7 @@ import (
 
 	factorytypes "github.com/JackalLabs/jackal-evm/types/bindingsfactory"
 	filetreetypes "github.com/JackalLabs/jackal-evm/types/filetree"
+
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 
@@ -144,6 +145,33 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res4)
+
+		//****** Create Filetree Entries *********
+
+		// Had to put into filetreetypes to confine with factory's API
+		// TODO: merge filetree and factory types into one single file
+		storageMsg := filetreetypes.ExecuteMsg{
+			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+				Merkle:        []byte("placeholder_merkle_data"), // Replace with actual Merkle data
+				FileSize:      100000000,                         // Replace with actual file size
+				ProofInterval: 60,                                // Replace with actual proof interval
+				ProofType:     1,                                 // Replace with actual proof type
+				MaxProofs:     100,                               // Replace with maximum number of proofs
+				Expires:       170000000,                         // Replace with actual expiry time (Unix timestamp)
+				Note:          "This is a test note",             // Replace with actual note
+			},
+		}
+		crossContractExecuteMsg3 := factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &storageMsg,
+			},
+		}
+
+		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg3.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res5)
 
 	},
 	)
