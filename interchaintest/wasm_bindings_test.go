@@ -150,7 +150,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		// Let's call the bindings contract directly to better debug
 
-		filetreeBindingsAddress := "jkl130zv8rh840f7f3e05feraalda6yqtrmf3elk6cd0zs6azg8nqmnsvzqwa2"
+		filetreeBindingsAddress := decodedBindingsMap[0][1]
 		// Had to put into filetreetypes to confine with factory's API
 		// TODO: merge filetree and factory types into one single file
 		storageMsg := filetreetypes.ExecuteMsg{
