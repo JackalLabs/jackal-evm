@@ -9,6 +9,16 @@ pub enum SharedExecuteMsg {
         key: String,
     },
 
+    PostFile {
+        merkle: Vec<u8>,
+        file_size: i64,
+        proof_interval: i64,
+        proof_type: i64,
+        max_proofs: i64,
+        expires: i64,
+        note: String,
+    },
+
     MakeRoot {
         editors: String,
         viewers: String,
