@@ -148,6 +148,9 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		//****** Create Filetree Entries *********
 
+		// Let's call the bindings contract directly to better debug
+
+		filetreeBindingsAddress := "jkl130zv8rh840f7f3e05feraalda6yqtrmf3elk6cd0zs6azg8nqmnsvzqwa2"
 		// Had to put into filetreetypes to confine with factory's API
 		// TODO: merge filetree and factory types into one single file
 		storageMsg := filetreetypes.ExecuteMsg{
@@ -161,14 +164,8 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 				Note:          `{"description": "This is a test note", "additional_info": "Replace with actual data"}`, // JSON formatted string
 			},
 		}
-		crossContractExecuteMsg3 := factorytypes.ExecuteMsg{
-			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
-				EvmAddress: &aliceEvmAddress,
-				Msg:        &storageMsg,
-			},
-		}
 
-		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg3.ToString(), "--gas", "500000")
+		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), filetreeBindingsAddress, storageMsg.ToString(), "--gas", "500000")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
@@ -196,3 +193,10 @@ type UserBinding struct {
 	UserAddress     string `json:"0"` // Rust tuple index 0
 	BindingsAddress string `json:"1"` // Rust tuple index 1
 }
+
+/*
+
+bindings contract addresses are:
+jkl130zv8rh840f7f3e05feraalda6yqtrmf3elk6cd0zs6azg8nqmnsvzqwa2
+- jkl1k2mxluep54u5qp5zv70qhaazakdes20lxwjmh3pa3fzttnpakvlqet0s8z
+*/
