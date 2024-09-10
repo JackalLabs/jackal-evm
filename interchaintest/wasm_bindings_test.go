@@ -152,13 +152,13 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// TODO: merge filetree and factory types into one single file
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        []byte("placeholder_merkle_data"), // Replace with actual Merkle data
-				FileSize:      100000000,                         // Replace with actual file size
-				ProofInterval: 60,                                // Replace with actual proof interval
-				ProofType:     1,                                 // Replace with actual proof type
-				MaxProofs:     100,                               // Replace with maximum number of proofs
-				Expires:       170000000,                         // Replace with actual expiry time (Unix timestamp)
-				Note:          "This is a test note",             // Replace with actual note
+				Merkle:        []byte("placeholder_merkle_data"),                                                       // Replace with actual Merkle data
+				FileSize:      100000000,                                                                               // Replace with actual file size
+				ProofInterval: 60,                                                                                      // Replace with actual proof interval
+				ProofType:     1,                                                                                       // Replace with actual proof type
+				MaxProofs:     100,                                                                                     // Replace with maximum number of proofs
+				Expires:       170000000,                                                                               // Replace with actual expiry time (Unix timestamp)
+				Note:          `{"description": "This is a test note", "additional_info": "Replace with actual data"}`, // JSON formatted string
 			},
 		}
 		crossContractExecuteMsg3 := factorytypes.ExecuteMsg{
