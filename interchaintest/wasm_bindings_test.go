@@ -2,6 +2,7 @@ package interchaintest
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -159,15 +160,22 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// TODO: merge filetree and factory types into one single file
 		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
 
-		merkleBytes := []byte("placeholder_merkle_data")
-		merkleBytesJSON, err := json.Marshal(merkleBytes)
+		// Base64 encoded string
+		base64String := "AszdYVbzSIWe+FGb0LLRXTl9zKYC1Q/hxNj8qc5iTs0uNAS3zOUb2BZcA36ymsvpKedgyjHUddwZYvsFJ9OMew=="
+
+		// Decode the Base64 string to a []byte
+		merkleBytes, err := base64.StdEncoding.DecodeString(base64String)
 		if err != nil {
-			panic(err)
+			fmt.Println("Error decoding Base64 string:", err)
+			return
 		}
+
+		// Now `merkleBytes` is the raw []byte representation you need
+		fmt.Printf("Merkle as []byte: %v\n", merkleBytes)
 
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        merkleBytesJSON,                                                                         // Replace with actual Merkle data
+				Merkle:        merkleBytes,                                                                             // Replace with actual Merkle data
 				FileSize:      100000000,                                                                               // Replace with actual file size
 				ProofInterval: 60,                                                                                      // Replace with actual proof interval
 				ProofType:     1,                                                                                       // Replace with actual proof type
