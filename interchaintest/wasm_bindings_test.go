@@ -159,9 +159,15 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// TODO: merge filetree and factory types into one single file
 		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
 
+		merkleBytes := []byte("placeholder_merkle_data")
+		merkleBytesJSON, err := json.Marshal(merkleBytes)
+		if err != nil {
+			panic(err)
+		}
+
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        []byte("placeholder_merkle_data"),                                                       // Replace with actual Merkle data
+				Merkle:        merkleBytesJSON,                                                                         // Replace with actual Merkle data
 				FileSize:      100000000,                                                                               // Replace with actual file size
 				ProofInterval: 60,                                                                                      // Replace with actual proof interval
 				ProofType:     1,                                                                                       // Replace with actual proof type
