@@ -153,6 +153,8 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		filetreeBindingsAddress := decodedBindingsMap[0][1]
 		// Had to put into filetreetypes to confine with factory's API
 		// TODO: merge filetree and factory types into one single file
+		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
+
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
 				Merkle:        "placeholder_merkle_data",                                                               // Replace with actual Merkle data
@@ -160,7 +162,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 				ProofInterval: 60,                                                                                      // Replace with actual proof interval
 				ProofType:     1,                                                                                       // Replace with actual proof type
 				MaxProofs:     100,                                                                                     // Replace with maximum number of proofs
-				Expires:       170000000,                                                                               // Replace with actual expiry time (Unix timestamp)
+				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                          // Replace with actual expiry time (Unix timestamp)
 				Note:          `{"description": "This is a test note", "additional_info": "Replace with actual data"}`, // JSON formatted string
 			},
 		}
