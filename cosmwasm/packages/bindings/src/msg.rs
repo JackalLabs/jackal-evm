@@ -14,7 +14,15 @@ pub enum JackalMsg {
         viewers: String,
         trackingnumber: String,
     },
-
+    PostFile {
+        merkle: Vec<u8>,
+        file_size: i64,
+        proof_interval: i64,
+        proof_type: i64,
+        max_proofs: i64,
+        expires: i64,
+        note: String,
+    },
 }
 
 impl JackalMsg {
@@ -23,6 +31,26 @@ impl JackalMsg {
         JackalMsg::PostKey {
             sender,
             key,
+        }
+    }
+
+    pub fn post_file(
+        merkle: Vec<u8>,
+        file_size: i64,
+        proof_interval: i64,
+        proof_type: i64,
+        max_proofs: i64,
+        expires: i64,
+        note: String,
+    ) -> Self {
+        JackalMsg::PostFile {
+            merkle,
+            file_size,
+            proof_interval,
+            proof_type,
+            max_proofs,
+            expires,
+            note,
         }
     }
 
