@@ -151,6 +151,10 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// Let's call the bindings contract directly to better debug
 
 		filetreeBindingsAddress := decodedBindingsMap[0][1]
+
+		// make sure the bindings contract has money so they can post a file
+		s.FundAddressChainB(ctx, filetreeBindingsAddress)
+
 		// Had to put into filetreetypes to confine with factory's API
 		// TODO: merge filetree and factory types into one single file
 		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
