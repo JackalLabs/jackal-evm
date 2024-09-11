@@ -199,7 +199,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		bobStorageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64, // re-using alice's merkle
-				FileSize:      5800000000,
+				FileSize:      5000000,
 				ProofInterval: 70,
 				ProofType:     1,
 				MaxProofs:     200,
