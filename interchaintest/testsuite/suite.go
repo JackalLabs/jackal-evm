@@ -91,7 +91,7 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	logger.InitLogger()
 
 	// Fund user accounts on ChainA and ChainB
-	const userFunds = int64(10_000_000_000)
+	const userFunds = int64(1_00_000_000_000_000)
 	userFundsInt := math.NewInt(userFunds)
 	// users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, s.ChainA, s.ChainB)
 	userASeed := "fork draw talk diagram fragile online style lecture ecology lawn " +
@@ -124,7 +124,12 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	// Fund the Faucet on ChainA
 	ChainAFaucetSeed := "correct rate reveal jump dutch behind witness grief fiction gather fruit " +
 		"choose metal property sort sail shop nice east arrow detect east scare culture"
-	ChainAFaucet, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "wasmd", ChainAFaucetSeed, userFundsInt, s.ChainA)
+
+	// Fund user accounts on ChainA and ChainB
+	const chainAFaucetFunds = int64(1_000_000_000_000_000)
+	chainAFaucetFundsInt := math.NewInt(chainAFaucetFunds)
+
+	ChainAFaucet, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "wasmd", ChainAFaucetSeed, chainAFaucetFundsInt, s.ChainA)
 	s.Require().NoError(err)
 	s.ChainAFaucet = ChainAFaucet
 
