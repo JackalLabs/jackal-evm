@@ -67,6 +67,9 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 	factoryContractAddress := "jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr"
 
+	// Fund the factory so it can fund the bindings
+	s.FundAddressChainB(ctx, factoryContractAddress)
+
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
 		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
@@ -80,7 +83,19 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res)
-		//s.Require().NoError(error)
+
+		// Let's have the factory give Alice and Bob's bindings contracts each 200jkl
+		fundingAmount := int64(200_000_000)
+
+		factoryFundingExecuteMsg := factorytypes.ExecuteMsg{
+			FundBindings: &factorytypes.ExecuteMsg_FundBindings{
+				EvmAddress: &aliceEvmAddress,
+				Amount:     &fundingAmount,
+			},
+		}
+
+		fundingRes, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryFundingExecuteMsg.ToString(), "--gas", "500000")
+		fmt.Println(fundingRes)
 
 		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
 		msg2 := factorytypes.ExecuteMsg{
@@ -91,7 +106,16 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res2)
-		//s.Require().NoError(error)
+
+		factoryFundingExecuteMsg1 := factorytypes.ExecuteMsg{
+			FundBindings: &factorytypes.ExecuteMsg_FundBindings{
+				EvmAddress: &bobEvmAddress,
+				Amount:     &fundingAmount,
+			},
+		}
+
+		fundingRes1, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryFundingExecuteMsg1.ToString(), "--gas", "500000")
+		fmt.Println(fundingRes1)
 
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(addressErr)
@@ -151,12 +175,6 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		//****** FOR ALICE ******
 
-		// grab alice's bindings contract address
-		aliceFiletreeBindingsAddress := decodedBindingsMap[0][1]
-
-		// make sure the bindings contract has money so they can post a file
-		s.FundAddressChainB(ctx, aliceFiletreeBindingsAddress)
-
 		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
 
 		merkleBytes := []byte{0x01, 0x02, 0x03, 0x04}
@@ -189,12 +207,6 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		fmt.Println(res5)
 
 		//****** FOR BOB ******
-
-		// grab bob's bindings contract address
-		bobFiletreeBindingsAddress := decodedBindingsMap[1][1]
-
-		// make sure the bindings contract has money so they can post a file
-		s.FundAddressChainB(ctx, bobFiletreeBindingsAddress)
 
 		bobStorageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
