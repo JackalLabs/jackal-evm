@@ -93,21 +93,6 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	// Fund user accounts on ChainA and ChainB
 	const userFunds = int64(1_00_000_000_000_000)
 	userFundsInt := math.NewInt(userFunds)
-	// users := interchaintest.GetAndFundTestUsers(t, ctx, t.Name(), userFunds, s.ChainA, s.ChainB)
-	userASeed := "fork draw talk diagram fragile online style lecture ecology lawn " +
-		"dress hat modify member leg pluck leaf depend subway grit trumpet tongue crucial stumble"
-	userA, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "wasmd", userASeed, userFundsInt, s.ChainA)
-	s.Require().NoError(err)
-
-	userA2Seed := "cage father indicate hockey rapid wrist symbol apple impulse cradle sock pony foam " +
-		"survey squirrel dial drum flavor mansion bicycle master dumb album soccer"
-	userA2, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "wasmd", userA2Seed, userFundsInt, s.ChainA)
-	s.Require().NoError(err)
-
-	userA3Seed := "diagram return dose exhibit better advance task dove quiz group scheme thrive crystal " +
-		"veteran clog mobile story roof over display state cannon brave machine"
-	userA3, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "wasmd", userA3Seed, userFundsInt, s.ChainA)
-	s.Require().NoError(err)
 
 	// this is the seed phrase for the danny user that appears in all of canine-chain's testing scripts
 	userBSeed := "brief enhance flee chest rabbit matter chaos clever lady enable luggage arrange hint " +
@@ -115,23 +100,7 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	userB, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "jkl", userBSeed, userFundsInt, s.ChainB)
 	s.Require().NoError(err)
 
-	s.UserA = userA   // the primary wasmd user
-	s.UserA2 = userA2 // the secondary wasmd user
-	s.UserA3 = userA3 // the tertiary wasmd user
-
 	s.UserB = userB //the jackal user
-
-	// Fund the Faucet on ChainA
-	ChainAFaucetSeed := "correct rate reveal jump dutch behind witness grief fiction gather fruit " +
-		"choose metal property sort sail shop nice east arrow detect east scare culture"
-
-	// Fund user accounts on ChainA and ChainB
-	const chainAFaucetFunds = int64(1_000_000_000_000_000)
-	chainAFaucetFundsInt := math.NewInt(chainAFaucetFunds)
-
-	ChainAFaucet, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "wasmd", ChainAFaucetSeed, chainAFaucetFundsInt, s.ChainA)
-	s.Require().NoError(err)
-	s.ChainAFaucet = ChainAFaucet
 
 	// NOTE: not really sure where to pass this in atm
 	usingPorts := nat.PortMap{}
