@@ -30,7 +30,7 @@ func (s *TestSuite) fundAddress(ctx context.Context, chain *cosmos.CosmosChain, 
 	err := chain.SendFunds(ctx, keyName, ibc.WalletAmount{
 		Address: address,
 		Denom:   chain.Config().Denom,
-		Amount:  math.NewInt(1000000000),
+		Amount:  math.NewInt(1_000_000_000_000),
 		// NOTE: not sure why we have to wrap it
 		// while srdrk did not, IDE does not
 		// complain in his repo, but complains in ours?

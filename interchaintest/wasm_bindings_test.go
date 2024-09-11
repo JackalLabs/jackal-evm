@@ -2,6 +2,7 @@ package interchaintest
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -13,6 +14,7 @@ import (
 
 	factorytypes "github.com/JackalLabs/jackal-evm/types/bindingsfactory"
 	filetreetypes "github.com/JackalLabs/jackal-evm/types/filetree"
+
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 
@@ -49,7 +51,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	// Instantiate the factory, giving it the codeId of the filetree bindings contract
 	instantiateMsg := factorytypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
 
-	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
+	contractAddr, _ := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
 	// s.Require().NoError(err)
 
 	// NOTE: The above errors only when trying to parse the tx hash, but the instantiate still succeeded
@@ -65,6 +67,9 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 	factoryContractAddress := "jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr"
 
+	// Fund the factory so it can fund the bindings
+	s.FundAddressChainB(ctx, factoryContractAddress)
+
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
 		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
@@ -78,7 +83,19 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res)
-		//s.Require().NoError(error)
+
+		// Let's have the factory give Alice and Bob's bindings contracts each 200jkl
+		fundingAmount := int64(200_000_000)
+
+		factoryFundingExecuteMsg := factorytypes.ExecuteMsg{
+			FundBindings: &factorytypes.ExecuteMsg_FundBindings{
+				EvmAddress: &aliceEvmAddress,
+				Amount:     &fundingAmount,
+			},
+		}
+
+		fundingRes, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryFundingExecuteMsg.ToString(), "--gas", "500000")
+		fmt.Println(fundingRes)
 
 		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
 		msg2 := factorytypes.ExecuteMsg{
@@ -89,7 +106,16 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res2)
-		//s.Require().NoError(error)
+
+		factoryFundingExecuteMsg1 := factorytypes.ExecuteMsg{
+			FundBindings: &factorytypes.ExecuteMsg_FundBindings{
+				EvmAddress: &bobEvmAddress,
+				Amount:     &fundingAmount,
+			},
+		}
+
+		fundingRes1, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryFundingExecuteMsg1.ToString(), "--gas", "500000")
+		fmt.Println(fundingRes1)
 
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(addressErr)
@@ -111,39 +137,66 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 			}
 		}
 
-		filetreeMsg := filetreetypes.ExecuteMsg{
-			PostKey: &filetreetypes.ExecuteMsg_PostKey{
-				Key: fmt.Sprintf("%s has a public key", aliceEvmAddress),
+		//****** Create Filetree Entries *********
+
+		//****** FOR ALICE ******
+
+		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
+
+		merkleBytes := []byte{0x01, 0x02, 0x03, 0x04}
+
+		merkleBase64 := base64.StdEncoding.EncodeToString(merkleBytes)
+
+		// Could also use:  for 'Merkle'?
+		storageMsg := filetreetypes.ExecuteMsg{
+			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+				Merkle:        merkleBase64,                                                                            // Replace with actual Merkle data
+				FileSize:      100000000,                                                                               // Replace with actual file size
+				ProofInterval: 60,                                                                                      // Replace with actual proof interval
+				ProofType:     1,                                                                                       // Replace with actual proof type
+				MaxProofs:     100,                                                                                     // Replace with maximum number of proofs
+				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                          // Replace with actual expiry time (Unix timestamp)
+				Note:          `{"description": "This is a test note", "additional_info": "Replace with actual data"}`, // JSON formatted string
 			},
 		}
-		crossContractExecuteMsg := factorytypes.ExecuteMsg{
+
+		factoryExecuteMsg := factorytypes.ExecuteMsg{
 			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
 				EvmAddress: &aliceEvmAddress,
-				Msg:        &filetreeMsg,
+				Msg:        &storageMsg,
 			},
 		}
 
-		res3, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg.ToString(), "--gas", "500000")
+		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-		fmt.Println(res3)
+		fmt.Println(res5)
 
-		filetreeMsg2 := filetreetypes.ExecuteMsg{
-			PostKey: &filetreetypes.ExecuteMsg_PostKey{
-				Key: fmt.Sprintf("%s has a public key", bobEvmAddress),
+		//****** FOR BOB ******
+
+		bobStorageMsg := filetreetypes.ExecuteMsg{
+			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+				Merkle:        merkleBase64, // re-using alice's merkle
+				FileSize:      5000000,
+				ProofInterval: 70,
+				ProofType:     1,
+				MaxProofs:     200,
+				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6), // re-using blockheight that we used for alice
+				Note:          `{"description": "Bob's test note", "additional_info": "bob's extra data"}`,
 			},
 		}
-		crossContractExecuteMsg2 := factorytypes.ExecuteMsg{
+
+		bobFactoryExecuteMsg := factorytypes.ExecuteMsg{
 			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
 				EvmAddress: &bobEvmAddress,
-				Msg:        &filetreeMsg2,
+				Msg:        &bobStorageMsg,
 			},
 		}
 
-		res4, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg2.ToString(), "--gas", "500000")
+		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, bobFactoryExecuteMsg.ToString(), "--gas", "500000")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-		fmt.Println(res4)
+		fmt.Println(res6)
 
 	},
 	)
@@ -168,3 +221,34 @@ type UserBinding struct {
 	UserAddress     string `json:"0"` // Rust tuple index 0
 	BindingsAddress string `json:"1"` // Rust tuple index 1
 }
+
+/*
+
+bindings contract addresses are:
+jkl130zv8rh840f7f3e05feraalda6yqtrmf3elk6cd0zs6azg8nqmnsvzqwa2
+- jkl1k2mxluep54u5qp5zv70qhaazakdes20lxwjmh3pa3fzttnpakvlqet0s8z
+*/
+
+/*
+Sep 10 2024
+
+NOTE: So posting files works while we have the 'merkle' field set as a string
+
+See proof below;
+
+canined q storage files
+files:
+- expires: "525600057"
+  file_size: "100000000"
+  max_proofs: "100"
+  merkle: AQKr/xA=
+  note: '{"description": "This is a test note", "additional_info": "Replace with actual
+    data"}'
+  owner: jkl12xfyvuedsnu2jf63mzlr7c0cwstdu6ga04pk68gy5r2yeuj9z04qkseqjh
+  proof_interval: "50"
+  proof_type: "1"
+  proofs: []
+  start: "58"
+
+We need to set it back to []byte and see if it still works
+*/

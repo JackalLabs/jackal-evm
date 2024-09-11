@@ -19,8 +19,12 @@ no_exports = []
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-cosmwasm-schema = "1.1"
-cosmwasm-std = "1.1"
+cosmwasm-schema = "1.4.0"
+cosmwasm-std = { version = "1.4.0", features = [
+    "cosmwasm_1_2",
+    # Enable this if you only deploy to chains that have CosmWasm 1.4 or higher
+    # "cosmwasm_1_4",
+] }
 cosmwasm-storage = "1.1"
 cw-storage-plus = "0.15"
 jackal-bindings = { version = "0.1.0", path = "../../packages/bindings" }
@@ -30,3 +34,4 @@ cw2 = "0.15"
 schemars = "0.8"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 thiserror = "1.0"
+base64 = "0.22.1"

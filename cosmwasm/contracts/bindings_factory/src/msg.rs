@@ -23,6 +23,11 @@ pub enum ExecuteMsg {
         // Not really sure what I need right now 
     },
 
+    FundBindings {
+        evm_address: String, 
+        amount: i64,
+    },
+
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
         msg:         SharedExecuteMsg, // Just raw JSON? 

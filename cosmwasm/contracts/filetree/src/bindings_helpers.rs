@@ -87,9 +87,7 @@ impl BindingsContract {
     //     }
     //     .into())
     // }
-
 }
-
 
 impl BindingsCode {
     /// new creates a new [`BindingsCode`]
