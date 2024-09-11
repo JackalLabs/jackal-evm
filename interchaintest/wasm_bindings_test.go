@@ -149,7 +149,9 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		//****** Create Filetree Entries *********
 
-		// grab alice's (?) bindings contract address
+		//****** FOR ALICE ******
+
+		// grab alice's bindings contract address
 		aliceFiletreeBindingsAddress := decodedBindingsMap[0][1]
 
 		// make sure the bindings contract has money so they can post a file
@@ -160,9 +162,6 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		merkleBytes := []byte{0x01, 0x02, 0x03, 0x04}
 
 		merkleBase64 := base64.StdEncoding.EncodeToString(merkleBytes)
-
-		// Now `merkleBytes` is the raw []byte representation you need
-		fmt.Printf("Merkle as []byte: %v\n", merkleBytes)
 
 		// Could also use:  for 'Merkle'?
 		storageMsg := filetreetypes.ExecuteMsg{
@@ -188,6 +187,38 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
+
+		//****** FOR BOB ******
+
+		// grab bob's bindings contract address
+		bobFiletreeBindingsAddress := decodedBindingsMap[1][1]
+
+		// make sure the bindings contract has money so they can post a file
+		s.FundAddressChainB(ctx, bobFiletreeBindingsAddress)
+
+		bobStorageMsg := filetreetypes.ExecuteMsg{
+			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+				Merkle:        merkleBase64, // re-using alice's merkle
+				FileSize:      5800000000,
+				ProofInterval: 70,
+				ProofType:     1,
+				MaxProofs:     200,
+				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6), // re-using blockheight that we used for alice
+				Note:          `{"description": "Bob's test note", "additional_info": "bob's extra data"}`,
+			},
+		}
+
+		bobFactoryExecuteMsg := factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &bobEvmAddress,
+				Msg:        &bobStorageMsg,
+			},
+		}
+
+		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, bobFactoryExecuteMsg.ToString(), "--gas", "500000")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res6)
 
 	},
 	)
