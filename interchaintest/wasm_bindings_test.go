@@ -149,34 +149,25 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		//****** Create Filetree Entries *********
 
-		// Let's call the bindings contract directly to better debug
-
-		filetreeBindingsAddress := decodedBindingsMap[0][1]
+		// grab alice's (?) bindings contract address
+		aliceFiletreeBindingsAddress := decodedBindingsMap[0][1]
 
 		// make sure the bindings contract has money so they can post a file
-		s.FundAddressChainB(ctx, filetreeBindingsAddress)
+		s.FundAddressChainB(ctx, aliceFiletreeBindingsAddress)
 
-		// Had to put into filetreetypes to confine with factory's API
-		// TODO: merge filetree and factory types into one single file
 		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
 
-		// Base64 encoded string
-		base64String := "AszdYVbzSIWe+FGb0LLRXTl9zKYC1Q/hxNj8qc5iTs0uNAS3zOUb2BZcA36ymsvpKedgyjHUddwZYvsFJ9OMew=="
+		merkleBytes := []byte{0x01, 0x02, 0x03, 0x04}
 
-		// Decode the Base64 string to a []byte
-		merkleBytes, err := base64.StdEncoding.DecodeString(base64String)
-		if err != nil {
-			fmt.Println("Error decoding Base64 string:", err)
-			return
-		}
+		merkleBase64 := base64.StdEncoding.EncodeToString(merkleBytes)
 
 		// Now `merkleBytes` is the raw []byte representation you need
 		fmt.Printf("Merkle as []byte: %v\n", merkleBytes)
 
-		// Could also use: []byte("placeholder_merkle_data") for 'Merkle'?
+		// Could also use:  for 'Merkle'?
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        base64String,                                                                            // Replace with actual Merkle data
+				Merkle:        merkleBase64,                                                                            // Replace with actual Merkle data
 				FileSize:      100000000,                                                                               // Replace with actual file size
 				ProofInterval: 60,                                                                                      // Replace with actual proof interval
 				ProofType:     1,                                                                                       // Replace with actual proof type
@@ -186,7 +177,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 			},
 		}
 
-		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), filetreeBindingsAddress, storageMsg.ToString(), "--gas", "500000")
+		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), aliceFiletreeBindingsAddress, storageMsg.ToString(), "--gas", "500000")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
