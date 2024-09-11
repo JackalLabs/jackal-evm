@@ -173,9 +173,10 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// Now `merkleBytes` is the raw []byte representation you need
 		fmt.Printf("Merkle as []byte: %v\n", merkleBytes)
 
+		// Could also use: []byte("placeholder_merkle_data") for 'Merkle'?
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        merkleBytes,                                                                             // Replace with actual Merkle data
+				Merkle:        base64String,                                                                            // Replace with actual Merkle data
 				FileSize:      100000000,                                                                               // Replace with actual file size
 				ProofInterval: 60,                                                                                      // Replace with actual proof interval
 				ProofType:     1,                                                                                       // Replace with actual proof type

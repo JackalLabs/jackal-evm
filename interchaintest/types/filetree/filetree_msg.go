@@ -17,7 +17,7 @@ type ExecuteMsg_PostKey struct {
 }
 
 type ExecuteMsg_PostFile struct {
-	Merkle        []byte `json:"merkle"`
+	Merkle        string `json:"merkle"`
 	FileSize      int64  `json:"file_size"`
 	ProofInterval int64  `json:"proof_interval"`
 	ProofType     int64  `json:"proof_type"`

@@ -11,7 +11,7 @@ pub enum ExecuteMsg {
     },
 
     PostFile {
-        merkle: Vec<u8>,
+        merkle: String,
         file_size: i64,
         proof_interval: i64,
         proof_type: i64,

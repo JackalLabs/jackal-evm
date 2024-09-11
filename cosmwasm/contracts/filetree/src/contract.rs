@@ -1,13 +1,15 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult
 };
 
 use crate::error::FiletreeError;
 use crate::msg::{ExecuteMsg, InstantiateMsg};
 use crate::state::{State, STATE};
 use jackal_bindings::{JackalMsg};
+use base64::Engine;
+
 
 // Consider adding migration info?
 
@@ -92,7 +94,7 @@ pub fn post_key(
 pub fn post_file(
     deps: DepsMut,
     info: MessageInfo,
-    merkle: Vec<u8>,
+    merkle: String,
     file_size: i64,
     proof_interval: i64,
     proof_type: i64,
@@ -104,9 +106,11 @@ pub fn post_file(
     // properly validate
     // deps.api.addr_validate(info.sender)?;
 
+    let merkle_bytes = cosmwasm_std::Binary::from_base64(&merkle).expect("could not get merkle from base64");
+
     // Checks and validations go here?
     let post_file_msg = JackalMsg::post_file(
-        merkle,
+        merkle_bytes.to_vec(),
         file_size,
         proof_interval,
         proof_type,

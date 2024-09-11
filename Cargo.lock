@@ -1217,6 +1217,7 @@ dependencies = [
 name = "filetree"
 version = "0.1.0"
 dependencies = [
+ "base64 0.22.1",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",

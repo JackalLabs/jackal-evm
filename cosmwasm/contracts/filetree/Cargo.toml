@@ -34,3 +34,4 @@ cw2 = "0.15"
 schemars = "0.8"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 thiserror = "1.0"
+base64 = "0.22.1"
