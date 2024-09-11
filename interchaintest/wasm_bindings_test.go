@@ -177,7 +177,14 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 			},
 		}
 
-		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), aliceFiletreeBindingsAddress, storageMsg.ToString(), "--gas", "500000")
+		factoryExecuteMsg := factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &storageMsg,
+			},
+		}
+
+		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
