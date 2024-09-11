@@ -51,7 +51,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	// Instantiate the factory, giving it the codeId of the filetree bindings contract
 	instantiateMsg := factorytypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
 
-	contractAddr, err := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
+	contractAddr, _ := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
 	// s.Require().NoError(err)
 
 	// NOTE: The above errors only when trying to parse the tx hash, but the instantiate still succeeded
@@ -136,40 +136,6 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 				logger.LogError("Invalid binding format:", binding)
 			}
 		}
-
-		filetreeMsg := filetreetypes.ExecuteMsg{
-			PostKey: &filetreetypes.ExecuteMsg_PostKey{
-				Key: fmt.Sprintf("%s has a public key", aliceEvmAddress),
-			},
-		}
-		crossContractExecuteMsg := factorytypes.ExecuteMsg{
-			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
-				EvmAddress: &aliceEvmAddress,
-				Msg:        &filetreeMsg,
-			},
-		}
-
-		res3, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg.ToString(), "--gas", "500000")
-		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-		fmt.Println(res3)
-
-		filetreeMsg2 := filetreetypes.ExecuteMsg{
-			PostKey: &filetreetypes.ExecuteMsg_PostKey{
-				Key: fmt.Sprintf("%s has a public key", bobEvmAddress),
-			},
-		}
-		crossContractExecuteMsg2 := factorytypes.ExecuteMsg{
-			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
-				EvmAddress: &bobEvmAddress,
-				Msg:        &filetreeMsg2,
-			},
-		}
-
-		res4, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, crossContractExecuteMsg2.ToString(), "--gas", "500000")
-		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-		fmt.Println(res4)
 
 		//****** Create Filetree Entries *********
 

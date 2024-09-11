@@ -42,6 +42,7 @@ type TestSuite struct {
 
 // SetupSuite sets up the chains, relayer, user accounts, clients, and connections
 func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest.ChainSpec) {
+	// NOTE: I think we can remove chainA and this system will still work
 	if len(chainSpecs) != 2 {
 		panic("ContractTestSuite requires exactly 2 chain specs")
 	}
