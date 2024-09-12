@@ -128,7 +128,7 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 			},
 		}
 
-		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "2000000ujkl")
+		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
