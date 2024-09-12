@@ -74,9 +74,6 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 
 		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
 		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
-		aliceEvmAddress := "alice_Ox1" // Declare a variable holding the string
-
-		// Remember to give funds
 
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(addressErr)
@@ -102,6 +99,8 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 
 		//****** FOR ALICE ******
 
+		aliceEvmAddress := "alice_Ox1" // Declare a variable holding the string
+
 		blockHeight, _ := s.ChainB.GetNode().Height(ctx)
 
 		merkleBytes := []byte{0x01, 0x02, 0x03, 0x04}
@@ -111,13 +110,13 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 		// Could also use:  for 'Merkle'?
 		storageMsg := filetreetypes.ExecuteMsg{
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        merkleBase64,                                                                            // Replace with actual Merkle data
-				FileSize:      100000000,                                                                               // Replace with actual file size
-				ProofInterval: 60,                                                                                      // Replace with actual proof interval
-				ProofType:     1,                                                                                       // Replace with actual proof type
-				MaxProofs:     100,                                                                                     // Replace with maximum number of proofs
-				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                          // Replace with actual expiry time (Unix timestamp)
-				Note:          `{"description": "This is a test note", "additional_info": "Replace with actual data"}`, // JSON formatted string
+				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
+				FileSize:      100000000,                                                                      // Replace with actual file size
+				ProofInterval: 60,                                                                             // Replace with actual proof interval
+				ProofType:     1,                                                                              // Replace with actual proof type
+				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
+				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
+				Note:          `{"description": "alice note", "additional_info": "Replace with actual data"}`, // JSON formatted string
 			},
 		}
 
@@ -132,6 +131,35 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
+
+		//****** FOR BOB ******
+
+		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
+
+		// Could also use:  for 'Merkle'?
+		bobStorageMsg := filetreetypes.ExecuteMsg{
+			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
+				FileSize:      100000000,                                                                      // Replace with actual file size
+				ProofInterval: 60,                                                                             // Replace with actual proof interval
+				ProofType:     1,                                                                              // Replace with actual proof type
+				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
+				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
+				Note:          `{"description": "bob's note", "additional_info": "Replace with actual data"}`, // JSON formatted string
+			},
+		}
+
+		factoryExecuteMsgForBob := factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &bobEvmAddress,
+				Msg:        &bobStorageMsg,
+			},
+		}
+
+		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsgForBob.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res6)
 
 	},
 	)
