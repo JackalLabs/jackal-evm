@@ -60,7 +60,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 }
 
 mod execute {
-    use cosmwasm_std::{to_json_binary, Addr, BankMsg, Coin, CosmosMsg, Empty, Event, Uint128};
+    use cosmwasm_std::{to_json_binary, Addr, BankMsg, Coin, CosmosMsg, Empty, Event, Uint128, WasmMsg};
     use crate::state::{self, USER_ADDR_TO_BINDINGS_ADDR, LOCK};
     use shared::shared_msg::SharedExecuteMsg;
 
@@ -185,13 +185,46 @@ mod execute {
 
         let mut bindings_address: String = String::new();
 
+        // declare empty cosmos msg here to be assigned by else block:
+        let mut factory_cosmos_msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate2 {
+            admin: None,
+            code_id: 0,
+            label: String::new(),
+            msg: Binary::default(),
+            funds: vec![],
+            salt: Binary::default(),
+        });
+
         // Use may_load to attempt to retrieve the value associated with the key
         if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &evm_address)? {
         // If the key exists, return the value
         bindings_address = value
         } else {
         // If the key does not exist, return the custom error
-            return Err(ContractError::DoesNotExist())
+            let bindings_code_id = BindingsCode::new(state.bindings_code_id);
+            let instantiate_msg = filetree::msg::InstantiateMsg {};
+
+            let label
+            = format!("bindings contract-owned by: {}", &evm_address);
+
+            let (instantiate2_cosmos_msg, bindings_contract_address) = bindings_code_id.instantiate2(
+                deps.api,
+                &deps.querier,
+                &env,
+                instantiate_msg,
+                label,
+                Some(env.contract.address.to_string()),
+                // WARNING: is it okay to use current block time as salt? The ica-controller only uses this as a fallback option
+                env.block.time.seconds().to_string(), 
+            )?;
+
+            factory_cosmos_msg = instantiate2_cosmos_msg;
+
+            USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &evm_address, &bindings_contract_address.to_string())?; // again, info.sender is actually the outpost address
+            let mut event = Event::new("FACTORY: create_binding");
+            bindings_address = bindings_contract_address.to_string();
+
+
         }
 
         // If we set the lock to be the owner of the factory -- do we even really need the lock?
@@ -200,12 +233,28 @@ mod execute {
         // Convert the bech32 string back to 'Addr' type before passing to the filetree helper API
         let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
         let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
-
         
         // Execute the bindings contract with given msg
-        let cosmos_msg = bindings_contract.execute(msg)?;
+        let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
 
-        Ok(Response::new().add_message(cosmos_msg)) 
+        // Make sure factory_cosmos_msg is not empty
+
+        let mut messages: Vec<CosmosMsg> = Vec::new();
+
+        let mut id: u64 = 0;
+
+        if let CosmosMsg::Wasm(wasm_msg) = factory_cosmos_msg.clone() {
+           if let WasmMsg::Instantiate2 { admin, code_id, label, msg, funds, salt } = wasm_msg {
+                id = code_id;
+           }
+        }
+
+        if id != 0 {
+            messages.push(factory_cosmos_msg);
+        }
+        messages.push(cosmos_msg);
+        
+        Ok(Response::new().add_messages(messages)) 
     }
 
     pub fn fund_bindings(

@@ -35,7 +35,7 @@ pub fn instantiate(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
     deps: DepsMut,
-    _env: Env,
+    env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response<JackalMsg>, FiletreeError> {
@@ -53,6 +53,7 @@ pub fn execute(
             note } => post_file(
                 deps,
                 info, 
+                env,
                 merkle, 
                 file_size, 
                 proof_interval, 
@@ -94,6 +95,7 @@ pub fn post_key(
 pub fn post_file(
     deps: DepsMut,
     info: MessageInfo,
+    env: Env,
     merkle: String,
     file_size: i64,
     proof_interval: i64,
@@ -108,8 +110,10 @@ pub fn post_file(
 
     let merkle_bytes = cosmwasm_std::Binary::from_base64(&merkle).expect("could not get merkle from base64");
 
+    let creator = env.contract.address.to_string();
     // Checks and validations go here?
     let post_file_msg = JackalMsg::post_file(
+        creator,
         merkle_bytes.to_vec(),
         file_size,
         proof_interval,
