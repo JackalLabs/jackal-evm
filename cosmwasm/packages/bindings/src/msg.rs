@@ -15,6 +15,7 @@ pub enum JackalMsg {
         trackingnumber: String,
     },
     PostFile {
+        creator: String,
         merkle: Vec<u8>,
         file_size: i64,
         proof_interval: i64,
@@ -35,6 +36,7 @@ impl JackalMsg {
     }
 
     pub fn post_file(
+        creator: String,
         merkle: Vec<u8>,
         file_size: i64,
         proof_interval: i64,
@@ -44,6 +46,7 @@ impl JackalMsg {
         note: String,
     ) -> Self {
         JackalMsg::PostFile {
+            creator,
             merkle,
             file_size,
             proof_interval,
