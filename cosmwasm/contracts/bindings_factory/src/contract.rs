@@ -235,7 +235,7 @@ mod execute {
         let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
         
         // Execute the bindings contract with given msg
-        let cosmos_msg = bindings_contract.execute(msg)?;
+        let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
 
         // Make sure factory_cosmos_msg is not empty
 

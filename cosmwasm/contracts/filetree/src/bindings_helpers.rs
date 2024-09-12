@@ -5,8 +5,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use cosmwasm_std::{
-    instantiate2_address, to_json_binary, Addr, Api, CosmosMsg, Env, QuerierWrapper, StdError,
-    StdResult, WasmMsg,
+    instantiate2_address, to_json_binary, Addr, Api, Coin, CosmosMsg, Env, QuerierWrapper, StdError, StdResult, WasmMsg
 };
 
 use crate::msg;
@@ -40,12 +39,12 @@ impl BindingsContract {
     /// # Errors
     ///
     /// This function returns an error if the given message cannot be serialized
-    pub fn execute(&self, msg: impl Into<SharedExecuteMsg>) -> StdResult<CosmosMsg> {
+    pub fn execute(&self, msg: impl Into<SharedExecuteMsg>, funds: Vec<Coin>) -> StdResult<CosmosMsg> {
         let msg = to_json_binary(&msg.into())?;
         Ok(WasmMsg::Execute {
             contract_addr: self.addr().into(),
             msg,
-            funds: vec![],
+            funds: funds,
         }
         .into())
     }
