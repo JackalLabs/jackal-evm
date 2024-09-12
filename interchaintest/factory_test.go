@@ -132,6 +132,13 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
 
+		// post a second file for alice
+		secondStorageMsg := storageMsg
+		secondStorageMsg.PostFile.Note = `{"description": "alice note 2", "additional_info": "placeholder"}`
+		factoryExecuteMsg.CallBindings.Msg = &secondStorageMsg
+		aliceRes2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		fmt.Println(aliceRes2)
+
 		//****** FOR BOB ******
 
 		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
@@ -160,6 +167,13 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res6)
+
+		// post a second file for bob
+		bobSecondStorageMsg := bobStorageMsg
+		bobSecondStorageMsg.PostFile.Note = `{"description": "bob note 2", "additional_info": "placeholder"}`
+		factoryExecuteMsgForBob.CallBindings.Msg = &bobSecondStorageMsg
+		bobRes2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsgForBob.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		fmt.Println(bobRes2)
 
 	},
 	)
