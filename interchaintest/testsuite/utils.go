@@ -13,12 +13,6 @@ const (
 	defaultRlyHomeDir = "/home/relayer"
 )
 
-// FundAddressChainA sends funds to the given address on chain A.
-// The amount sent is 1,000,000,000 of the chain's denom.
-func (s *TestSuite) FundAddressChainA(ctx context.Context, address string) {
-	s.fundAddress(ctx, s.ChainA, s.UserA.KeyName(), address)
-}
-
 // FundAddressChainB sends funds to the given address on chain B.
 // The amount sent is 1,000,000,000 of the chain's denom.
 func (s *TestSuite) FundAddressChainB(ctx context.Context, address string) {
