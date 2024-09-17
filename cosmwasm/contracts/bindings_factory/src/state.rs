@@ -24,13 +24,15 @@ mod contract {
     pub struct ContractState {
         /// The code ID of the bindings contract.
         pub bindings_code_id: u64,
+        pub owner: String,
     }
 
     impl ContractState {
         /// Creates a new ContractState.
-        pub fn new(bindings_code_id: u64) -> Self {
+        pub fn new(bindings_code_id: u64, owner: String) -> Self {
             Self {
                 bindings_code_id,
+                owner,
             }
         }
     }

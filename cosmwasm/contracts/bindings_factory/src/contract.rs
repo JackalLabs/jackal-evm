@@ -27,7 +27,7 @@ pub fn instantiate(
 
     STATE.save(
         deps.storage,
-        &ContractState::new(msg.bindings_code_id),
+        &ContractState::new(msg.bindings_code_id, info.sender.to_string()),
     )?;
     Ok(Response::default())
 }
