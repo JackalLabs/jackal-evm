@@ -11,6 +11,10 @@ pub enum ContractError {
 
     #[error("This user does not have a bindings contract")]
     DoesNotExist(),
+
+    // TODO: change the error message when the white list is added 
+    #[error("Only the factory owner can call bindings")]
+    NotAllowed(),
 }
 
 

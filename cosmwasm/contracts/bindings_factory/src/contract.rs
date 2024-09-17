@@ -183,6 +183,12 @@ mod execute {
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
 
+        // Only the owner of the factory can call bindings
+        // TODO: add white list logic
+        if info.sender.to_string() != state.owner {
+            return Err(ContractError::NotAllowed())
+        }
+
         let mut bindings_address: String = String::new();
 
         // declare empty cosmos msg here to be assigned by else block:
