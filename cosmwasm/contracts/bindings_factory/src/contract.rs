@@ -61,7 +61,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 
 mod execute {
     use cosmwasm_std::{to_json_binary, Addr, BankMsg, Coin, CosmosMsg, Empty, Event, Uint128, WasmMsg};
-    use crate::state::{self, USER_ADDR_TO_BINDINGS_ADDR, LOCK};
+    use crate::state::{self, USER_ADDR_TO_BINDINGS_ADDR};
     use shared::shared_msg::SharedExecuteMsg;
 
     use filetree::{bindings_helpers::{BindingsCode, BindingsContract}, 
@@ -87,9 +87,6 @@ mod execute {
         if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &info.sender.to_string())? {
             return Err(ContractError::AlreadyCreated(value.to_string()))
         }
-
-        // If we set the lock to be the owner of the factory -- do we even really need the lock?
-        let _lock = LOCK.save(deps.storage, &info.sender.to_string(), &true);
 
         // TODO: use the callback again
         // let callback = Callback {};
@@ -137,9 +134,6 @@ mod execute {
 
         // TODO: Because instantiate2 works, I don't think we even need this lock now
         // Set this such that only the owner of the factory can call it 
-
-        // If we set the lock to be the owner of the factory -- do we even really need the lock?
-        let _lock = LOCK.save(deps.storage, &info.sender.to_string(), &true);
 
         // TODO: use the callback again
         // let callback = Callback {};
@@ -233,9 +227,6 @@ mod execute {
 
         }
 
-        // If we set the lock to be the owner of the factory -- do we even really need the lock?
-        let _lock = LOCK.save(deps.storage, &info.sender.to_string(), &true);
-
         // Convert the bech32 string back to 'Addr' type before passing to the filetree helper API
         let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
         let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
@@ -313,21 +304,6 @@ mod execute {
         // if instantiate2 worked, we don't need this function
 
         // this contract can't have an owner because it needs to be called back by every bindings it instantiates 
-
-        // Load the lock state for the bindings owner
-        let lock = LOCK.may_load(deps.storage, &"evm address goes here")?; // WARNING-just hardcoding for testing 
-
-        // Check if the lock exists and is true
-        if let Some(true) = lock {
-            // If it does, overwrite it with false
-            LOCK.save(deps.storage, &"evm address goes here", &false)?;
-        } else {
-            // This function can only get called if the Lock was set in 'create_bindings'
-            // If it doesn't exist or is false, return an unauthorized error
-
-            // TODO: put error back
-            // return Err(ContractError::MissingLock {  })
-        }
 
     USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &"evm address goes here", &info.sender.to_string())?; // again, info.sender is actually the bindings address
 
