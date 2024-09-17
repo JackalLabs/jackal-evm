@@ -30,6 +30,7 @@ type TestSuite struct {
 	UserA2       ibc.Wallet
 	UserA3       ibc.Wallet
 	UserB        ibc.Wallet
+	UserC        ibc.Wallet
 	ChainAConnID string
 	ChainBConnID string
 	dockerClient *dockerclient.Client
@@ -92,7 +93,9 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	logger.InitLogger()
 
 	// Fund user accounts on ChainA and ChainB
-	const userFunds = int64(1_00_000_000_000_000)
+	// WARNING: This number can't be too high or the faucet can't seem to have enough to fund accounts
+	// Perfect number is between 10_000_000_000 and 1_000_000_000_000
+	const userFunds = int64(1_000_000_000_000)
 	userFundsInt := math.NewInt(userFunds)
 
 	// this is the seed phrase for the danny user that appears in all of canine-chain's testing scripts
@@ -102,6 +105,13 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	s.Require().NoError(err)
 
 	s.UserB = userB //the jackal user
+
+	userCSeed := "raven symbol today record infant degree glad use risk outdoor stool strike clay " +
+		"tomorrow salute method mystery behave ivory repeat young hover glare essence"
+	userC, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "jkl", userCSeed, userFundsInt, s.ChainB)
+	s.Require().NoError(err)
+
+	s.UserC = userC
 
 	// NOTE: not really sure where to pass this in atm
 	usingPorts := nat.PortMap{}
