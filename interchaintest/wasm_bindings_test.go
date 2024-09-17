@@ -67,6 +67,10 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 	factoryContractAddress := "jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr"
 
+	contractState, stateErr := testsuite.GetState(ctx, s.ChainB, factoryContractAddress)
+	s.Require().NoError(stateErr)
+	logger.LogInfo(contractState)
+
 	// Fund the factory so it can fund the bindings
 	s.FundAddressChainB(ctx, factoryContractAddress)
 

@@ -70,3 +70,34 @@ func GetAllUserBindingsAddresses(ctx context.Context, chain *cosmos.CosmosChain,
 
 	return queryClient.SmartContractState(ctx, params)
 }
+
+// GetState queries and returns 'ContractState' object
+func GetState(ctx context.Context, chain *cosmos.CosmosChain, factoryContractAddress string) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	grpcConn, err := grpc.Dial(
+		chain.GetHostGRPCAddress(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer grpcConn.Close()
+
+	queryClient := wasmtypes.NewQueryClient(grpcConn)
+
+	// Create the query message for fetching all user bindings addresses
+	queryData := map[string]interface{}{
+		"get_contract_state": struct{}{},
+	}
+
+	queryDataBytes, err := json.Marshal(queryData)
+	if err != nil {
+		return nil, err
+	}
+
+	params := &wasmtypes.QuerySmartContractStateRequest{
+		Address:   factoryContractAddress,
+		QueryData: queryDataBytes,
+	}
+
+	return queryClient.SmartContractState(ctx, params)
+}
