@@ -9,7 +9,7 @@ members = [
    "sandboxes/my-redis",
    "sandboxes/my-redis",
    "sandboxes/queue",
-   "sandboxes/evm_listener",
+   "evm_listener",
    "relayer",
    # TODO: add the sandboxes/cosmwasm_signer and sandboxes/simple_relayer back here if you need it
    # It's causing rust analyzer errors atm--not worth time sink.
