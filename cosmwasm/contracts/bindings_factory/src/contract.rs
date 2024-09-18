@@ -44,7 +44,6 @@ pub fn execute(
         ExecuteMsg::CreateBindingsV2 {
             user_evm_address
         } => execute::create_bindings_v2(deps, env, info, user_evm_address),
-        ExecuteMsg::MapUserBindings {} => execute::map_user_bindings(deps, env, info),
         ExecuteMsg::CallBindings { evm_address, msg } => execute::call_bindings(deps, env, info, evm_address, msg),
     }
 }
@@ -253,38 +252,6 @@ mod execute {
         Ok(Response::new().add_messages(messages)) 
     }
 
-    pub fn map_user_bindings(
-        deps: DepsMut,
-        env: Env,
-        info: MessageInfo, //info.sender will be the bindings's address 
-        // bindings_owner: String, 
-    ) -> Result<Response, ContractError> {
-        // Mapping needed:
-        // evm address <> bindings address
-        // because of cross contract calls, the info.sender of this would be the bindings address, so we would need the evm address
-        // to be propagated from above
-
-        // TODO: 
-        // if instantiate2 worked, we don't need this function
-
-        // this contract can't have an owner because it needs to be called back by every bindings it instantiates 
-
-    USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &"evm address goes here", &info.sender.to_string())?; // again, info.sender is actually the bindings address
-
-    let mut event = Event::new("FACTORY:map_bindings_bindings");
-        event = event.add_attribute("info.sender", &info.sender.to_string());
-
-    // DOCUMENT: note in README that a successful bindings creation shall return the address in the tx.res.attribute 
-    // and a failure will throw 'AlreadyCreated' contractError
-
-    // NOTE: calling '.add_attribute' just adds a key value pair to the main wasm attribute 
-    // WARNING: is it possible at all that these bytes are non-deterministic?
-    // This can't be because we take from 'info.sender' which only exists if this function is called in the first place
-    // This function is called only if the bindings executes the callback, otherwise the Tx was abandoned while sitting in the 
-    // mem pool
-
-    Ok(Response::new().add_event(event)) // this data is not propagated back up to the tx resp of the 'create_bindings' call
-    }
 }
 
 mod query {

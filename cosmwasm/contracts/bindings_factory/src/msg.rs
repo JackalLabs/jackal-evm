@@ -19,10 +19,6 @@ pub enum ExecuteMsg {
         // If it works on canine-chain, will save us a lot of code
     },
 
-    MapUserBindings {
-        // Not really sure what I need right now 
-    },
-
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
         msg:         SharedExecuteMsg, // Just raw JSON? 
