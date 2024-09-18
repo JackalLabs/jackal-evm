@@ -45,7 +45,6 @@ pub fn execute(
             user_evm_address
         } => execute::create_bindings_v2(deps, env, info, user_evm_address),
         ExecuteMsg::MapUserBindings {} => execute::map_user_bindings(deps, env, info),
-        ExecuteMsg::FundBindings { evm_address, amount } => execute::fund_bindings(deps, env, info, evm_address, amount),
         ExecuteMsg::CallBindings { evm_address, msg } => execute::call_bindings(deps, env, info, evm_address, msg),
     }
 }
@@ -252,41 +251,6 @@ mod execute {
         messages.push(cosmos_msg);
         
         Ok(Response::new().add_messages(messages)) 
-    }
-
-    pub fn fund_bindings(
-        deps: DepsMut,
-        env: Env,
-        info: MessageInfo,
-        evm_address: String,
-        amount: i64,
-    ) -> Result<Response, ContractError> {
-        let state = STATE.load(deps.storage)?;
-
-        let mut bindings_address: String = String::new();
-
-        // Use may_load to attempt to retrieve the value associated with the key
-        if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &evm_address)? {
-        // If the key exists, return the value
-        bindings_address = value
-        } else {
-        // If the key does not exist, return the custom error
-            return Err(ContractError::DoesNotExist())
-        }
-
-        // TODO: replace 'unwrap()' with more elegance
-        let send_amount = vec![Coin::new(amount.try_into().unwrap(), "ujkl")];
-
-        // Create a BankMsg::Send message
-        let bank_msg = BankMsg::Send {
-            to_address: bindings_address.to_string(),
-            amount: send_amount,
-        };
-
-        // Wrap the BankMsg in a CosmosMsg
-        let cosmos_msg: CosmosMsg = CosmosMsg::Bank(bank_msg);
-
-        Ok(Response::new().add_message(cosmos_msg)) 
     }
 
     pub fn map_user_bindings(
