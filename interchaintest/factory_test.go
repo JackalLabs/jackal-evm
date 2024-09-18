@@ -116,7 +116,7 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
 				FileSize:      100000000,                                                                      // Replace with actual file size
-				ProofInterval: 60,                                                                             // Replace with actual proof interval
+				ProofInterval: 3600,                                                                           // Replace with actual proof interval
 				ProofType:     1,                                                                              // Replace with actual proof type
 				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
 				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
@@ -152,7 +152,7 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
 				FileSize:      100000000,                                                                      // Replace with actual file size
-				ProofInterval: 60,                                                                             // Replace with actual proof interval
+				ProofInterval: 3600,                                                                           // Replace with actual proof interval
 				ProofType:     1,                                                                              // Replace with actual proof type
 				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
 				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
