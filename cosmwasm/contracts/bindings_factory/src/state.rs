@@ -12,7 +12,9 @@ pub const STATE: Item<ContractState> = Item::new("state");
 /// WARNING: NOTE - the value here used to be 'String'
 pub const USER_ADDR_TO_BINDINGS_ADDR: Map<&str, String> = Map::new("user_addr_to_bindings_addr");
 
-/// TODO: add owner white list 
+/// A whitelist of users that can call bindings
+pub const WHITE_LIST: Map<&str, bool> = Map::new("white list");
+
 
 mod contract {
 

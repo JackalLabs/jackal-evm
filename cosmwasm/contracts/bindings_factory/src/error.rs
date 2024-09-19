@@ -13,7 +13,7 @@ pub enum ContractError {
     DoesNotExist(),
 
     // TODO: change the error message when the white list is added 
-    #[error("Only the factory owner can call bindings")]
+    #[error("Only white listed addresses can call bindings")]
     NotAllowed(),
 }
 

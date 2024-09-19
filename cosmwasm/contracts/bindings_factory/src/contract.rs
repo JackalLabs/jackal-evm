@@ -53,7 +53,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 
 mod execute {
     use cosmwasm_std::{CosmosMsg, Event, WasmMsg};
-    use crate::state::USER_ADDR_TO_BINDINGS_ADDR;
+    use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, WHITE_LIST};
     use shared::shared_msg::SharedExecuteMsg;
 
     use filetree::bindings_helpers::{BindingsCode, BindingsContract};
@@ -69,9 +69,15 @@ mod execute {
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
 
-        // Only the owner of the factory can call bindings
-        // TODO: add white list logic
-        if info.sender.to_string() != state.owner {
+        let mut allowed: bool = false;
+
+        // Use may_load to attempt to retrieve the value associated with the key
+        if let Some(value) = WHITE_LIST.may_load(deps.storage, &info.sender.to_string())? {
+            // If the key exists, return the value
+            allowed = value
+        } 
+
+        if allowed == false {
             return Err(ContractError::NotAllowed())
         }
 
@@ -115,7 +121,6 @@ mod execute {
             USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &evm_address, &bindings_contract_address.to_string())?; // again, info.sender is actually the outpost address
             let mut event = Event::new("FACTORY: create_binding");
             bindings_address = bindings_contract_address.to_string();
-
 
         }
 
@@ -181,6 +186,3 @@ mod query {
 
 #[cfg(test)]
 mod tests {}
-
-
-
