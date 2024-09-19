@@ -40,10 +40,6 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
-        ExecuteMsg::CreateBindings {} => execute::create_bindings(deps, env, info),
-        ExecuteMsg::CreateBindingsV2 {
-            user_evm_address
-        } => execute::create_bindings_v2(deps, env, info, user_evm_address),
         ExecuteMsg::CallBindings { evm_address, msg } => execute::call_bindings(deps, env, info, evm_address, msg),
     }
 }
@@ -67,104 +63,6 @@ mod execute {
     msg_helper_for_factory::ExecuteMsgForFactory};
 
     use super::*;
-
-    pub fn create_bindings(
-        deps: DepsMut,
-        env: Env,
-        info: MessageInfo,
-    ) -> Result<Response, ContractError> {
-        let state = STATE.load(deps.storage)?;
-        // WARNING: This function is called by the user, so we cannot error:unauthorized if info.sender != admin 
-
-        let bindings_code_id = BindingsCode::new(state.bindings_code_id);
-
-        // Check if key already exists and disallow multiple bindings creations 
-        // If key exists, we don't care what the address is, just the mere existence of the key means an bindings was 
-        // already created
-            
-        if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &info.sender.to_string())? {
-            return Err(ContractError::AlreadyCreated(value.to_string()))
-        }
-
-        // TODO: use the callback again
-        // let callback = Callback {};
-
-        let instantiate_msg = filetree::msg::InstantiateMsg {};
-
-        let label
-         = format!("bindings contract-owned by: {}", &info.sender.to_string());
-
-        // 'instantiate2' has the ability to pre compute the binding's contract address
-        // We are only instantiating on Jackal--if 'instantiate2' works on Jackal, we can get rid of the lock and callback mechanism 
-        // And we can save it right away
-
-        let cosmos_msg = bindings_code_id.instantiate(
-            instantiate_msg,
-            label,
-            Some(info.sender.to_string()),
-        )?;
-
-        let mut event = Event::new("FACTORY: create_binding");
-        event = event.add_attribute("info.sender", &info.sender.to_string());
-
-        Ok(Response::new().add_message(cosmos_msg).add_event(event)) 
-    }
-
-    pub fn create_bindings_v2(
-        deps: DepsMut,
-        env: Env,
-        info: MessageInfo,
-        user_evm_address: String,
-    ) -> Result<Response, ContractError> {
-        let state = STATE.load(deps.storage)?;
-        // WARNING: This function is called by the user, so we cannot error:unauthorized if info.sender != admin 
-
-        let bindings_code_id = BindingsCode::new(state.bindings_code_id);
-
-        // Check if key already exists and disallow multiple bindings creations 
-        // If key exists, we don't care what the address is, just the mere existence of the key means an bindings was 
-        // already created
-        
-        // If bindings contract already made for this account, don't make another one
-        if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &user_evm_address)? {
-            return Err(ContractError::AlreadyCreated(value.to_string()))
-        }
-
-        // TODO: Because instantiate2 works, I don't think we even need this lock now
-        // Set this such that only the owner of the factory can call it 
-
-        // TODO: use the callback again
-        // let callback = Callback {};
-
-        let instantiate_msg = filetree::msg::InstantiateMsg {};
-
-        let label
-         = format!("bindings contract-owned by: {}", &user_evm_address);
-
-        // 'instantiate2' has the ability to pre compute the binding's contract address
-        // We are only instantiating on Jackal--if 'instantiate2' works on Jackal, we can get rid of the lock and callback mechanism 
-        // And we can save it right away
-
-        let (cosmos_msg, bindings_contract_address) = bindings_code_id.instantiate2(
-            deps.api,
-            &deps.querier,
-            &env,
-            instantiate_msg,
-            label,
-            Some(env.contract.address.to_string()),
-            // WARNING: is it okay to use current block time as salt? The ica-controller only uses this as a fallback option
-            env.block.time.seconds().to_string(), 
-        )?;
-
-        USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &user_evm_address, &bindings_contract_address.to_string())?; // again, info.sender is actually the outpost address
-
-        // TODO: map evm address <> bindings contract here 
-
-        let mut event = Event::new("FACTORY: create_binding");
-        event = event.add_attribute("pre-computed bindings contract address:", bindings_contract_address.as_str()); // WARNING: not 100% sure 'as_str' returns bech32 format
-
-        Ok(Response::new().add_message(cosmos_msg).add_event(event)) 
-    }
 
     pub fn call_bindings(
         deps: DepsMut,

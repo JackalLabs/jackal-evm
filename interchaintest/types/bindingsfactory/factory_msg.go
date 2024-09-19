@@ -13,13 +13,13 @@ type InstantiateMsg struct {
 
 // not sure if 'create_bindings_v2' is correct
 type ExecuteMsg struct {
-	CreateBindingsV2    *ExecuteMsg_CreateBindingsV2    `json:"create_bindings_v2,omitempty"`
+	CreateBindings      *ExecuteMsg_CreateBindings      `json:"create_bindings,omitempty"`
 	FundBindings        *ExecuteMsg_FundBindings        `json:"fund_bindings,omitempty"`
 	CallBindings        *ExecuteMsg_CallBindings        `json:"call_bindings,omitempty"`
 	CallStorageBindings *ExecuteMsg_CallStorageBindings `json:"call_storage_bindings,omitempty"`
 }
 
-type ExecuteMsg_CreateBindingsV2 struct {
+type ExecuteMsg_CreateBindings struct {
 	UserEvmAddress *string `json:"user_evm_address,omitempty"`
 }
 
