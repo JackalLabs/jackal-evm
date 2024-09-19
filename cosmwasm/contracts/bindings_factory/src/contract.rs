@@ -5,7 +5,7 @@ use cosmwasm_std::{to_json_binary, Binary, Deps, DepsMut, Env, MessageInfo, Resp
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use crate::state::{ContractState, STATE};
+use crate::state::{ContractState, STATE, WHITE_LIST};
 
 /*
 // version info for migration info
@@ -27,6 +27,9 @@ pub fn instantiate(
         deps.storage,
         &ContractState::new(msg.bindings_code_id, info.sender.to_string()),
     )?;
+    // Add the owner to the white list of senders
+    WHITE_LIST.save(deps.storage, &info.sender.to_string(), &true)?; // again, info.sender is actually the outpost address
+
     Ok(Response::default())
 }
 
@@ -85,7 +88,7 @@ mod execute {
 
         // declare empty cosmos msg here to be assigned by else block:
         let mut factory_cosmos_msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate2 {
-            admin: None,
+            admin: None, // WARNING: TODO: the owner of the factory should be admin so it can perform migrations on bindings
             code_id: 0,
             label: String::new(),
             msg: Binary::default(),
