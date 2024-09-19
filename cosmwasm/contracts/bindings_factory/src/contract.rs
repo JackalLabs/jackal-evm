@@ -23,8 +23,6 @@ pub fn instantiate(
     // NOTE: admin should be set in the wasm.Instanstiate protobuf msg
     // Setting it into contract state is actually useless when wasmd checks for migration permissions
     
-    // TODO: set owner?
-
     STATE.save(
         deps.storage,
         &ContractState::new(msg.bindings_code_id, info.sender.to_string()),
@@ -54,13 +52,11 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 }
 
 mod execute {
-    use cosmwasm_std::{to_json_binary, Addr, BankMsg, Coin, CosmosMsg, Empty, Event, Uint128, WasmMsg};
-    use crate::state::{self, USER_ADDR_TO_BINDINGS_ADDR};
+    use cosmwasm_std::{CosmosMsg, Event, WasmMsg};
+    use crate::state::USER_ADDR_TO_BINDINGS_ADDR;
     use shared::shared_msg::SharedExecuteMsg;
 
-    use filetree::{bindings_helpers::{BindingsCode, BindingsContract}, 
-    msg::InstantiateMsg,
-    msg_helper_for_factory::ExecuteMsgForFactory};
+    use filetree::bindings_helpers::{BindingsCode, BindingsContract};
 
     use super::*;
 
@@ -137,7 +133,7 @@ mod execute {
         let mut id: u64 = 0;
 
         if let CosmosMsg::Wasm(wasm_msg) = factory_cosmos_msg.clone() {
-           if let WasmMsg::Instantiate2 { admin, code_id, label, msg, funds, salt } = wasm_msg {
+           if let WasmMsg::Instantiate2 { admin: _, code_id, label: _, msg: _, funds: _, salt: _ } = wasm_msg {
                 id = code_id;
            }
         }

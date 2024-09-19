@@ -16,22 +16,6 @@ pub enum ExecuteMsg {
 
 }
 
-// // Linker gets confused if we import filetree's msg types, so we can just our own copy with a different name
-// #[cw_serde]
-// pub enum FiletreeExecuteMsg {
-
-//     PostKey {
-//         key: String,
-//     },
-
-//     MakeRoot {
-//         editors: String,
-//         viewers: String,
-//         trackingnumber: String,
-//     },
-// }
-
-
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
