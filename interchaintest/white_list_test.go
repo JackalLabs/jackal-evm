@@ -163,6 +163,14 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 		s.Require().NoError(err)
 		logger.LogInfo(whiteList)
 
+		// Now that userC has been added to the whitelist, they can call bindings
+		// UserC is attempting to post a file for alice
+		StorageMsg3 := storageMsg
+		StorageMsg3.PostFile.Note = `{"description": "userC got white listed!", "additional_info": "placeholder"}`
+		factoryExecuteMsg.CallBindings.Msg = &StorageMsg3
+		aliceRes3, _ := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		fmt.Println(aliceRes3)
+
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)
