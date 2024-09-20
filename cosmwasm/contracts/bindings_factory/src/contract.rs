@@ -117,7 +117,7 @@ mod execute {
                 &env,
                 instantiate_msg,
                 label,
-                Some(env.contract.address.to_string()),
+                Some(env.contract.address.to_string()), // WARNING: should we admin be the address that created the factory? To facilitate migrations?
                 // WARNING: is it okay to use current block time as salt? The ica-controller only uses this as a fallback option
                 env.block.time.seconds().to_string(), 
             )?;
