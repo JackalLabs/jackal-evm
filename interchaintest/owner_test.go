@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	testsuite "github.com/JackalLabs/jackal-evm/testsuite"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
@@ -149,7 +150,7 @@ func (s *ContractTestSuite) TestOwnerFactory() {
 
 	},
 	)
-	// time.Sleep(time.Duration(10) * time.Hour)
+	time.Sleep(time.Duration(10) * time.Hour)
 }
 
 // log address of bindings contract
