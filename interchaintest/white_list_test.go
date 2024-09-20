@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	testsuite "github.com/JackalLabs/jackal-evm/testsuite"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
@@ -145,9 +146,26 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 			"Only white listed addresses can call bindings: execute wasm contract failed"
 		s.Require().EqualError(error, expectedErrorMsg)
 
+		userC := s.UserC.FormattedAddress()
+		// Factory owner is now going to add user C to the white list
+		addWhiteListMsg := factorytypes.ExecuteMsg{
+			AddToWhiteList: &factorytypes.ExecuteMsg_AddToWhiteList{
+				JKLAddress: &userC,
+			},
+		}
+
+		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, addWhiteListMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res6)
+
+		whiteList, err := testsuite.GetWhiteList(ctx, s.ChainB, factoryContractAddress)
+		s.Require().NoError(err)
+		logger.LogInfo(whiteList)
+
 	},
 	)
-	// time.Sleep(time.Duration(10) * time.Hour)
+	time.Sleep(time.Duration(10) * time.Hour)
 }
 
 // log address of bindings contract

@@ -101,3 +101,34 @@ func GetState(ctx context.Context, chain *cosmos.CosmosChain, factoryContractAdd
 
 	return queryClient.SmartContractState(ctx, params)
 }
+
+// GetWhiteList queries and returns entire Whitelist
+func GetWhiteList(ctx context.Context, chain *cosmos.CosmosChain, factoryContractAddress string) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	grpcConn, err := grpc.Dial(
+		chain.GetHostGRPCAddress(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer grpcConn.Close()
+
+	queryClient := wasmtypes.NewQueryClient(grpcConn)
+
+	// Create the query message for fetching all user bindings addresses
+	queryData := map[string]interface{}{
+		"get_white_list": struct{}{},
+	}
+
+	queryDataBytes, err := json.Marshal(queryData)
+	if err != nil {
+		return nil, err
+	}
+
+	params := &wasmtypes.QuerySmartContractStateRequest{
+		Address:   factoryContractAddress,
+		QueryData: queryDataBytes,
+	}
+
+	return queryClient.SmartContractState(ctx, params)
+}

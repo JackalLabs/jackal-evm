@@ -17,6 +17,11 @@ type ExecuteMsg struct {
 	FundBindings        *ExecuteMsg_FundBindings        `json:"fund_bindings,omitempty"`
 	CallBindings        *ExecuteMsg_CallBindings        `json:"call_bindings,omitempty"`
 	CallStorageBindings *ExecuteMsg_CallStorageBindings `json:"call_storage_bindings,omitempty"`
+	AddToWhiteList      *ExecuteMsg_AddToWhiteList      `json:"add_to_white_list,omitempty"`
+}
+
+type ExecuteMsg_AddToWhiteList struct {
+	JKLAddress *string `json:"jkl_address,omitempty"`
 }
 
 type ExecuteMsg_CreateBindings struct {
