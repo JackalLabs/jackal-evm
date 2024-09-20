@@ -17,6 +17,8 @@ import (
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 
+// NOTE: This test now redundant because of 'white list test'?
+
 // WARNING: strangelove's test package builds chains running ibc-go/v7
 // Hopefully this won't cause issues because the canined image we use is running ibc-go/v4
 // and packets should be consumed by the ica host no matter what version of ibc-go the controller chain is running
@@ -142,7 +144,7 @@ func (s *ContractTestSuite) TestOwnerFactory() {
 		aliceRes2, error := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		fmt.Println(aliceRes2)
 		expectedErrorMsg := "transaction failed with code 5: failed to execute message; message index: 0: " +
-			"Only the factory owner can call bindings: execute wasm contract failed"
+			"Only white listed addresses can call bindings: execute wasm contract failed"
 		s.Require().EqualError(error, expectedErrorMsg)
 
 	},
