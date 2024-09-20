@@ -16,21 +16,15 @@ import (
 	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
-	"github.com/strangelove-ventures/interchaintest/v7/relayer"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 )
 
 type TestSuite struct {
 	suite.Suite
 
-	ChainA       *cosmos.CosmosChain
 	ChainB       *cosmos.CosmosChain
-	ChainAFaucet ibc.Wallet
-	UserA        ibc.Wallet
-	UserA2       ibc.Wallet
-	UserA3       ibc.Wallet
 	UserB        ibc.Wallet
-	ChainAConnID string
+	UserC        ibc.Wallet
 	ChainBConnID string
 	dockerClient *dockerclient.Client
 	Relayer      ibc.Relayer
@@ -42,10 +36,6 @@ type TestSuite struct {
 
 // SetupSuite sets up the chains, relayer, user accounts, clients, and connections
 func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest.ChainSpec) {
-	// NOTE: I think we can remove chainA and this system will still work
-	if len(chainSpecs) != 2 {
-		panic("ContractTestSuite requires exactly 2 chain specs")
-	}
 
 	t := s.T()
 
@@ -56,32 +46,12 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 
 	chains, err := cf.Chains(t.Name())
 	s.Require().NoError(err)
-	s.ChainA = chains[0].(*cosmos.CosmosChain)
-	s.ChainB = chains[1].(*cosmos.CosmosChain)
-
-	// docker run -it --rm --entrypoint echo ghcr.io/cosmos/relayer "$(id -u):$(id -g)"
-	customRelayerImage := relayer.CustomDockerImage("ghcr.io/cosmos/relayer", "", "100:1000")
-
-	s.Relayer = interchaintest.NewBuiltinRelayerFactory(
-		ibc.CosmosRly,
-		zaptest.NewLogger(t),
-		customRelayerImage,
-	).Build(t, s.dockerClient, s.network)
+	s.ChainB = chains[0].(*cosmos.CosmosChain)
 
 	s.ExecRep = testreporter.NewNopReporter().RelayerExecReporter(t)
 
-	s.PathName = s.ChainA.Config().Name + "-" + s.ChainB.Config().Name
-
 	ic := interchaintest.NewInterchain().
-		AddChain(s.ChainA).
-		AddChain(s.ChainB).
-		AddRelayer(s.Relayer, "relayer").
-		AddLink(interchaintest.InterchainLink{
-			Chain1:  s.ChainA,
-			Chain2:  s.ChainB,
-			Relayer: s.Relayer,
-			Path:    s.PathName,
-		})
+		AddChain(s.ChainB)
 
 	s.Require().NoError(ic.Build(ctx, s.ExecRep, interchaintest.InterchainBuildOptions{
 		TestName:         t.Name(),
@@ -92,7 +62,9 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	logger.InitLogger()
 
 	// Fund user accounts on ChainA and ChainB
-	const userFunds = int64(1_00_000_000_000_000)
+	// WARNING: This number can't be too high or the faucet can't seem to have enough to fund accounts
+	// Perfect number is between 10_000_000_000 and 1_000_000_000_000
+	const userFunds = int64(1_000_000_000_000)
 	userFundsInt := math.NewInt(userFunds)
 
 	// this is the seed phrase for the danny user that appears in all of canine-chain's testing scripts
@@ -102,6 +74,13 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	s.Require().NoError(err)
 
 	s.UserB = userB //the jackal user
+
+	userCSeed := "raven symbol today record infant degree glad use risk outdoor stool strike clay " +
+		"tomorrow salute method mystery behave ivory repeat young hover glare essence"
+	userC, err := interchaintest.GetAndFundTestUserWithMnemonic(ctx, "jkl", userCSeed, userFundsInt, s.ChainB)
+	s.Require().NoError(err)
+
+	s.UserC = userC
 
 	// NOTE: not really sure where to pass this in atm
 	usingPorts := nat.PortMap{}

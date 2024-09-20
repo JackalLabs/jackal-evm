@@ -9,47 +9,15 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
 
-    CreateBindings {
-        // Not really sure what I need right now 
-    },
-
-    CreateBindingsV2 {
-        user_evm_address: String,
-        // This makes use of CosmWasm's 'instantiate2' API, which pre computes the contract address.
-        // If it works on canine-chain, will save us a lot of code
-    },
-
-    MapUserBindings {
-        // Not really sure what I need right now 
-    },
-
-    FundBindings {
-        evm_address: String, 
-        amount: i64,
-    },
-
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
         msg:         SharedExecuteMsg, // Just raw JSON? 
     },
+    AddToWhiteList {
+        jkl_address: String, 
+    },
 
 }
-
-// // Linker gets confused if we import filetree's msg types, so we can just our own copy with a different name
-// #[cw_serde]
-// pub enum FiletreeExecuteMsg {
-
-//     PostKey {
-//         key: String,
-//     },
-
-//     MakeRoot {
-//         editors: String,
-//         viewers: String,
-//         trackingnumber: String,
-//     },
-// }
-
 
 #[cw_serde]
 #[derive(QueryResponses)]
@@ -63,5 +31,8 @@ pub enum QueryMsg {
     /// GetAllUserBindingsAddresses returns all user bindings addresses in a readable format
     #[returns(Vec<(String, String)>)]
     GetAllUserBindingsAddresses {},
-
+    /// GetWhiteList returns the white list
+    #[returns(Vec<(String, bool)>)]
+    GetWhiteList {},
 }
+

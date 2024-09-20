@@ -67,6 +67,10 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 	factoryContractAddress := "jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr"
 
+	contractState, stateErr := testsuite.GetState(ctx, s.ChainB, factoryContractAddress)
+	s.Require().NoError(stateErr)
+	logger.LogInfo(contractState)
+
 	// Fund the factory so it can fund the bindings
 	s.FundAddressChainB(ctx, factoryContractAddress)
 
@@ -76,7 +80,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
 		aliceEvmAddress := "alice_Ox1" // Declare a variable holding the string
 		msg := factorytypes.ExecuteMsg{
-			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{UserEvmAddress: &aliceEvmAddress},
+			CreateBindings: &factorytypes.ExecuteMsg_CreateBindings{UserEvmAddress: &aliceEvmAddress},
 		}
 
 		res, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, msg.ToString(), "--gas", "500000")
@@ -99,7 +103,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
 		msg2 := factorytypes.ExecuteMsg{
-			CreateBindingsV2: &factorytypes.ExecuteMsg_CreateBindingsV2{UserEvmAddress: &bobEvmAddress},
+			CreateBindings: &factorytypes.ExecuteMsg_CreateBindings{UserEvmAddress: &bobEvmAddress},
 		}
 
 		res2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, msg2.ToString(), "--gas", "500000")

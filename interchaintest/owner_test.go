@@ -18,12 +18,14 @@ import (
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
 
+// NOTE: This test now redundant because of 'white list test'?
+
 // WARNING: strangelove's test package builds chains running ibc-go/v7
 // Hopefully this won't cause issues because the canined image we use is running ibc-go/v4
 // and packets should be consumed by the ica host no matter what version of ibc-go the controller chain is running
 
 // Testing canine-chain's web assembly bindings
-func (s *ContractTestSuite) TestJackalChainFactory() {
+func (s *ContractTestSuite) TestOwnerFactory() {
 	ctx := context.Background()
 
 	logger.InitLogger()
@@ -116,7 +118,7 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 			PostFile: &filetreetypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
 				FileSize:      100000000,                                                                      // Replace with actual file size
-				ProofInterval: 3600,                                                                           // Replace with actual proof interval
+				ProofInterval: 60,                                                                             // Replace with actual proof interval
 				ProofType:     1,                                                                              // Replace with actual proof type
 				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
 				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
@@ -136,48 +138,15 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
 
-		// post a second file for alice
+		// UserC is attempting to post a file for alice
 		secondStorageMsg := storageMsg
-		secondStorageMsg.PostFile.Note = `{"description": "alice note 2", "additional_info": "placeholder"}`
+		secondStorageMsg.PostFile.Note = `{"description": "UserC acting badly", "additional_info": "placeholder"}`
 		factoryExecuteMsg.CallBindings.Msg = &secondStorageMsg
-		aliceRes2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		aliceRes2, error := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		fmt.Println(aliceRes2)
-
-		//****** FOR BOB ******
-
-		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
-
-		// Could also use:  for 'Merkle'?
-		bobStorageMsg := filetreetypes.ExecuteMsg{
-			PostFile: &filetreetypes.ExecuteMsg_PostFile{
-				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
-				FileSize:      100000000,                                                                      // Replace with actual file size
-				ProofInterval: 3600,                                                                           // Replace with actual proof interval
-				ProofType:     1,                                                                              // Replace with actual proof type
-				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
-				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
-				Note:          `{"description": "bob's note", "additional_info": "Replace with actual data"}`, // JSON formatted string
-			},
-		}
-
-		factoryExecuteMsgForBob := factorytypes.ExecuteMsg{
-			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
-				EvmAddress: &bobEvmAddress,
-				Msg:        &bobStorageMsg,
-			},
-		}
-
-		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsgForBob.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
-		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-		fmt.Println(res6)
-
-		// post a second file for bob
-		bobSecondStorageMsg := bobStorageMsg
-		bobSecondStorageMsg.PostFile.Note = `{"description": "bob note 2", "additional_info": "placeholder"}`
-		factoryExecuteMsgForBob.CallBindings.Msg = &bobSecondStorageMsg
-		bobRes2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsgForBob.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
-		fmt.Println(bobRes2)
+		expectedErrorMsg := "transaction failed with code 5: failed to execute message; message index: 0: " +
+			"Only white listed addresses can call bindings: execute wasm contract failed"
+		s.Require().EqualError(error, expectedErrorMsg)
 
 	},
 	)

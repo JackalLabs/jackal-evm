@@ -6,7 +6,6 @@ import (
 
 	testtypes "github.com/JackalLabs/storage-outpost/e2e/interchaintest/types"
 	interchaintest "github.com/strangelove-ventures/interchaintest/v7"
-	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos/wasm"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
 )
 
@@ -61,29 +60,6 @@ var genesisAllowICH = map[string]interface{}{
 }
 
 var chainSpecs = []*interchaintest.ChainSpec{
-	// -- WASMD --
-	{
-		ChainConfig: ibc.ChainConfig{
-			Type:    "cosmos",
-			Name:    "wasmd",
-			ChainID: "localwasm-1",
-			Images: []ibc.DockerImage{
-				{
-					Repository: "cosmwasm/wasmd", // FOR LOCAL IMAGE USE: Docker Image Name
-					Version:    "v0.45.0",
-				},
-			},
-			Bin:           "wasmd",
-			Bech32Prefix:  "wasm",
-			Denom:         "uwsm",
-			GasPrices:     "0.00uwsm",
-			GasAdjustment: 1.3,
-			// cannot run wasmd commands without wasm encoding
-			EncodingConfig: wasm.WasmEncoding(),
-			TrustingPeriod: "508h",
-			NoHostMount:    false,
-		},
-	},
 
 	// -- CANINED --
 	{
