@@ -31,5 +31,8 @@ pub enum QueryMsg {
     /// GetAllUserBindingsAddresses returns all user bindings addresses in a readable format
     #[returns(Vec<(String, String)>)]
     GetAllUserBindingsAddresses {},
-
+    /// GetWhiteList returns the white list
+    #[returns(Vec<(String, bool)>)]
+    GetWhiteList {},
 }
+

@@ -53,6 +53,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::GetContractState {} => to_json_binary(&query::state(deps)?),
         QueryMsg::GetUserBindingsAddress { user_address } => to_json_binary(&query::user_bindings_address(deps, user_address)?),
         QueryMsg::GetAllUserBindingsAddresses {} => to_json_binary(&query::all_user_bindings_addresses(deps)?),
+        QueryMsg::GetWhiteList {} => to_json_binary(&query::white_list(deps)?),
     }
 }
 
@@ -207,7 +208,20 @@ mod query {
         Ok(all_bindings)
     }
 
-    
+    /// Returns entire white list
+    pub fn white_list(deps: Deps) -> StdResult<Vec<(String, bool)>> {
+        let mut white_list = vec![];
+
+        let iter = WHITE_LIST.range(deps.storage, None, None, Order::Ascending);
+        for item in iter {
+            let (key, value) = item?;
+            white_list.push((key.to_string(), value));
+        }
+
+        Ok(white_list)
+    }
+
+
 }
 
 #[cfg(test)]
