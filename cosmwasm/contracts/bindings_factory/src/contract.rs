@@ -42,6 +42,8 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::CallBindings { evm_address, msg } => execute::call_bindings(deps, env, info, evm_address, msg),
+        ExecuteMsg::AddToWhiteList { jkl_address } => execute::add_to_white_list(deps, env, info, jkl_address),
+
     }
 }
 
@@ -154,6 +156,25 @@ mod execute {
         Ok(Response::new().add_messages(messages)) 
     }
 
+    pub fn add_to_white_list(
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        jkl_address: String,
+    ) -> Result<Response, ContractError> {
+        let state = STATE.load(deps.storage)?;
+
+        // Only the factory owner can add an address to the white list
+        if info.sender.to_string() != state.owner {
+            return Err(ContractError::CannotUpdate())
+        }
+
+        WHITE_LIST.save(deps.storage, &jkl_address, &true)?; // again, info.sender is actually the outpost address
+
+        Ok(Response::new()) 
+
+    }
+
 }
 
 mod query {
@@ -185,6 +206,8 @@ mod query {
 
         Ok(all_bindings)
     }
+
+    
 }
 
 #[cfg(test)]

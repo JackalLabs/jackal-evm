@@ -13,6 +13,9 @@ pub enum ExecuteMsg {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
         msg:         SharedExecuteMsg, // Just raw JSON? 
     },
+    AddToWhiteList {
+        jkl_address: String, 
+    },
 
 }
 
