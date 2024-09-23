@@ -153,36 +153,9 @@ func (s *ContractTestSuite) TestOwnerFactory() {
 	time.Sleep(time.Duration(10) * time.Hour)
 }
 
-// log address of bindings contract
-// create bindings factory contract
-
 /*
 
 bindings contract addresses are:
 jkl130zv8rh840f7f3e05feraalda6yqtrmf3elk6cd0zs6azg8nqmnsvzqwa2
 - jkl1k2mxluep54u5qp5zv70qhaazakdes20lxwjmh3pa3fzttnpakvlqet0s8z
-*/
-
-/*
-Sep 10 2024
-
-NOTE: So posting files works while we have the 'merkle' field set as a string
-
-See proof below;
-
-canined q storage files
-files:
-- expires: "525600057"
-  file_size: "100000000"
-  max_proofs: "100"
-  merkle: AQKr/xA=
-  note: '{"description": "This is a test note", "additional_info": "Replace with actual
-    data"}'
-  owner: jkl12xfyvuedsnu2jf63mzlr7c0cwstdu6ga04pk68gy5r2yeuj9z04qkseqjh
-  proof_interval: "50"
-  proof_type: "1"
-  proofs: []
-  start: "58"
-
-We need to set it back to []byte and see if it still works
 */

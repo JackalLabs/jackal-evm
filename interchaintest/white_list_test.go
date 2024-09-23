@@ -147,6 +147,23 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 		s.Require().EqualError(error, expectedErrorMsg)
 
 		userC := s.UserC.FormattedAddress()
+
+		// UserC is going to try and add themselves to the white list
+		badAddWhiteListMsg := factorytypes.ExecuteMsg{
+			AddToWhiteList: &factorytypes.ExecuteMsg_AddToWhiteList{
+				JKLAddress: &userC,
+			},
+		}
+
+		res6, err := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), factoryContractAddress, badAddWhiteListMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		expectedErrorMsg = "transaction failed with code 5: failed to execute message; message index: 0: " +
+			"Only the factory owner can update the white list: execute wasm contract failed"
+		s.Require().EqualError(err, expectedErrorMsg)
+
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res6)
+
 		// Factory owner is now going to add user C to the white list
 		addWhiteListMsg := factorytypes.ExecuteMsg{
 			AddToWhiteList: &factorytypes.ExecuteMsg_AddToWhiteList{
@@ -154,10 +171,10 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 			},
 		}
 
-		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, addWhiteListMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		res7, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, addWhiteListMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-		fmt.Println(res6)
+		fmt.Println(res7)
 
 		whiteList, err := testsuite.GetWhiteList(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(err)
