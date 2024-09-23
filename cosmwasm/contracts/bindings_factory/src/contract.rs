@@ -20,15 +20,13 @@ pub fn instantiate(
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    // NOTE: admin should be set in the wasm.Instanstiate protobuf msg
-    // Setting it into contract state is actually useless when wasmd checks for migration permissions
     
     STATE.save(
         deps.storage,
         &ContractState::new(msg.bindings_code_id, info.sender.to_string()),
     )?;
     // Add the owner to the white list of senders
-    WHITE_LIST.save(deps.storage, &info.sender.to_string(), &true)?; // again, info.sender is actually the outpost address
+    WHITE_LIST.save(deps.storage, &info.sender.to_string(), &true)?; 
 
     Ok(Response::default())
 }
@@ -77,7 +75,7 @@ mod execute {
 
         let mut allowed: bool = false;
 
-        // Use may_load to attempt to retrieve the value associated with the key
+        // If the sender is in the whitelist, we should be able to find a bool value of 'true' 
         if let Some(value) = WHITE_LIST.may_load(deps.storage, &info.sender.to_string())? {
             // If the key exists, return the value
             allowed = value
@@ -91,7 +89,7 @@ mod execute {
 
         // declare empty cosmos msg here to be assigned by else block:
         let mut factory_cosmos_msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate2 {
-            admin: None, // WARNING: TODO: the owner of the factory should be admin so it can perform migrations on bindings
+            admin: None, // TODO: Set as admin for migration purposes. Write test to make sure info.sender is admin
             code_id: 0,
             label: String::new(),
             msg: Binary::default(),
@@ -99,12 +97,12 @@ mod execute {
             salt: Binary::default(),
         });
 
-        // Use may_load to attempt to retrieve the value associated with the key
+        // If the evm address already has a bindings contract, we proceed. 
         if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &evm_address)? {
-        // If the key exists, return the value
+        
         bindings_address = value
         } else {
-        // If the key does not exist, return the custom error
+        // If the evm address does not have a bindings contract, we make one for them before calling it 
             let bindings_code_id = BindingsCode::new(state.bindings_code_id);
             let instantiate_msg = filetree::msg::InstantiateMsg {};
 
@@ -117,15 +115,14 @@ mod execute {
                 &env,
                 instantiate_msg,
                 label,
-                Some(env.contract.address.to_string()), // WARNING: should we admin be the address that created the factory? To facilitate migrations?
-                // WARNING: is it okay to use current block time as salt? The ica-controller only uses this as a fallback option
+                Some(env.contract.address.to_string()), // TODO: should be address that owns the factory for migration purposes
+                // NOTE: is it okay to use current block time as salt? Shoul this only be a fall back option?
                 env.block.time.seconds().to_string(), 
             )?;
 
             factory_cosmos_msg = instantiate2_cosmos_msg;
 
-            USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &evm_address, &bindings_contract_address.to_string())?; // again, info.sender is actually the outpost address
-            let mut event = Event::new("FACTORY: create_binding");
+            USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &evm_address, &bindings_contract_address.to_string())?; 
             bindings_address = bindings_contract_address.to_string();
 
         }
@@ -137,7 +134,7 @@ mod execute {
         // Execute the bindings contract with given msg
         let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
 
-        // Make sure factory_cosmos_msg is not empty
+        // We only add the factory_cosmos_msg if it's non empty--i.e., we actually need it for creating a bindings contract 
 
         let mut messages: Vec<CosmosMsg> = Vec::new();
 
@@ -159,7 +156,7 @@ mod execute {
 
     pub fn add_to_white_list(
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         jkl_address: String,
     ) -> Result<Response, ContractError> {
@@ -170,7 +167,7 @@ mod execute {
             return Err(ContractError::CannotUpdate())
         }
 
-        WHITE_LIST.save(deps.storage, &jkl_address, &true)?; // again, info.sender is actually the outpost address
+        WHITE_LIST.save(deps.storage, &jkl_address, &true)?; 
 
         Ok(Response::new()) 
 
@@ -220,9 +217,5 @@ mod query {
 
         Ok(white_list)
     }
-
-
 }
 
-#[cfg(test)]
-mod tests {}
