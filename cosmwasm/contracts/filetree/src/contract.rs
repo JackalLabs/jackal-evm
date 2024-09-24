@@ -108,6 +108,8 @@ pub fn post_file(
     // properly validate
     // deps.api.addr_validate(info.sender)?;
 
+    // WARNING: TODO: Does canine-bindings itself need to ensure only white listed addresses can sign?
+
     let merkle_bytes = cosmwasm_std::Binary::from_base64(&merkle).expect("could not get merkle from base64");
 
     let creator = env.contract.address.to_string();
