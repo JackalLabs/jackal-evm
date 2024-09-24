@@ -40,8 +40,8 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 	FactoryCodeId, err := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/bindings_factory.wasm")
 	s.Require().NoError(err)
 
-	// Store code of filetree bindings
-	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/filetree.wasm")
+	// Store code of canine-bindings
+	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/canine_bindings.wasm")
 	s.Require().NoError(error)
 
 	// codeId is string and needs to be converted to uint64
