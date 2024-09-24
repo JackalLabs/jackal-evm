@@ -60,7 +60,7 @@ mod execute {
     use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, WHITE_LIST};
     use shared::shared_msg::SharedExecuteMsg;
 
-    use filetree::bindings_helpers::{BindingsCode, BindingsContract};
+    use canine_bindings::bindings_helpers::{BindingsCode, BindingsContract};
 
     use super::*;
 
@@ -104,7 +104,7 @@ mod execute {
         } else {
         // If the evm address does not have a bindings contract, we make one for them before calling it 
             let bindings_code_id = BindingsCode::new(state.bindings_code_id);
-            let instantiate_msg = filetree::msg::InstantiateMsg {};
+            let instantiate_msg = canine_bindings::msg::InstantiateMsg {};
 
             let label
             = format!("bindings contract-owned by: {}", &evm_address);
@@ -127,7 +127,7 @@ mod execute {
 
         }
 
-        // Convert the bech32 string back to 'Addr' type before passing to the filetree helper API
+        // Convert the bech32 string back to 'Addr' type before passing to the canine_bindings helper API
         let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
         let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
         

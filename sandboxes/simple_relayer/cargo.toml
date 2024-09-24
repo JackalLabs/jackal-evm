@@ -6,7 +6,7 @@ description = "a simple EVM<>Cosmos relayer"
 edition = "2021"  
 
 [dependencies]
-filetree = { path = "../cosmwasm/contracts/filetree"}
+filetree = { path = "../cosmwasm/contracts/canine-bindings"}
 tokio = { version = "1.39.1", features = ["full"] }
 cosmrs = { version = "0.17.0", features = ["rpc", "cosmwasm"] }
 dotenv = "0.15"

@@ -1,5 +1,5 @@
 [package]
-name = "filetree"
+name = "canine_bindings"
 version = "0.1.0"
 authors = ["Bi Phan <bi@jackallabs.io>"]
 edition = "2021"

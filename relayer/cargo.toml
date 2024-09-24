@@ -6,13 +6,12 @@ description = "a relayer for the jackal protocol to interop with EVM"
 edition = "2021" 
 
 [dependencies]
-filetree = { path = "../cosmwasm/contracts/filetree"}
+canine_bindings = { path = "../cosmwasm/contracts/canine_bindings"}
 tokio = { version = "1.39.1", features = ["full"] }
 cosmrs = { version = "0.17.0", features = ["rpc", "cosmwasm"] }
 dotenv = "0.15"
 anyhow = "1.0"
 
-mailbox = { path = "../cosmwasm/contracts/core/mailbox"}
 serde_json = "1.0.120"
 
 cosmwasm-std = "1.0"

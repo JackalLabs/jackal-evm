@@ -1,12 +1,10 @@
 [workspace]
 members = [
    # ".", NOTE: the root likely doesn't need to be a cargo project 
-   "cosmwasm/contracts/core/mailbox",
-   "cosmwasm/contracts/filetree",
+   "cosmwasm/contracts/canine_bindings",
    "cosmwasm/contracts/bindings_factory",
    "cosmwasm/contracts/shared",
    "cosmwasm/packages/bindings",
-   "sandboxes/my-redis",
    "sandboxes/my-redis",
    "sandboxes/queue",
    "evm_listener",

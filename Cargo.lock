@@ -249,11 +249,11 @@ checksum = "d86b93f97252c47b41663388e6d155714a9d0c398b99f1005cbc5f978b29f445"
 name = "bindings-factory"
 version = "0.1.0"
 dependencies = [
+ "canine_bindings",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 1.2.0",
  "cw2 1.1.2",
- "filetree",
  "schemars",
  "serde",
  "serde-json-wasm",
@@ -389,6 +389,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8318a53db07bb3f8dca91a600466bdb3f2eaadeedfdbcf02e1accbad9271ba50"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "canine_bindings"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-storage-plus 0.15.1",
+ "cw2 0.15.1",
+ "jackal-bindings",
+ "schemars",
+ "serde",
+ "shared",
+ "thiserror",
 ]
 
 [[package]]
@@ -770,21 +787,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cw-utils"
-version = "1.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c4a657e5caacc3a0d00ee96ca8618745d050b8f757c709babafb81208d4239c"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw2 1.1.2",
- "schemars",
- "semver",
- "serde",
- "thiserror",
-]
-
-[[package]]
 name = "cw2"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -806,36 +808,6 @@ dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-storage-plus 1.2.0",
- "schemars",
- "semver",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "cw20"
-version = "1.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "526e39bb20534e25a1cd0386727f0038f4da294e5e535729ba3ef54055246abd"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-utils",
- "schemars",
- "serde",
-]
-
-[[package]]
-name = "cw20-base"
-version = "1.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17ad79e86ea3707229bf78df94e08732e8f713207b4a77b2699755596725e7d9"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-storage-plus 1.2.0",
- "cw2 1.1.2",
- "cw20",
  "schemars",
  "semver",
  "serde",
@@ -1214,23 +1186,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "filetree"
-version = "0.1.0"
-dependencies = [
- "base64 0.22.1",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cosmwasm-storage",
- "cw-storage-plus 0.15.1",
- "cw2 0.15.1",
- "jackal-bindings",
- "schemars",
- "serde",
- "shared",
- "thiserror",
-]
-
-[[package]]
 name = "fixed-hash"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1585,28 +1540,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hpl-interface"
-version = "0.0.6-rc4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acb6fa8742a999b3b9a45fc17ab8bf02ce8fbfad3bf46d8da6c5deaed54f5f2f"
-dependencies = [
- "bech32",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cosmwasm-storage",
- "cw-storage-plus 1.2.0",
- "cw2 1.1.2",
- "cw20",
- "cw20-base",
- "ripemd",
- "schemars",
- "serde",
- "sha2 0.10.8",
- "sha3",
- "thiserror",
-]
-
-[[package]]
 name = "http"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1949,16 +1882,15 @@ dependencies = [
  "anyhow",
  "bip32",
  "bip39",
+ "canine_bindings",
  "cosmos-sdk-proto 0.24.0",
  "cosmos_sdk",
  "cosmrs",
  "cosmwasm-std",
  "dotenv",
  "env_logger",
- "filetree",
  "hex",
  "log",
- "mailbox",
  "prost 0.13.1",
  "prost-types 0.12.6",
  "reqwest",
@@ -2065,19 +1997,6 @@ name = "log"
 version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
-
-[[package]]
-name = "mailbox"
-version = "0.1.0"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-storage-plus 1.2.0",
- "cw2 1.1.2",
- "hpl-interface",
- "serde",
- "thiserror",
-]
 
 [[package]]
 name = "matchers"
