@@ -10,7 +10,6 @@ use crate::state::{State, STATE};
 use jackal_bindings::{JackalMsg};
 use base64::Engine;
 
-
 // Consider adding migration info?
 
 #[cfg(not(feature = "no_exports"))] 
@@ -40,9 +39,6 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response<JackalMsg>, FiletreeError> {
     match msg {
-        ExecuteMsg::PostKey {
-            key,
-        } => post_key(deps,info, key),
         ExecuteMsg::PostFile {
             merkle, 
             file_size, 
@@ -62,34 +58,7 @@ pub fn execute(
                 expires, 
                 note
             ),
-        ExecuteMsg::MakeRoot {
-            editors,
-            viewers,
-            // TO DO
-            // Use UUID library to populate trackingnumber inside make_root() so 
-            // we don't need to pass it into canined or a ts client?
-            trackingnumber,  
-        // MessageInfo.sender is the creator of the root file
-        } => make_root(deps,info, editors, viewers, trackingnumber),
     }
-}
-
-pub fn post_key(
-    deps: DepsMut,
-    info: MessageInfo,
-    key: String,
-) -> Result<Response<JackalMsg>, FiletreeError> {
-    // TO DO
-    // properly validate
-    // deps.api.addr_validate(info.sender)?;
-
-    // Checks and validations go here?
-    let post_key_msg = JackalMsg::post_key(info.sender.to_string(), key);
-
-    let res = Response::new()
-        .add_attribute("method", "post_key")
-        .add_message(post_key_msg);
-    Ok(res)
 }
 
 pub fn post_file(
@@ -104,9 +73,7 @@ pub fn post_file(
     expires: i64,
     note: String,
 ) -> Result<Response<JackalMsg>, FiletreeError> {
-    // TO DO
-    // properly validate
-    // deps.api.addr_validate(info.sender)?;
+
 
     // WARNING: TODO: Does canine-bindings itself need to ensure only white listed addresses can sign?
 
@@ -131,23 +98,4 @@ pub fn post_file(
     Ok(res)
 }
 
-pub fn make_root(
-    deps: DepsMut,
-    info: MessageInfo,
-    editors: String,
-    viewers: String,
-    trackingnumber: String,
-) -> Result<Response<JackalMsg>, FiletreeError> {
-    // TO DO
-    // properly validate
-    // deps.api.addr_validate(info.sender)?;
 
-    // Checks and validations go here?
-    let make_root_msg = JackalMsg::make_root(editors, viewers,trackingnumber );
-
-    let res = Response::new()
-        .add_attribute("method", "make_root")
-        .add_message(make_root_msg);
-
-    Ok(res)
-}

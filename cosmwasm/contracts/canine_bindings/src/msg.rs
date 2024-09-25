@@ -1,14 +1,10 @@
-use cosmwasm_schema::{cw_serde, QueryResponses};
+use cosmwasm_schema::{cw_serde};
 
 #[cw_serde]
 pub struct InstantiateMsg {}
 
 #[cw_serde]
 pub enum ExecuteMsg {
-
-    PostKey {
-        key: String,
-    },
 
     PostFile {
         merkle: String,
@@ -18,12 +14,6 @@ pub enum ExecuteMsg {
         max_proofs: i64,
         expires: i64,
         note: String,
-    },
-
-    MakeRoot {
-        editors: String,
-        viewers: String,
-        trackingnumber: String,
     },
     
 }
