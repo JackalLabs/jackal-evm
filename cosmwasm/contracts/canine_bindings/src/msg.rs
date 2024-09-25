@@ -1,4 +1,4 @@
-use cosmwasm_schema::{cw_serde};
+use cosmwasm_schema::{cw_serde, QueryResponses};
 
 #[cw_serde]
 pub struct InstantiateMsg {}
@@ -16,4 +16,12 @@ pub enum ExecuteMsg {
         note: String,
     },
     
+}
+
+#[cw_serde]
+#[derive(QueryResponses)]
+pub enum QueryMsg {
+    /// GetContractState returns the contact's state.
+    #[returns(crate::state::ContractState)]
+    GetContractState {},
 }

@@ -60,6 +60,13 @@ pub fn execute(
     }
 }
 
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    match msg {
+        QueryMsg::GetContractState {} => to_json_binary(&query::state(deps)?),
+    }
+}
+
 pub fn post_file(
     deps: DepsMut,
     info: MessageInfo,
@@ -101,3 +108,17 @@ pub fn post_file(
         .add_message(post_file_msg);
     Ok(res)
 }
+
+
+mod query {
+    use cosmwasm_std::{Deps, Order, StdResult};
+
+    use super::*;
+
+    /// Returns the saved contract state.
+    pub fn state(deps: Deps) -> StdResult<ContractState> {
+        STATE.load(deps.storage)
+    }
+}
+
+

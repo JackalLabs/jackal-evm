@@ -1,5 +1,7 @@
-INFO: 2024/09/24 20:44:23 
-INFO: 2024/09/24 20:44:23 instantiated factory
-INFO: 2024/09/24 20:44:23 data:"{\"bindings_code_id\":2,\"owner\":\"jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg\"}" 
-INFO: 2024/09/24 20:45:00 User Address: alice_Ox1 Bindings Address: jkl1nfud4ctyq46mjzxr7jkr7waxs5h7984vxf6aefye8a5zp9qpyegqkfjw6x
-INFO: 2024/09/24 20:45:00 User Address: bob_Ox1 Bindings Address: jkl1pf94ye3l26mhhxyyswkq9wz6y7p26mlyk5pwtewx9zfs6u0cz9nsrs5f9t
+INFO: 2024/09/24 21:17:33 
+INFO: 2024/09/24 21:17:33 instantiated factory
+INFO: 2024/09/24 21:17:33 data:"{\"bindings_code_id\":2,\"owner\":\"jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg\"}" 
+INFO: 2024/09/24 21:18:10 Assigned Alice's Binding Address: jkl17y40r8r8x6w7gr9kal6x8xy8r5aug379j7pg5jvjvqyautcqxzaqhne945
+INFO: 2024/09/24 21:18:10 Assigned Bob's Binding Address: jkl1zgw62605edp3avl0jee3m2gavj0wm5llfzz47ehv9aut4kchc5lspr63d7
+INFO: 2024/09/24 21:18:10 data:"{\"owner\":\"jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr\"}" 
+INFO: 2024/09/24 21:18:10 data:"{\"owner\":\"jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr\"}" 
