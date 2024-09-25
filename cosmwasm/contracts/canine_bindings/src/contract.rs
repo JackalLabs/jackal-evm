@@ -1,14 +1,13 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult
+    DepsMut, Env, MessageInfo, Response,
 };
 
 use crate::error::FiletreeError;
 use crate::msg::{ExecuteMsg, InstantiateMsg};
 use crate::state::{State, STATE};
-use jackal_bindings::{JackalMsg};
-use base64::Engine;
+use jackal_bindings::JackalMsg;
 
 // Consider adding migration info?
 
