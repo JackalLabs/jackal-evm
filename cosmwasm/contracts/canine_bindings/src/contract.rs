@@ -1,12 +1,12 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    DepsMut, Env, MessageInfo, Response,
+    to_json_binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Binary
 };
 
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, InstantiateMsg};
-use crate::state::{State, STATE};
+use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::state::{ContractState, STATE};
 use jackal_bindings::JackalMsg;
 
 // Consider adding migration info?
@@ -19,7 +19,7 @@ pub fn instantiate(
     info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    let state = State {
+    let state = ContractState {
         owner: info.sender.clone(),
     };
     STATE.save(deps.storage, &state)?;
@@ -101,5 +101,3 @@ pub fn post_file(
         .add_message(post_file_msg);
     Ok(res)
 }
-
-
