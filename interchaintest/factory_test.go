@@ -76,29 +76,6 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
-		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
-		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
-
-		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
-		s.Require().NoError(addressErr)
-
-		// Create a slice of slices to hold the decoded user bindings
-		var decodedBindingsMap [][]string
-
-		// Unmarshal the response data into the slice of slices of strings
-		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
-			log.Fatalf("Error parsing response data: %v", err)
-		}
-
-		// Log the decoded map
-		for _, binding := range decodedBindingsMap {
-			if len(binding) == 2 {
-				logger.LogInfo("User Address:", binding[0], "Bindings Address:", binding[1])
-			} else {
-				logger.LogError("Invalid binding format:", binding)
-			}
-		}
-
 		//****** Create Filetree Entries *********
 
 		//****** FOR ALICE ******
@@ -178,6 +155,29 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 		factoryExecuteMsgForBob.CallBindings.Msg = &bobSecondStorageMsg
 		bobRes2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsgForBob.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		fmt.Println(bobRes2)
+
+		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
+		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
+
+		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
+		s.Require().NoError(addressErr)
+
+		// Create a slice of slices to hold the decoded user bindings
+		var decodedBindingsMap [][]string
+
+		// Unmarshal the response data into the slice of slices of strings
+		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
+			log.Fatalf("Error parsing response data: %v", err)
+		}
+
+		// Log the decoded map
+		for _, binding := range decodedBindingsMap {
+			if len(binding) == 2 {
+				logger.LogInfo("User Address:", binding[0], "Bindings Address:", binding[1])
+			} else {
+				logger.LogError("Invalid binding format:", binding)
+			}
+		}
 
 	},
 	)
