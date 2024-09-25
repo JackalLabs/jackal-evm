@@ -170,14 +170,32 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 			log.Fatalf("Error parsing response data: %v", err)
 		}
 
-		// Log the decoded map
+		// Create variables to hold alice and bob's bindings addresses
+		var aliceBindingsAddress, bobBindingsAddress string
+
+		// Log the decoded map and assign addresses to variables
 		for _, binding := range decodedBindingsMap {
 			if len(binding) == 2 {
-				logger.LogInfo("User Address:", binding[0], "Bindings Address:", binding[1])
+				userAddress := binding[0]
+				bindingsAddress := binding[1]
+
+				// Check which user this binding belongs to and assign it to the corresponding variable
+				switch userAddress {
+				case "alice_Ox1":
+					aliceBindingsAddress = bindingsAddress
+					logger.LogInfo("Assigned Alice's Binding Address:", aliceBindingsAddress)
+				case "bob_Ox1":
+					bobBindingsAddress = bindingsAddress
+					logger.LogInfo("Assigned Bob's Binding Address:", bobBindingsAddress)
+				default:
+					logger.LogError("Unexpected user address:", userAddress)
+				}
 			} else {
 				logger.LogError("Invalid binding format:", binding)
 			}
 		}
+
+		// Now you can use aliceBindingsAddress and bobBindingsAddress variables in your test code
 
 	},
 	)
