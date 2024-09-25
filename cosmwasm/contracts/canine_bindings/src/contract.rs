@@ -4,7 +4,7 @@ use cosmwasm_std::{
     DepsMut, Env, MessageInfo, Response,
 };
 
-use crate::error::FiletreeError;
+use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg};
 use crate::state::{State, STATE};
 use jackal_bindings::JackalMsg;
@@ -18,7 +18,7 @@ pub fn instantiate(
     _env: Env,
     info: MessageInfo,
     _msg: InstantiateMsg,
-) -> Result<Response, FiletreeError> {
+) -> Result<Response, ContractError> {
     let state = State {
         owner: info.sender.clone(),
     };
@@ -36,7 +36,7 @@ pub fn execute(
     env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
-) -> Result<Response<JackalMsg>, FiletreeError> {
+) -> Result<Response<JackalMsg>, ContractError> {
     match msg {
         ExecuteMsg::PostFile {
             merkle, 
@@ -71,8 +71,13 @@ pub fn post_file(
     max_proofs: i64,
     expires: i64,
     note: String,
-) -> Result<Response<JackalMsg>, FiletreeError> {
+) -> Result<Response<JackalMsg>, ContractError> {
 
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
 
     // WARNING: TODO: Does canine-bindings itself need to ensure only white listed addresses can sign?
 
