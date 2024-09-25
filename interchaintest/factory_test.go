@@ -195,6 +195,14 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 			}
 		}
 
+		aliceBindingsState, stateErr := testsuite.GetState(ctx, s.ChainB, aliceBindingsAddress)
+		s.Require().NoError(stateErr)
+		logger.LogInfo(aliceBindingsState)
+
+		bobBindingsState, stateErr := testsuite.GetState(ctx, s.ChainB, bobBindingsAddress)
+		s.Require().NoError(stateErr)
+		logger.LogInfo(bobBindingsState)
+
 		// Now you can use aliceBindingsAddress and bobBindingsAddress variables in your test code
 
 	},
