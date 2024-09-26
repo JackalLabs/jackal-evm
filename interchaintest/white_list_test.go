@@ -76,29 +76,6 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
-		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
-		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
-
-		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
-		s.Require().NoError(addressErr)
-
-		// Create a slice of slices to hold the decoded user bindings
-		var decodedBindingsMap [][]string
-
-		// Unmarshal the response data into the slice of slices of strings
-		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
-			log.Fatalf("Error parsing response data: %v", err)
-		}
-
-		// Log the decoded map
-		for _, binding := range decodedBindingsMap {
-			if len(binding) == 2 {
-				logger.LogInfo("User Address:", binding[0], "Bindings Address:", binding[1])
-			} else {
-				logger.LogError("Invalid binding format:", binding)
-			}
-		}
-
 		//****** Create Filetree Entries *********
 
 		//****** FOR ALICE ******
@@ -190,6 +167,17 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 
 		// Only the factory can call bindings, so you should make sure of this and see if the error from the bindings propagates when
 		// Someone tries to call the bindings directly
+
+		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
+		s.Require().NoError(addressErr)
+
+		// Create a slice of slices to hold the decoded user bindings
+		var decodedBindingsMap [][]string
+
+		// Unmarshal the response data into the slice of slices of strings
+		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
+			log.Fatalf("Error parsing response data: %v", err)
+		}
 
 		// Create variables to hold alice and bob's bindings addresses
 		var aliceBindingsAddress, bobBindingsAddress string
