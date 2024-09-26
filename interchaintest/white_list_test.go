@@ -40,15 +40,15 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 	FactoryCodeId, err := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/bindings_factory.wasm")
 	s.Require().NoError(err)
 
-	// Store code of filetree bindings
-	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/filetree.wasm")
+	// Store code of canine_bindings
+	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/canine_bindings.wasm")
 	s.Require().NoError(error)
 
 	// codeId is string and needs to be converted to uint64
 	BindingsCodeIdAsInt, err := strconv.ParseInt(BindingsCodeId, 10, 64)
 	s.Require().NoError(err)
 
-	// Instantiate the factory, giving it the codeId of the filetree bindings contract
+	// Instantiate the factory, giving it the codeId of the canine_bindings contract
 	instantiateMsg := factorytypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
 
 	contractAddr, _ := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
@@ -187,6 +187,43 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 		factoryExecuteMsg.CallBindings.Msg = &StorageMsg3
 		aliceRes3, _ := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		fmt.Println(aliceRes3)
+
+		// Only the factory can call bindings, so you should make sure of this and see if the error from the bindings propagates when
+		// Someone tries to call the bindings directly
+
+		// Create variables to hold alice and bob's bindings addresses
+		var aliceBindingsAddress, bobBindingsAddress string
+
+		// Log the decoded map and assign addresses to variables
+		for _, binding := range decodedBindingsMap {
+			if len(binding) == 2 {
+				userAddress := binding[0]
+				bindingsAddress := binding[1]
+
+				// Check which user this binding belongs to and assign it to the corresponding variable
+				switch userAddress {
+				case "alice_Ox1":
+					aliceBindingsAddress = bindingsAddress
+					logger.LogInfo("Assigned Alice's Binding Address:", aliceBindingsAddress)
+				case "bob_Ox1":
+					bobBindingsAddress = bindingsAddress
+					logger.LogInfo("Assigned Bob's Binding Address:", bobBindingsAddress)
+				default:
+					logger.LogError("Unexpected user address:", userAddress)
+				}
+			} else {
+				logger.LogError("Invalid binding format:", binding)
+			}
+		}
+
+		// User c is attempting to by pass the bindings factory and call Alice's bindings directly,
+		// This will fail because only the factory can call bindings
+
+		badPostFileMsg := storageMsg
+		badPostFileMsg.PostFile.Note = `{"description": "attempting to bypass", "additional_info": "placeholder"}`
+		badRes, err := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), aliceBindingsAddress, badPostFileMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		s.Require().NoError(err)
+		fmt.Println(badRes)
 
 	},
 	)
