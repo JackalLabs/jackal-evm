@@ -7,8 +7,9 @@ members = [
    "cosmwasm/packages/bindings",
    "sandboxes/my-redis",
    "sandboxes/queue",
-   "evm_listener",
-   "relayer",
+   # NOTE: we had to remove evm listener and relayer because the dependency statements are messed up
+   # This is fine, we'll remove the sandbox entirely soon. 
+   
    # TODO: add the sandboxes/cosmwasm_signer and sandboxes/simple_relayer back here if you need it
    # It's causing rust analyzer errors atm--not worth time sink.
    
