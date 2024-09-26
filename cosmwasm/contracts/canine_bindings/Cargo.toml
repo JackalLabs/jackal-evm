@@ -27,7 +27,7 @@ cosmwasm-std = { version = "1.4.0", features = [
 ] }
 cosmwasm-storage = "1.1"
 cw-storage-plus = "0.15"
-jackal-bindings = { version = "0.1.0", path = "../../packages/bindings" }
+jackal-bindings = "0.1.0"
 shared = { version = "0.1.0", path = "../shared" }
 
 cw2 = "0.15"

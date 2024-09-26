@@ -234,7 +234,7 @@ dependencies = [
  "cosmwasm-storage",
  "cw-storage-plus 0.15.1",
  "cw2 0.15.1",
- "jackal-bindings",
+ "jackal-bindings 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "schemars",
  "serde",
  "shared",
@@ -808,6 +808,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "jackal-bindings"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f0eecf0edea2549644f4797fd098f01f5c2e609fb8395c395cea26ee1dc4581f"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "schemars",
+ "serde",
+]
+
+[[package]]
 name = "js-sys"
 version = "0.3.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1284,7 +1296,7 @@ dependencies = [
  "cosmwasm-storage",
  "cw-storage-plus 0.15.1",
  "cw2 0.15.1",
- "jackal-bindings",
+ "jackal-bindings 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "schemars",
  "serde",
  "thiserror",
