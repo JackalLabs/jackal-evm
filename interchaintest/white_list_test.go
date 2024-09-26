@@ -210,7 +210,9 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 		badPostFileMsg := storageMsg
 		badPostFileMsg.PostFile.Note = `{"description": "attempting to bypass", "additional_info": "placeholder"}`
 		badRes, err := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), aliceBindingsAddress, badPostFileMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
-		s.Require().NoError(err)
+		expectedErrorMsg = "transaction failed with code 5: failed to execute message; message index: 0: " +
+			"Unauthorized. Only the factory can call bindings: execute wasm contract failed"
+		s.Require().EqualError(err, expectedErrorMsg)
 		fmt.Println(badRes)
 
 	},
