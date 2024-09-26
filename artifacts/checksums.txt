@@ -1,0 +1,2 @@
+ff76dccc714ee8dd7d7332c0e0fa258661e1fe15fd52acf0517c569dfd38a1d7  bindings_factory.wasm
+7eac28e3a3970802ab1ec170cd15c6fe436d22f48b108becc69d046491adc311  canine_bindings.wasm
