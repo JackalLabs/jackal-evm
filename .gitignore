@@ -5,7 +5,7 @@
 *.env
 
 # Ignore all target directories
-target/
+target/*
 
 # config for relayer
 relayer/config.toml
