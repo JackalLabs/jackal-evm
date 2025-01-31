@@ -1,7 +1,5 @@
-INFO: 2024/09/26 17:32:58 
-INFO: 2024/09/26 17:32:58 instantiated factory
-INFO: 2024/09/26 17:32:58 data:"{\"bindings_code_id\":2,\"owner\":\"jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg\"}" 
-INFO: 2024/09/26 17:33:35 Assigned Alice's Binding Address: jkl1eq2fhkng822f50jpz979fm74mt9jg8klyqryrfyljfxeurx9p5esz648pe
-INFO: 2024/09/26 17:33:35 Assigned Bob's Binding Address: jkl1mwtqvnregtcfyxc9zavm0w2xzd3y6m7gc2us2dxch6u07c692n5sw4r903
-INFO: 2024/09/26 17:33:35 data:"{\"owner\":\"jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr\"}" 
-INFO: 2024/09/26 17:33:35 data:"{\"owner\":\"jkl14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9scsc9nr\"}" 
+INFO: 2025/01/31 13:44:11 
+INFO: 2025/01/31 13:44:11 instantiated factory
+INFO: 2025/01/31 13:44:11 data:"{\"bindings_code_id\":2,\"owner\":\"jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg\"}" 
+INFO: 2025/01/31 13:44:43 data:"[[\"jkl12g4qwenvpzqeakavx5adqkw203s629tf6k8vdg\",true],[\"jkl1nwjpcsr2f0t5au85t4kctv2kg0k70fv3lcxqmu\",true]]" 
+INFO: 2025/01/31 13:44:50 Assigned Alice's Binding Address: jkl1c8z8wal3m2eu99qh5l9ylygyvqj59np7mazzqvnq9wgs9x7k8zhsdgry4e
