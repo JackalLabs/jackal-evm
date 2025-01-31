@@ -6,10 +6,12 @@ use cosmwasm_std::{CosmosMsg, CustomMsg};
 pub enum JackalMsg {
 
     PostKey {
+        // need creator?
         sender: String, // WARNING: This can be spoofed atm. 
         key: String,
     },
     MakeRoot {
+        // need creator?
         editors: String,
         viewers: String,
         trackingnumber: String,
@@ -23,6 +25,15 @@ pub enum JackalMsg {
         max_proofs: i64,
         expires: i64,
         note: String,
+    },
+    // DeleteFile goes here
+    BuyStorage {
+        creator: String,
+        for_address: String,
+        duration_days: i64,
+        bytes: i64,
+        payment_denom: String,
+        referral: String,
     },
 }
 
@@ -54,6 +65,24 @@ impl JackalMsg {
             max_proofs,
             expires,
             note,
+        }
+    }
+
+    pub fn buy_storage(
+        creator: String,
+        for_address: String,
+        duration_days: i64,
+        bytes: i64,
+        payment_denom: String,
+        referral: String,
+    ) -> Self {
+        JackalMsg::BuyStorage {
+            creator,
+            for_address,
+            duration_days,
+            bytes,
+            payment_denom,
+            referral,
         }
     }
 

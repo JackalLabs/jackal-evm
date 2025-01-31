@@ -57,6 +57,22 @@ pub fn execute(
                 expires, 
                 note
             ),
+        ExecuteMsg::BuyStorage { 
+            for_address, 
+            duration_days, 
+            bytes, 
+            payment_denom, 
+            referral } => buy_storage(
+                deps,
+                info, 
+                env,
+                for_address, 
+                duration_days, 
+                bytes, 
+                payment_denom, 
+                referral
+            ),
+
     }
 }
 
@@ -107,6 +123,41 @@ pub fn post_file(
     let res = Response::new()
         .add_attribute("method", "post_file")
         .add_message(post_file_msg);
+    Ok(res)
+}
+
+
+pub fn buy_storage(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    for_address: String,
+    duration_days: i64,
+    bytes: i64,
+    payment_denom: String,
+    referral: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let buy_storage_msg = JackalMsg::buy_storage(
+        creator,
+        for_address,
+        duration_days,
+        bytes,
+        payment_denom,
+        referral,
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "buy_storage")
+        .add_message(buy_storage_msg);
     Ok(res)
 }
 

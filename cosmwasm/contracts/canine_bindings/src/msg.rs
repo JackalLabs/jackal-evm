@@ -15,6 +15,18 @@ pub enum ExecuteMsg {
         expires: i64,
         note: String,
     },
+    // DELETE FILE GOES HERE
+    BuyStorage {
+        for_address: String,
+        duration_days: i64,
+        bytes: i64,
+        payment_denom: String,
+        referral: String,
+    }
+
+
+
+
     
 }
 
