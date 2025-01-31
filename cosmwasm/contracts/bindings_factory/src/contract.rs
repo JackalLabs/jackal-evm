@@ -61,6 +61,7 @@ mod execute {
     use shared::shared_msg::SharedExecuteMsg;
 
     use canine_bindings::bindings_helpers::{BindingsCode, BindingsContract};
+    use canine_bindings::msg::ExecuteMsg as BindingsExecuteMsg;
 
     use super::*;
 
@@ -69,7 +70,7 @@ mod execute {
         env: Env,
         info: MessageInfo,
         evm_address: String,
-        msg: SharedExecuteMsg
+        msg: BindingsExecuteMsg
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
 

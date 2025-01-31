@@ -8,7 +8,7 @@ use cosmwasm_std::{
     instantiate2_address, to_json_binary, Addr, Api, Coin, CosmosMsg, Env, QuerierWrapper, StdError, StdResult, WasmMsg
 };
 
-use crate::msg;
+use crate::msg::{self, ExecuteMsg};
 use shared::shared_msg::SharedExecuteMsg;
 
 /// `BindingsContract` is a wrapper around Addr that provides helpers
@@ -39,7 +39,7 @@ impl BindingsContract {
     /// # Errors
     ///
     /// This function returns an error if the given message cannot be serialized
-    pub fn execute(&self, msg: impl Into<SharedExecuteMsg>, funds: Vec<Coin>) -> StdResult<CosmosMsg> {
+    pub fn execute(&self, msg: impl Into<ExecuteMsg>, funds: Vec<Coin>) -> StdResult<CosmosMsg> {
         let msg = to_json_binary(&msg.into())?;
         Ok(WasmMsg::Execute {
             contract_addr: self.addr().into(),
