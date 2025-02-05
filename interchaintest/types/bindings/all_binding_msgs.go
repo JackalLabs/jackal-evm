@@ -6,10 +6,11 @@ import (
 )
 
 type ExecuteMsg struct {
-	PostKey    *ExecuteMsg_PostKey    `json:"post_key,omitempty"`
-	PostFile   *ExecuteMsg_PostFile   `json:"post_file,omitempty"`
-	DeleteFile *ExecuteMsg_DeleteFile `json:"delete_file,omitempty"`
-	BuyStorage *ExecuteMsg_BuyStorage `json:"buy_storage,omitempty"`
+	PostKey           *ExecuteMsg_PostKey           `json:"post_key,omitempty"`
+	PostFile          *ExecuteMsg_PostFile          `json:"post_file,omitempty"`
+	DeleteFile        *ExecuteMsg_DeleteFile        `json:"delete_file,omitempty"`
+	BuyStorage        *ExecuteMsg_BuyStorage        `json:"buy_storage,omitempty"`
+	RequestReportForm *ExecuteMsg_RequestReportForm `json:"request_report_form,omitempty"`
 }
 
 type ExecuteMsg_PostKey struct {
@@ -37,6 +38,13 @@ type ExecuteMsg_BuyStorage struct {
 	Bytes        int64  `json:"bytes"`
 	PaymentDenom string `json:"payment_denom"`
 	Referral     string `json:"referral"`
+}
+
+type ExecuteMsg_RequestReportForm struct {
+	Prover string `json:"prover"`
+	Merkle string `json:"merkle"`
+	Owner  string `json:"owner"`
+	Start  int64  `json:"start"`
 }
 
 // ToString returns a string representation of the message

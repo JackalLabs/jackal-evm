@@ -169,6 +169,34 @@ func (s *ContractTestSuite) TestStorageModule() {
 		fmt.Println(res7)
 		fmt.Println(err)
 
+		// declare different merkle bytes
+		merkleBytes = []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
+
+		merkleBase64 = base64.StdEncoding.EncodeToString(merkleBytes)
+
+		// note: the below args should definitely trigger an error
+		requestReportFormMsg := allbindingstypes.ExecuteMsg{
+			RequestReportForm: &allbindingstypes.ExecuteMsg_RequestReportForm{
+				Prover: "nobody",
+				Merkle: merkleBase64,
+				Owner:  "nobody",
+				Start:  100000,
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &requestReportFormMsg,
+			},
+		}
+
+		// WARNING: the transaction goes through, even though the args we input should have triggered errors
+		// TODO: confirm it works as intended with the front end.
+		res8, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		s.Require().EqualError(err, expectedErrorMsg)
+		fmt.Println(res8)
+
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(addressErr)
 
