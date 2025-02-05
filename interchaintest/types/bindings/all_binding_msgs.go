@@ -8,6 +8,7 @@ import (
 type ExecuteMsg struct {
 	PostKey    *ExecuteMsg_PostKey    `json:"post_key,omitempty"`
 	PostFile   *ExecuteMsg_PostFile   `json:"post_file,omitempty"`
+	DeleteFile *ExecuteMsg_DeleteFile `json:"delete_file,omitempty"`
 	BuyStorage *ExecuteMsg_BuyStorage `json:"buy_storage,omitempty"`
 }
 
@@ -23,6 +24,11 @@ type ExecuteMsg_PostFile struct {
 	MaxProofs     int64  `json:"max_proofs"`
 	Expires       int64  `json:"expires"`
 	Note          string `json:"note"`
+}
+
+type ExecuteMsg_DeleteFile struct {
+	Merkle string `json:"merkle"`
+	Start  int64  `json:"start"`
 }
 
 type ExecuteMsg_BuyStorage struct {

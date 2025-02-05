@@ -89,7 +89,7 @@ func (s *ContractTestSuite) TestStorageModule() {
 		merkleBase64 := base64.StdEncoding.EncodeToString(merkleBytes)
 
 		// Could also use:  for 'Merkle'?
-		storageMsg := allbindingstypes.ExecuteMsg{
+		postFileMsg := allbindingstypes.ExecuteMsg{
 			PostFile: &allbindingstypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
 				FileSize:      100000000,                                                                      // Replace with actual file size
@@ -104,7 +104,7 @@ func (s *ContractTestSuite) TestStorageModule() {
 		factoryExecuteMsg := factorytypes.ExecuteMsg{
 			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
 				EvmAddress: &aliceEvmAddress,
-				Msg:        &storageMsg,
+				Msg:        &postFileMsg,
 			},
 		}
 
@@ -112,6 +112,28 @@ func (s *ContractTestSuite) TestStorageModule() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
+
+		deleteFileMsg := allbindingstypes.ExecuteMsg{
+			DeleteFile: &allbindingstypes.ExecuteMsg_DeleteFile{
+				Merkle: merkleBase64,
+				Start:  37,
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &deleteFileMsg,
+			},
+		}
+
+		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// WARNING: this actually works but delete file is not error handled at the chain layer
+		// TODO: query for the File object to show it doesn't exist anymore?
+
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res6)
 
 		// Could also use:  for 'Merkle'?
 		buyStorageMsg := allbindingstypes.ExecuteMsg{
@@ -137,14 +159,14 @@ func (s *ContractTestSuite) TestStorageModule() {
 			},
 		}
 
-		res6, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		res7, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		expectedErrorMsg := "transaction failed with code 1: failed to execute message; message index: 0: " +
 			"dispatch: submessages: dispatch: submessages: perform buy storage: buy storage error from message: " +
 			"failed to validate buy request: cannot buy less than a gb"
 		s.Require().EqualError(err, expectedErrorMsg)
-		fmt.Println(res6)
+		fmt.Println(res7)
 		fmt.Println(err)
 
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
