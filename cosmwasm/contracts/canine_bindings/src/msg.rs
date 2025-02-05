@@ -27,6 +27,13 @@ pub enum ExecuteMsg {
         bytes: i64,
         payment_denom: String,
         referral: String,
+    },
+
+    RequestReportForm {
+        prover: String,
+        merkle: String,
+        owner: String,
+        start: i64,
     }
 
 }

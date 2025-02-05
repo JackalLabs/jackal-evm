@@ -41,6 +41,13 @@ pub enum JackalMsg {
         payment_denom: String,
         referral: String,
     },
+    RequestReportForm {
+        creator: String,
+        prover: String,
+        merkle: Vec<u8>,
+        owner: String,
+        start: i64,
+    },
 }
 
 impl JackalMsg {
@@ -101,6 +108,22 @@ impl JackalMsg {
             bytes,
             payment_denom,
             referral,
+        }
+    }
+
+    pub fn request_report_form(
+        creator: String,
+        prover: String,
+        merkle: Vec<u8>,
+        owner: String,
+        start: i64,
+    ) -> Self {
+        JackalMsg::RequestReportForm {
+            creator,
+            prover,
+            merkle,
+            owner,
+            start,
         }
     }
 

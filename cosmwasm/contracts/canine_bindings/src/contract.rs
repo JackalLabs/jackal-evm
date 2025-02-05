@@ -84,7 +84,20 @@ pub fn execute(
                 payment_denom, 
                 referral
             ),
-
+        ExecuteMsg::RequestReportForm {
+            prover,
+            merkle, 
+            owner,
+            start
+        } => request_report_form(
+                deps,
+                info, 
+                env,
+                prover,
+                merkle, 
+                owner,
+                start
+            ),
     }
 }
 
@@ -156,7 +169,7 @@ pub fn delete_file(
 
     let creator = env.contract.address.to_string();
 
-    let post_file_msg = JackalMsg::delete_file(
+    let delete_file_msg = JackalMsg::delete_file(
         creator,
         merkle_bytes.to_vec(),
         start,
@@ -164,8 +177,8 @@ pub fn delete_file(
     );
 
     let res = Response::new()
-        .add_attribute("method", "post_file")
-        .add_message(post_file_msg);
+        .add_attribute("method", "delete_file")
+        .add_message(delete_file_msg);
     Ok(res)
 }
 
@@ -200,6 +213,40 @@ pub fn buy_storage(
     let res = Response::new()
         .add_attribute("method", "buy_storage")
         .add_message(buy_storage_msg);
+    Ok(res)
+}
+
+pub fn request_report_form(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    prover: String,
+    merkle: String,
+    owner: String,
+    start: i64,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let merkle_bytes = cosmwasm_std::Binary::from_base64(&merkle).expect("could not get merkle from base64");
+
+    let creator = env.contract.address.to_string();
+
+    let request_report_form_msg = JackalMsg::request_report_form(
+        creator,
+        prover,
+        merkle_bytes.to_vec(),
+        owner,
+        start
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "request_report_form")
+        .add_message(request_report_form_msg);
     Ok(res)
 }
 
