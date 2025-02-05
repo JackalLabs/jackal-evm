@@ -15,7 +15,12 @@ pub enum ExecuteMsg {
         expires: i64,
         note: String,
     },
-    // DELETE FILE GOES HERE
+
+    DeleteFile {
+        merkle: String,
+        start: i64,
+    },
+    
     BuyStorage {
         for_address: String,
         duration_days: i64,
@@ -24,10 +29,6 @@ pub enum ExecuteMsg {
         referral: String,
     }
 
-
-
-
-    
 }
 
 #[cw_serde]

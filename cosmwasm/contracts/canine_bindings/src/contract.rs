@@ -45,7 +45,8 @@ pub fn execute(
             proof_type, 
             max_proofs, 
             expires, 
-            note } => post_file(
+            note
+        } => post_file(
                 deps,
                 info, 
                 env,
@@ -57,12 +58,23 @@ pub fn execute(
                 expires, 
                 note
             ),
+        ExecuteMsg::DeleteFile {
+            merkle, 
+            start,  
+        } => delete_file(
+                deps,
+                info, 
+                env,
+                merkle, 
+                start
+            ),
         ExecuteMsg::BuyStorage { 
             for_address, 
             duration_days, 
             bytes, 
             payment_denom, 
-            referral } => buy_storage(
+            referral 
+        } => buy_storage(
                 deps,
                 info, 
                 env,
@@ -126,6 +138,36 @@ pub fn post_file(
     Ok(res)
 }
 
+pub fn delete_file(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    merkle: String,
+    start: i64,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let merkle_bytes = cosmwasm_std::Binary::from_base64(&merkle).expect("could not get merkle from base64");
+
+    let creator = env.contract.address.to_string();
+
+    let post_file_msg = JackalMsg::delete_file(
+        creator,
+        merkle_bytes.to_vec(),
+        start,
+
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "post_file")
+        .add_message(post_file_msg);
+    Ok(res)
+}
 
 pub fn buy_storage(
     deps: DepsMut,

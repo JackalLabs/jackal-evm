@@ -5,6 +5,7 @@ use cosmwasm_std::{CosmosMsg, CustomMsg};
 #[cw_serde]
 pub enum JackalMsg {
 
+    // TODO: move post key and make root to where the filetree section should start 
     PostKey {
         // need creator?
         sender: String, // WARNING: This can be spoofed atm. 
@@ -16,6 +17,7 @@ pub enum JackalMsg {
         viewers: String,
         trackingnumber: String,
     },
+    // STORAGE MODULE 
     PostFile {
         creator: String,
         merkle: Vec<u8>,
@@ -26,7 +28,11 @@ pub enum JackalMsg {
         expires: i64,
         note: String,
     },
-    // DeleteFile goes here
+    DeleteFile {
+        creator: String,
+        merkle: Vec<u8>,
+        start: i64,
+    },
     BuyStorage {
         creator: String,
         for_address: String,
@@ -65,6 +71,18 @@ impl JackalMsg {
             max_proofs,
             expires,
             note,
+        }
+    }
+
+    pub fn delete_file(
+        creator: String,
+        merkle: Vec<u8>,
+        start: i64,
+    ) -> Self {
+        JackalMsg::DeleteFile {
+            creator,
+            merkle,
+            start,
         }
     }
 
