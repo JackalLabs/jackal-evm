@@ -48,6 +48,16 @@ pub enum JackalMsg {
         owner: String,
         start: i64,
     },
+    PostFileTree {
+        creator: String,
+        account: String,
+        hash_parent: String,
+        hash_child: String,
+        contents: String,
+        viewers: String,
+        editors: String,
+        tracking_number: String,
+    },
 }
 
 impl JackalMsg {
@@ -124,6 +134,28 @@ impl JackalMsg {
             merkle,
             owner,
             start,
+        }
+    }
+
+    pub fn post_file_tree(
+        creator: String,
+        account: String,
+        hash_parent: String,
+        hash_child: String,
+        contents: String,
+        viewers: String,
+        editors: String,
+        tracking_number: String,
+    ) -> Self {
+        JackalMsg::PostFileTree {
+            creator,
+            account,
+            hash_parent,
+            hash_child,
+            contents,
+            viewers,
+            editors,
+            tracking_number,
         }
     }
 

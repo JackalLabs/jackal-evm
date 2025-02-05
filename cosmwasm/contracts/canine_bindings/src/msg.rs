@@ -34,7 +34,17 @@ pub enum ExecuteMsg {
         merkle: String,
         owner: String,
         start: i64,
-    }
+    },
+
+    PostFileTree {
+        account: String,
+        hash_parent: String,
+        hash_child: String,
+        contents: String,
+        viewers: String,
+        editors: String,
+        tracking_number: String,
+    },
 
 }
 

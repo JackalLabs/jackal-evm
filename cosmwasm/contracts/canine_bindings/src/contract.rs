@@ -7,6 +7,7 @@ use cosmwasm_std::{
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{ContractState, STATE};
+use crate::filetree;
 use jackal_bindings::JackalMsg;
 
 // Consider adding migration info?
@@ -97,6 +98,26 @@ pub fn execute(
                 merkle, 
                 owner,
                 start
+            ),
+        ExecuteMsg::PostFileTree {
+            account,
+            hash_parent,
+            hash_child,
+            contents,
+            viewers,
+            editors,
+            tracking_number
+        } => filetree::post_file_tree(
+                deps,
+                info, 
+                env,
+                account,
+                hash_parent,
+                hash_child,
+                contents,
+                viewers,
+                editors,
+                tracking_number
             ),
     }
 }
