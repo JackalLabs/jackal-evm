@@ -76,7 +76,7 @@ func (s *ContractTestSuite) TestStorageModule() {
 
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
-		//****** Create Filetree Entries *********
+		//****** Create Storage Module Entries *********
 
 		//****** FOR ALICE ******
 
@@ -110,7 +110,7 @@ func (s *ContractTestSuite) TestStorageModule() {
 
 		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		// fortunately, we went into the docker container to confirm that the post file msg does get saved into canine-chain
 		fmt.Println(res5)
 
 		deleteFileMsg := allbindingstypes.ExecuteMsg{
@@ -132,7 +132,7 @@ func (s *ContractTestSuite) TestStorageModule() {
 		// TODO: query for the File object to show it doesn't exist anymore?
 
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		// fortunately, we went into the docker container to confirm that the delete file msg does work
 		fmt.Println(res6)
 
 		// Could also use:  for 'Merkle'?
@@ -160,8 +160,6 @@ func (s *ContractTestSuite) TestStorageModule() {
 		}
 
 		res7, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
-		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		expectedErrorMsg := "transaction failed with code 1: failed to execute message; message index: 0: " +
 			"dispatch: submessages: dispatch: submessages: perform buy storage: buy storage error from message: " +
 			"failed to validate buy request: cannot buy less than a gb"

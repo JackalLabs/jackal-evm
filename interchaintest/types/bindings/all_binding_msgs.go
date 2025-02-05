@@ -6,15 +6,13 @@ import (
 )
 
 type ExecuteMsg struct {
-	PostKey           *ExecuteMsg_PostKey           `json:"post_key,omitempty"`
+	// STORAGE
 	PostFile          *ExecuteMsg_PostFile          `json:"post_file,omitempty"`
 	DeleteFile        *ExecuteMsg_DeleteFile        `json:"delete_file,omitempty"`
 	BuyStorage        *ExecuteMsg_BuyStorage        `json:"buy_storage,omitempty"`
 	RequestReportForm *ExecuteMsg_RequestReportForm `json:"request_report_form,omitempty"`
-}
-
-type ExecuteMsg_PostKey struct {
-	Key string `json:"key"`
+	// FILETREE
+	PostFileTree *ExecuteMsg_PostFileTree `json:"post_file_tree,omitempty"`
 }
 
 type ExecuteMsg_PostFile struct {
