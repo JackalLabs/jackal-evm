@@ -119,6 +119,28 @@ pub fn execute(
                 editors,
                 tracking_number
             ),
+        ExecuteMsg::AddViewers {
+            viewer_ids,
+            viewer_keys,
+            address,
+            file_owner,
+        } => filetree::add_viewers(
+                deps,
+                info, 
+                env,
+                viewer_ids,
+                viewer_keys,
+                address,
+                file_owner
+            ),
+        ExecuteMsg::PostKey {
+            key,
+        } => filetree::post_key(
+                deps,
+                info, 
+                env,
+                key
+            ),
     }
 }
 

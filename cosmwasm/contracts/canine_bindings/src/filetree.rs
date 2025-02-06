@@ -46,3 +46,61 @@ pub fn post_file_tree(
         .add_message(post_file_tree_msg);
     Ok(res)
 }
+
+pub fn add_viewers(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    viewer_ids: String,
+    viewer_keys: String,
+    address: String,
+    file_owner: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let add_viewers = JackalMsg::add_viewers(
+        creator,
+        viewer_ids,
+        viewer_keys,
+        address,
+        file_owner
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "add_viewers")
+        .add_message(add_viewers);
+    Ok(res)
+}
+
+pub fn post_key(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    key: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let post_key = JackalMsg::post_key(
+        creator,
+        key,
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "post_key")
+        .add_message(post_key);
+    Ok(res)
+}

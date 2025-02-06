@@ -5,18 +5,6 @@ use cosmwasm_std::{CosmosMsg, CustomMsg};
 #[cw_serde]
 pub enum JackalMsg {
 
-    // TODO: move post key and make root to where the filetree section should start 
-    PostKey {
-        // need creator?
-        sender: String, // WARNING: This can be spoofed atm. 
-        key: String,
-    },
-    MakeRoot {
-        // need creator?
-        editors: String,
-        viewers: String,
-        trackingnumber: String,
-    },
     // STORAGE MODULE 
     PostFile {
         creator: String,
@@ -48,6 +36,7 @@ pub enum JackalMsg {
         owner: String,
         start: i64,
     },
+    // FILETREE MODULE
     PostFileTree {
         creator: String,
         account: String,
@@ -58,16 +47,20 @@ pub enum JackalMsg {
         editors: String,
         tracking_number: String,
     },
+    AddViewers {
+        creator: String,
+        viewer_ids: String, 
+        viewer_keys: String,
+        address: String, 
+        file_owner: String,
+    },
+    PostKey {
+        creator: String,
+        key: String,
+    },
 }
 
 impl JackalMsg {
-
-    pub fn post_key(sender: String, key: String) -> Self {
-        JackalMsg::PostKey {
-            sender,
-            key,
-        }
-    }
 
     pub fn post_file(
         creator: String,
@@ -159,12 +152,29 @@ impl JackalMsg {
         }
     }
 
-    // Not putting sender in just yet 
-    pub fn make_root(editors: String, viewers: String, trackingnumber: String) -> Self {
-        JackalMsg::MakeRoot {
-            editors,
-            viewers,
-            trackingnumber,
+    pub fn add_viewers(
+        creator: String, 
+        viewer_ids: String,
+        viewer_keys: String, 
+        address: String,
+        file_owner: String, 
+    ) -> Self {
+        JackalMsg::AddViewers { 
+            creator, 
+            viewer_ids, 
+            viewer_keys, 
+            address, 
+            file_owner,
+        } 
+    }
+
+    pub fn post_key(
+        creator: String, 
+        key: String
+    ) -> Self {
+        JackalMsg::PostKey {
+            creator,
+            key,
         }
     }
 }

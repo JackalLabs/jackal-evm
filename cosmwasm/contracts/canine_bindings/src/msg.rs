@@ -46,6 +46,17 @@ pub enum ExecuteMsg {
         tracking_number: String,
     },
 
+    AddViewers {
+        viewer_ids: String,
+        viewer_keys: String,
+        address: String,
+        file_owner: String,
+    },
+
+    PostKey {
+        key: String,
+    },
+
 }
 
 #[cw_serde]
