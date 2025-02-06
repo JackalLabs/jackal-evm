@@ -107,6 +107,47 @@ func (s *ContractTestSuite) TestFiletreeModule() {
 			"cannot find nobody: Parent folder does not exist"
 		s.Require().EqualError(err, expectedErrorMsg)
 
+		addViewersMsg := allbindingstypes.ExecuteMsg{
+			AddViewers: &allbindingstypes.ExecuteMsg_AddViewers{
+				ViewerIds:  "nobody",
+				ViewerKeys: "nobody",
+				Address:    "nobody",
+				FileOwner:  "nobody",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &addViewersMsg,
+			},
+		}
+
+		res1, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post file tree msg does get saved into canine-chain
+		fmt.Println(res1)
+		expectedErrorMsg = "transaction failed with code 1102: failed to execute message; message index: 0: " +
+			"dispatch: submessages: dispatch: submessages: perform add viewers: add viewers error from message: " +
+			"file not found"
+		s.Require().EqualError(err, expectedErrorMsg)
+
+		postKeyMsg := allbindingstypes.ExecuteMsg{
+			PostKey: &allbindingstypes.ExecuteMsg_PostKey{
+				Key: "nobody",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &postKeyMsg,
+			},
+		}
+
+		res2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: confirmed post key works via the CLI.
+		fmt.Println(res2)
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)

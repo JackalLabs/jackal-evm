@@ -13,6 +13,8 @@ type ExecuteMsg struct {
 	RequestReportForm *ExecuteMsg_RequestReportForm `json:"request_report_form,omitempty"`
 	// FILETREE
 	PostFileTree *ExecuteMsg_PostFileTree `json:"post_file_tree,omitempty"`
+	AddViewers   *ExecuteMsg_AddViewers   `json:"add_viewers,omitempty"`
+	PostKey      *ExecuteMsg_PostKey      `json:"post_key,omitempty"`
 }
 
 type ExecuteMsg_PostFile struct {
