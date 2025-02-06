@@ -12,8 +12,8 @@ import (
 	testsuite "github.com/JackalLabs/jackal-evm/testsuite"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
+	allbindingstypes "github.com/JackalLabs/jackal-evm/types/bindings"
 	factorytypes "github.com/JackalLabs/jackal-evm/types/bindingsfactory"
-	filetreetypes "github.com/JackalLabs/jackal-evm/types/filetree"
 
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
@@ -41,7 +41,7 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 	s.Require().NoError(err)
 
 	// Store code of filetree bindings
-	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/filetree.wasm")
+	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/canine_bindings.wasm")
 	s.Require().NoError(error)
 
 	// codeId is string and needs to be converted to uint64
@@ -152,8 +152,8 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 		merkleBase64 := base64.StdEncoding.EncodeToString(merkleBytes)
 
 		// Could also use:  for 'Merkle'?
-		storageMsg := filetreetypes.ExecuteMsg{
-			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+		storageMsg := allbindingstypes.ExecuteMsg{
+			PostFile: &allbindingstypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                            // Replace with actual Merkle data
 				FileSize:      100000000,                                                                               // Replace with actual file size
 				ProofInterval: 60,                                                                                      // Replace with actual proof interval
@@ -178,8 +178,8 @@ func (s *ContractTestSuite) TestJackalChainWasmBindings() {
 
 		//****** FOR BOB ******
 
-		bobStorageMsg := filetreetypes.ExecuteMsg{
-			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+		bobStorageMsg := allbindingstypes.ExecuteMsg{
+			PostFile: &allbindingstypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64, // re-using alice's merkle
 				FileSize:      5000000,
 				ProofInterval: 70,

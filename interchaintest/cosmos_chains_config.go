@@ -69,8 +69,8 @@ var chainSpecs = []*interchaintest.ChainSpec{
 			ChainID: "puppy-1",
 			Images: []ibc.DockerImage{
 				{
-					Repository: "biphan4/many-bindings", // FOR LOCAL IMAGE USE: Docker Image Name
-					Version:    "0.0.7",                 // FOR LOCAL IMAGE USE: Docker Image Tag
+					Repository: "biphan4/canine-evm", // FOR LOCAL IMAGE USE: Docker Image Name
+					Version:    "0.0.1",              // FOR LOCAL IMAGE USE: Docker Image Tag
 				},
 			},
 			Bin:            "canined",

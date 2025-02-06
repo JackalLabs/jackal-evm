@@ -2,11 +2,11 @@ use cosmwasm_std::StdError;
 use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
-pub enum FiletreeError {
+pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
 
-    #[error("Unauthorized")]
+    #[error("Unauthorized. Only the factory can call bindings")]
     Unauthorized {},
 
 }

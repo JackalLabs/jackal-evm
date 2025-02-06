@@ -5,8 +5,8 @@ use cosmwasm_std::Addr;
 use cw_storage_plus::Item;
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, JsonSchema)]
-pub struct State {
+pub struct ContractState {
     pub owner: Addr,
 }
 
-pub const STATE: Item<State> = Item::new("state");
+pub const STATE: Item<ContractState> = Item::new("state");

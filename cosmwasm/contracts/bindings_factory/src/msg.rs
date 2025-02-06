@@ -1,5 +1,8 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use shared::shared_msg::SharedExecuteMsg;
+// Using this type alias means we don't need the 'shared' package?
+// NOTE: is this actual type aliasing or something else?
+use canine_bindings::msg::ExecuteMsg as BindingsExecuteMsg;
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -11,7 +14,8 @@ pub enum ExecuteMsg {
 
     CallBindings {
         evm_address: String, // Will use this to find mapped bindings contract address to call 
-        msg:         SharedExecuteMsg, // Just raw JSON? 
+        // WARNING: I think we can just import canine_binding's type as a type_alias 
+        msg:         BindingsExecuteMsg, // Just raw JSON
     },
     AddToWhiteList {
         jkl_address: String, 

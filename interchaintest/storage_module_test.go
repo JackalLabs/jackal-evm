@@ -23,7 +23,7 @@ import (
 // and packets should be consumed by the ica host no matter what version of ibc-go the controller chain is running
 
 // Testing canine-chain's web assembly bindings
-func (s *ContractTestSuite) TestJackalChainFactory() {
+func (s *ContractTestSuite) TestStorageModule() {
 	ctx := context.Background()
 
 	logger.InitLogger()
@@ -40,7 +40,7 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 	FactoryCodeId, err := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/bindings_factory.wasm")
 	s.Require().NoError(err)
 
-	// Store code of canine-bindings
+	// Store code of canine_bindings
 	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/canine_bindings.wasm")
 	s.Require().NoError(error)
 
@@ -48,7 +48,7 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 	BindingsCodeIdAsInt, err := strconv.ParseInt(BindingsCodeId, 10, 64)
 	s.Require().NoError(err)
 
-	// Instantiate the factory, giving it the codeId of the filetree bindings contract
+	// Instantiate the factory, giving it the codeId of the canine_bindings contract
 	instantiateMsg := factorytypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
 
 	contractAddr, _ := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
@@ -93,7 +93,7 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 			PostFile: &allbindingstypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
 				FileSize:      100000000,                                                                      // Replace with actual file size
-				ProofInterval: 3600,                                                                           // Replace with actual proof interval
+				ProofInterval: 60,                                                                             // Replace with actual proof interval
 				ProofType:     1,                                                                              // Replace with actual proof type
 				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
 				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
@@ -113,51 +113,39 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
 		fmt.Println(res5)
 
-		// post a second file for alice
-		secondStorageMsg := storageMsg
-		secondStorageMsg.PostFile.Note = `{"description": "alice note 2", "additional_info": "placeholder"}`
-		factoryExecuteMsg.CallBindings.Msg = &secondStorageMsg
-		aliceRes2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
-		fmt.Println(aliceRes2)
-
-		//****** FOR BOB ******
-
-		bobEvmAddress := "bob_Ox1" // Declare a variable holding the string
-
 		// Could also use:  for 'Merkle'?
-		bobStorageMsg := allbindingstypes.ExecuteMsg{
-			PostFile: &allbindingstypes.ExecuteMsg_PostFile{
-				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
-				FileSize:      100000000,                                                                      // Replace with actual file size
-				ProofInterval: 3600,                                                                           // Replace with actual proof interval
-				ProofType:     1,                                                                              // Replace with actual proof type
-				MaxProofs:     100,                                                                            // Replace with maximum number of proofs
-				Expires:       blockHeight + ((100 * 365 * 24 * 60 * 60) / 6),                                 // Replace with actual expiry time (Unix timestamp)
-				Note:          `{"description": "bob's note", "additional_info": "Replace with actual data"}`, // JSON formatted string
+		buyStorageMsg := allbindingstypes.ExecuteMsg{
+			BuyStorage: &allbindingstypes.ExecuteMsg_BuyStorage{
+				// WARNING TODO:
+				// On canine-chain, Alice can buy storage as a gift for Bob, so we should keep this feature in the EVM
+				// If we want to buy storage for Alice's Bindings contract, we either:
+				// a) Query the Factory contract to find Alice's Bindings contract first, before calling this message, or
+				// b) Hard code the Bindings contracts to buy storage for themselves always--BUT, this means EVM users can't
+				// buy storage for a friend
+				ForAddress:   s.UserB.FormattedAddress(),
+				DurationDays: 160,
+				Bytes:        1000000,
+				PaymentDenom: "ukl",
+				Referral:     "none",
 			},
 		}
 
-		factoryExecuteMsgForBob := factorytypes.ExecuteMsg{
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
 			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
-				EvmAddress: &bobEvmAddress,
-				Msg:        &bobStorageMsg,
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &buyStorageMsg,
 			},
 		}
 
-		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsgForBob.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		res6, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		expectedErrorMsg := "transaction failed with code 1: failed to execute message; message index: 0: " +
+			"dispatch: submessages: dispatch: submessages: perform buy storage: buy storage error from message: " +
+			"failed to validate buy request: cannot buy less than a gb"
+		s.Require().EqualError(err, expectedErrorMsg)
 		fmt.Println(res6)
-
-		// post a second file for bob
-		bobSecondStorageMsg := bobStorageMsg
-		bobSecondStorageMsg.PostFile.Note = `{"description": "bob note 2", "additional_info": "placeholder"}`
-		factoryExecuteMsgForBob.CallBindings.Msg = &bobSecondStorageMsg
-		bobRes2, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsgForBob.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
-		fmt.Println(bobRes2)
-
-		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
-		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
+		fmt.Println(err)
 
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(addressErr)
@@ -194,16 +182,6 @@ func (s *ContractTestSuite) TestJackalChainFactory() {
 				logger.LogError("Invalid binding format:", binding)
 			}
 		}
-
-		aliceBindingsState, stateErr := testsuite.GetState(ctx, s.ChainB, aliceBindingsAddress)
-		s.Require().NoError(stateErr)
-		logger.LogInfo(aliceBindingsState)
-
-		bobBindingsState, stateErr := testsuite.GetState(ctx, s.ChainB, bobBindingsAddress)
-		s.Require().NoError(stateErr)
-		logger.LogInfo(bobBindingsState)
-
-		// Now you can use aliceBindingsAddress and bobBindingsAddress variables in your test code
 
 	},
 	)

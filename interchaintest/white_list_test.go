@@ -12,8 +12,8 @@ import (
 	testsuite "github.com/JackalLabs/jackal-evm/testsuite"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
+	allbindingstypes "github.com/JackalLabs/jackal-evm/types/bindings"
 	factorytypes "github.com/JackalLabs/jackal-evm/types/bindingsfactory"
-	filetreetypes "github.com/JackalLabs/jackal-evm/types/filetree"
 
 	logger "github.com/JackalLabs/storage-outpost/e2e/interchaintest/logger"
 )
@@ -40,15 +40,15 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 	FactoryCodeId, err := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/bindings_factory.wasm")
 	s.Require().NoError(err)
 
-	// Store code of filetree bindings
-	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/filetree.wasm")
+	// Store code of canine_bindings
+	BindingsCodeId, error := s.ChainB.StoreContract(ctx, s.UserB.KeyName(), "../artifacts/canine_bindings.wasm")
 	s.Require().NoError(error)
 
 	// codeId is string and needs to be converted to uint64
 	BindingsCodeIdAsInt, err := strconv.ParseInt(BindingsCodeId, 10, 64)
 	s.Require().NoError(err)
 
-	// Instantiate the factory, giving it the codeId of the filetree bindings contract
+	// Instantiate the factory, giving it the codeId of the canine_bindings contract
 	instantiateMsg := factorytypes.InstantiateMsg{BindingsCodeId: int(BindingsCodeIdAsInt)}
 
 	contractAddr, _ := s.ChainB.InstantiateContract(ctx, s.UserB.KeyName(), FactoryCodeId, toString(instantiateMsg), false, "--gas", "500000", "--admin", s.UserB.KeyName())
@@ -76,29 +76,6 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
-		// WARNING: NOTE - changing the name of 'callbindingsv2' to 'callbindings' inside factory's contract.rs caused
-		// The below execution to fail silently because the golang msg type no longer matched the Rust enum
-
-		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
-		s.Require().NoError(addressErr)
-
-		// Create a slice of slices to hold the decoded user bindings
-		var decodedBindingsMap [][]string
-
-		// Unmarshal the response data into the slice of slices of strings
-		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
-			log.Fatalf("Error parsing response data: %v", err)
-		}
-
-		// Log the decoded map
-		for _, binding := range decodedBindingsMap {
-			if len(binding) == 2 {
-				logger.LogInfo("User Address:", binding[0], "Bindings Address:", binding[1])
-			} else {
-				logger.LogError("Invalid binding format:", binding)
-			}
-		}
-
 		//****** Create Filetree Entries *********
 
 		//****** FOR ALICE ******
@@ -112,8 +89,8 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 		merkleBase64 := base64.StdEncoding.EncodeToString(merkleBytes)
 
 		// Could also use:  for 'Merkle'?
-		storageMsg := filetreetypes.ExecuteMsg{
-			PostFile: &filetreetypes.ExecuteMsg_PostFile{
+		storageMsg := allbindingstypes.ExecuteMsg{
+			PostFile: &allbindingstypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
 				FileSize:      100000000,                                                                      // Replace with actual file size
 				ProofInterval: 60,                                                                             // Replace with actual proof interval
@@ -147,6 +124,23 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 		s.Require().EqualError(error, expectedErrorMsg)
 
 		userC := s.UserC.FormattedAddress()
+
+		// UserC is going to try and add themselves to the white list
+		badAddWhiteListMsg := factorytypes.ExecuteMsg{
+			AddToWhiteList: &factorytypes.ExecuteMsg_AddToWhiteList{
+				JKLAddress: &userC,
+			},
+		}
+
+		res6, err := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), factoryContractAddress, badAddWhiteListMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		expectedErrorMsg = "transaction failed with code 5: failed to execute message; message index: 0: " +
+			"Only the factory owner can update the white list: execute wasm contract failed"
+		s.Require().EqualError(err, expectedErrorMsg)
+
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		fmt.Println(res6)
+
 		// Factory owner is now going to add user C to the white list
 		addWhiteListMsg := factorytypes.ExecuteMsg{
 			AddToWhiteList: &factorytypes.ExecuteMsg_AddToWhiteList{
@@ -154,10 +148,10 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 			},
 		}
 
-		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, addWhiteListMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		res7, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, addWhiteListMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
-		fmt.Println(res6)
+		fmt.Println(res7)
 
 		whiteList, err := testsuite.GetWhiteList(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(err)
@@ -170,6 +164,56 @@ func (s *ContractTestSuite) TestWhiteListFactory() {
 		factoryExecuteMsg.CallBindings.Msg = &StorageMsg3
 		aliceRes3, _ := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		fmt.Println(aliceRes3)
+
+		// Only the factory can call bindings, so you should make sure of this and see if the error from the bindings propagates when
+		// Someone tries to call the bindings directly
+
+		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
+		s.Require().NoError(addressErr)
+
+		// Create a slice of slices to hold the decoded user bindings
+		var decodedBindingsMap [][]string
+
+		// Unmarshal the response data into the slice of slices of strings
+		if err := json.Unmarshal(bindingsMap.Data, &decodedBindingsMap); err != nil {
+			log.Fatalf("Error parsing response data: %v", err)
+		}
+
+		// Create variables to hold alice and bob's bindings addresses
+		var aliceBindingsAddress, bobBindingsAddress string
+
+		// Log the decoded map and assign addresses to variables
+		for _, binding := range decodedBindingsMap {
+			if len(binding) == 2 {
+				userAddress := binding[0]
+				bindingsAddress := binding[1]
+
+				// Check which user this binding belongs to and assign it to the corresponding variable
+				switch userAddress {
+				case "alice_Ox1":
+					aliceBindingsAddress = bindingsAddress
+					logger.LogInfo("Assigned Alice's Binding Address:", aliceBindingsAddress)
+				case "bob_Ox1":
+					bobBindingsAddress = bindingsAddress
+					logger.LogInfo("Assigned Bob's Binding Address:", bobBindingsAddress)
+				default:
+					logger.LogError("Unexpected user address:", userAddress)
+				}
+			} else {
+				logger.LogError("Invalid binding format:", binding)
+			}
+		}
+
+		// User c is attempting to by pass the bindings factory and call Alice's bindings directly,
+		// This will fail because only the factory can call bindings
+
+		badPostFileMsg := storageMsg
+		badPostFileMsg.PostFile.Note = `{"description": "attempting to bypass", "additional_info": "placeholder"}`
+		badRes, err := s.ChainB.ExecuteContract(ctx, s.UserC.KeyName(), aliceBindingsAddress, badPostFileMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		expectedErrorMsg = "transaction failed with code 5: failed to execute message; message index: 0: " +
+			"Unauthorized. Only the factory can call bindings: execute wasm contract failed"
+		s.Require().EqualError(err, expectedErrorMsg)
+		fmt.Println(badRes)
 
 	},
 	)

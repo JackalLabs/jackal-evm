@@ -19,6 +19,8 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 )
 
+// WARNING: TODO: I think not setting the relayer is causing the nil pointer error during the clean up phase of our tests
+// See comment at the very bottom
 type TestSuite struct {
 	suite.Suite
 
@@ -101,7 +103,7 @@ func (s *TestSuite) SetupSuite(ctx context.Context, chainSpecs []*interchaintest
 	t.Cleanup(
 		func() {
 			if os.Getenv("KEEP_CONTAINERS_RUNNING") != "1" {
-				err := s.Relayer.StopRelayer(ctx, s.ExecRep)
+				err := s.Relayer.StopRelayer(ctx, s.ExecRep) // WARNING: TODO: Possible nil pointer error happening here?
 				if err != nil {
 					t.Logf("an error occurred while stopping the relayer: %s", err)
 				}

@@ -71,8 +71,8 @@ func GetAllUserBindingsAddresses(ctx context.Context, chain *cosmos.CosmosChain,
 	return queryClient.SmartContractState(ctx, params)
 }
 
-// GetState queries and returns 'ContractState' object
-func GetState(ctx context.Context, chain *cosmos.CosmosChain, factoryContractAddress string) (*wasmtypes.QuerySmartContractStateResponse, error) {
+// GetState queries and returns 'ContractState' object. Can be used for either the factory or the bindings contract(s)
+func GetState(ctx context.Context, chain *cosmos.CosmosChain, contractAddress string) (*wasmtypes.QuerySmartContractStateResponse, error) {
 	grpcConn, err := grpc.Dial(
 		chain.GetHostGRPCAddress(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -95,7 +95,7 @@ func GetState(ctx context.Context, chain *cosmos.CosmosChain, factoryContractAdd
 	}
 
 	params := &wasmtypes.QuerySmartContractStateRequest{
-		Address:   factoryContractAddress,
+		Address:   contractAddress,
 		QueryData: queryDataBytes,
 	}
 

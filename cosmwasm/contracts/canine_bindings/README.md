@@ -6,12 +6,12 @@ Web assembly bindings contract to call into canine-chain's filetree module. We m
 
 Run the following command in the root directory of this repository:
 
-### `filetree`
+### `canine-bindings`
 
 ```text
 docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="devcontract_cache_burner",target=/code/contracts/burner/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-  cosmwasm/optimizer:0.15.1 /code/cosmwasm/contracts/filetree
+  cosmwasm/optimizer:0.15.1 /code/cosmwasm/contracts/canine_bindings
 
 ```
