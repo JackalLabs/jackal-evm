@@ -162,3 +162,65 @@ pub fn remove_viewers(
         .add_message(remove_viewers);
     Ok(res)
 }
+
+pub fn provision_file_tree(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    editors: String, 
+    viewers: String, 
+    tracking_number: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let provision_file_tree = JackalMsg::provision_file_tree(
+        creator,
+        editors,
+        viewers,
+        tracking_number
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "provision_file_tree")
+        .add_message(provision_file_tree);
+    Ok(res)
+}
+
+pub fn add_editors(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    editor_ids: String, 
+    editor_keys: String, 
+    address: String, 
+    file_owner: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let add_editors = JackalMsg::add_editors(
+        creator,
+        editor_ids, 
+        editor_keys, 
+        address, 
+        file_owner
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "add_editors")
+        .add_message(add_editors);
+    Ok(res)
+}

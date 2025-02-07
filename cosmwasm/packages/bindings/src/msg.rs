@@ -70,6 +70,19 @@ pub enum JackalMsg {
         address: String, 
         file_owner: String,
     },
+    ProvisionFileTree {
+        creator: String,
+        editors: String, 
+        viewers: String, 
+        tracking_number: String,
+    },
+    AddEditors {
+        creator: String,
+        editor_ids: String, 
+        editor_keys: String, 
+        address: String, 
+        file_owner: String,
+    },
 }
 
 impl JackalMsg {
@@ -212,6 +225,36 @@ impl JackalMsg {
             creator,
             viewer_ids,
             address,
+            file_owner
+        }
+    }
+
+    pub fn provision_file_tree(
+        creator: String,
+        editors: String, 
+        viewers: String, 
+        tracking_number: String,
+    ) -> Self {
+        JackalMsg::ProvisionFileTree {
+            creator,
+            editors, 
+            viewers, 
+            tracking_number
+        }
+    }
+
+    pub fn add_editors(
+        creator: String,
+        editor_ids: String, 
+        editor_keys: String, 
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::AddEditors {
+            creator,
+            editor_ids, 
+            editor_keys, 
+            address, 
             file_owner
         }
     }

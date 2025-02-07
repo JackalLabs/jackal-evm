@@ -163,6 +163,32 @@ pub fn execute(
                 address,
                 file_owner
             ),
+        ExecuteMsg::ProvisionFileTree {
+            editors, 
+            viewers, 
+            tracking_number,
+        } => filetree::provision_file_tree(
+                deps,
+                info, 
+                env,
+                editors, 
+                viewers, 
+                tracking_number
+            ),
+        ExecuteMsg::AddEditors {
+            editor_ids, 
+            editor_keys, 
+            address, 
+            file_owner,
+        } => filetree::add_editors(
+                deps,
+                info, 
+                env,
+                editor_ids, 
+                editor_keys, 
+                address, 
+                file_owner
+            ),
     }
 }
 

@@ -68,6 +68,19 @@ pub enum ExecuteMsg {
         file_owner: String,
     }, 
 
+    ProvisionFileTree {
+        editors: String, 
+        viewers: String, 
+        tracking_number: String,
+    },
+
+    AddEditors {
+        editor_ids: String, 
+        editor_keys: String, 
+        address: String, 
+        file_owner: String,
+    },
+    
 }
 
 #[cw_serde]
