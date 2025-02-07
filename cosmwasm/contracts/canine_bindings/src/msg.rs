@@ -57,6 +57,17 @@ pub enum ExecuteMsg {
         key: String,
     },
 
+    DeleteFileTree {
+        hash_path: String, 
+        account: String,
+    },
+
+    RemoveViewers {
+        viewer_ids: String, 
+        address: String, 
+        file_owner: String,
+    }, 
+
 }
 
 #[cw_serde]

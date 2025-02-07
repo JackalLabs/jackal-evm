@@ -104,3 +104,61 @@ pub fn post_key(
         .add_message(post_key);
     Ok(res)
 }
+
+pub fn delete_file_tree(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    hash_path: String,
+    account: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let delete_file_tree = JackalMsg::delete_file_tree(
+        creator,
+        hash_path,
+        account
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "delete file tree")
+        .add_message(delete_file_tree);
+    Ok(res)
+}
+
+pub fn remove_viewers(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    viewer_ids: String,
+    address: String,
+    file_owner: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let remove_viewers = JackalMsg::remove_viewers(
+        creator,
+        viewer_ids,
+        address,
+        file_owner
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "remove viewers")
+        .add_message(remove_viewers);
+    Ok(res)
+}

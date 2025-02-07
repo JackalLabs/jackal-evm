@@ -58,6 +58,18 @@ pub enum JackalMsg {
         creator: String,
         key: String,
     },
+    DeleteFileTree {
+        creator: String,
+        hash_path: String, 
+        account: String,
+
+    },
+    RemoveViewers {
+        creator: String,
+        viewer_ids: String, 
+        address: String, 
+        file_owner: String,
+    },
 }
 
 impl JackalMsg {
@@ -175,6 +187,32 @@ impl JackalMsg {
         JackalMsg::PostKey {
             creator,
             key,
+        }
+    }
+
+    pub fn delete_file_tree(
+        creator: String,
+        hash_path: String, 
+        account: String
+    ) -> Self {
+        JackalMsg::DeleteFileTree {
+            creator,
+            hash_path,
+            account
+        }
+    }
+
+    pub fn remove_viewers(
+        creator: String,
+        viewer_ids: String, 
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::RemoveViewers {
+            creator,
+            viewer_ids,
+            address,
+            file_owner
         }
     }
 }

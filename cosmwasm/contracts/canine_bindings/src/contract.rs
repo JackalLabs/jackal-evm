@@ -141,6 +141,28 @@ pub fn execute(
                 env,
                 key
             ),
+        ExecuteMsg::DeleteFileTree {
+            hash_path,
+            account
+        } => filetree::delete_file_tree(
+                deps,
+                info, 
+                env,
+                hash_path,
+                account
+            ),
+        ExecuteMsg::RemoveViewers {
+            viewer_ids,
+            address,
+            file_owner
+        } => filetree::remove_viewers(
+                deps,
+                info, 
+                env,
+                viewer_ids,
+                address,
+                file_owner
+            ),
     }
 }
 
