@@ -20,3 +20,14 @@ type ExecuteMsg_AddViewers struct {
 type ExecuteMsg_PostKey struct {
 	Key string `json:"key"`
 }
+
+type ExecuteMsg_DeleteFileTree struct {
+	HashPath string `json:"hash_path"`
+	Account  string `json:"account"`
+}
+
+type ExecuteMsg_RemoveViewers struct {
+	ViewerIds string `json:"viewer_ids"`
+	Address   string `json:"address"`
+	FileOwner string `json:"file_owner"`
+}

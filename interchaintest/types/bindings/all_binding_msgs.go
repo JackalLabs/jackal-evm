@@ -12,9 +12,11 @@ type ExecuteMsg struct {
 	BuyStorage        *ExecuteMsg_BuyStorage        `json:"buy_storage,omitempty"`
 	RequestReportForm *ExecuteMsg_RequestReportForm `json:"request_report_form,omitempty"`
 	// FILETREE
-	PostFileTree *ExecuteMsg_PostFileTree `json:"post_file_tree,omitempty"`
-	AddViewers   *ExecuteMsg_AddViewers   `json:"add_viewers,omitempty"`
-	PostKey      *ExecuteMsg_PostKey      `json:"post_key,omitempty"`
+	PostFileTree   *ExecuteMsg_PostFileTree   `json:"post_file_tree,omitempty"`
+	AddViewers     *ExecuteMsg_AddViewers     `json:"add_viewers,omitempty"`
+	PostKey        *ExecuteMsg_PostKey        `json:"post_key,omitempty"`
+	DeleteFileTree *ExecuteMsg_DeleteFileTree `json:"delete_file_tree,omitempty"`
+	RemoveViewers  *ExecuteMsg_RemoveViewers  `json:"remove_viewers,omitempty"`
 }
 
 type ExecuteMsg_PostFile struct {
