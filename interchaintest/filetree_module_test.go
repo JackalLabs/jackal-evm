@@ -195,6 +195,50 @@ func (s *ContractTestSuite) TestFiletreeModule() {
 			"dispatch: submessages: dispatch: submessages: perform remove viewers: remove viewers error from message: " +
 			"file not found"
 		s.Require().EqualError(err, expectedErrorMsg)
+
+		provisionFileTree := allbindingstypes.ExecuteMsg{
+			ProvisionFileTree: &allbindingstypes.ExecuteMsg_ProvisionFileTree{
+				Editors:        "BiPhan",
+				Viewers:        "BiPhan",
+				TrackingNumber: "9000",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &provisionFileTree,
+			},
+		}
+
+		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		//NOTE: confirmed on cli that this works
+		fmt.Println(res5)
+
+		addEditorsMsg := allbindingstypes.ExecuteMsg{
+			AddEditors: &allbindingstypes.ExecuteMsg_AddEditors{
+				EditorIds:  "nothing",
+				EditorKeys: "nothing",
+				Address:    "nobody",
+				FileOwner:  "nobody",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &addEditorsMsg,
+			},
+		}
+
+		res6, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post file tree msg does get saved into canine-chain
+		fmt.Println(res6)
+		expectedErrorMsg = "transaction failed with code 1102: failed to execute message; message index: 0: " +
+			"dispatch: submessages: dispatch: submessages: perform add editors: add editors error from message: " +
+			"file not found"
+		s.Require().EqualError(err, expectedErrorMsg)
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)

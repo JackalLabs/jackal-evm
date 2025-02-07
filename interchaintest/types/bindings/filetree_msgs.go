@@ -31,3 +31,16 @@ type ExecuteMsg_RemoveViewers struct {
 	Address   string `json:"address"`
 	FileOwner string `json:"file_owner"`
 }
+
+type ExecuteMsg_ProvisionFileTree struct {
+	Editors        string `json:"editors"`
+	Viewers        string `json:"viewers"`
+	TrackingNumber string `json:"tracking_number"`
+}
+
+type ExecuteMsg_AddEditors struct {
+	EditorIds  string `json:"editor_ids"`
+	EditorKeys string `json:"editor_keys"`
+	Address    string `json:"address"`
+	FileOwner  string `json:"file_owner"`
+}
