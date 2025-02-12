@@ -19,6 +19,8 @@ type ExecuteMsg struct {
 	RemoveViewers     *ExecuteMsg_RemoveViewers     `json:"remove_viewers,omitempty"`
 	ProvisionFileTree *ExecuteMsg_ProvisionFileTree `json:"provision_file_tree,omitempty"`
 	AddEditors        *ExecuteMsg_AddEditors        `json:"add_editors,omitempty"`
+	RemoveEditors     *ExecuteMsg_RemoveEditors     `json:"remove_editors,omitempty"`
+	ResetEditors      *ExecuteMsg_ResetEditors      `json:"reset_editors,omitempty"`
 }
 
 type ExecuteMsg_PostFile struct {

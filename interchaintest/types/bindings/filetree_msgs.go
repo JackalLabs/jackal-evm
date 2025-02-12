@@ -44,3 +44,14 @@ type ExecuteMsg_AddEditors struct {
 	Address    string `json:"address"`
 	FileOwner  string `json:"file_owner"`
 }
+
+type ExecuteMsg_RemoveEditors struct {
+	EditorIds string `json:"editor_ids"`
+	Address   string `json:"address"`
+	FileOwner string `json:"file_owner"`
+}
+
+type ExecuteMsg_ResetEditors struct {
+	Address   string `json:"address"`
+	FileOwner string `json:"file_owner"`
+}

@@ -239,6 +239,53 @@ func (s *ContractTestSuite) TestFiletreeModule() {
 			"dispatch: submessages: dispatch: submessages: perform add editors: add editors error from message: " +
 			"file not found"
 		s.Require().EqualError(err, expectedErrorMsg)
+
+		removeEditorsMsg := allbindingstypes.ExecuteMsg{
+			RemoveEditors: &allbindingstypes.ExecuteMsg_RemoveEditors{
+				EditorIds: "nothing",
+				Address:   "nobody",
+				FileOwner: "nobody",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &removeEditorsMsg,
+			},
+		}
+
+		res7, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post file tree msg does get saved into canine-chain
+		fmt.Println(res7)
+		expectedErrorMsg = "transaction failed with code 1102: failed to execute message; message index: 0: " +
+			"dispatch: submessages: dispatch: submessages: perform remove editors: remove editors error from message: " +
+			"file not found"
+		s.Require().EqualError(err, expectedErrorMsg)
+
+		resetEditorsMsg := allbindingstypes.ExecuteMsg{
+			ResetEditors: &allbindingstypes.ExecuteMsg_ResetEditors{
+				Address:   "nobody",
+				FileOwner: "nobody",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &resetEditorsMsg,
+			},
+		}
+
+		res8, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post file tree msg does get saved into canine-chain
+		fmt.Println(res8)
+		expectedErrorMsg = "transaction failed with code 1102: failed to execute message; message index: 0: " +
+			"dispatch: submessages: dispatch: submessages: perform reset editors: reset editors error from message: " +
+			"file not found"
+		s.Require().EqualError(err, expectedErrorMsg)
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)
