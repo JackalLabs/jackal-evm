@@ -91,6 +91,17 @@ pub enum ExecuteMsg {
         address: String, 
         file_owner: String,
     },
+
+    ResetViewers {
+        address: String, 
+        file_owner: String,
+    },
+
+    ChangeOwner {
+        address: String, 
+        file_owner: String,
+        new_owner: String,
+    },
     
 }
 

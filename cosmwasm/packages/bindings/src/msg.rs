@@ -94,6 +94,17 @@ pub enum JackalMsg {
         address: String, 
         file_owner: String,
     },
+    ResetViewers {
+        creator: String,
+        address: String, 
+        file_owner: String,
+    },
+    ChangeOwner {
+        creator: String,
+        address: String, 
+        file_owner: String,
+        new_owner: String,
+    },
 }
 
 impl JackalMsg {
@@ -293,6 +304,32 @@ impl JackalMsg {
             creator,
             address, 
             file_owner
+        }
+    }
+
+    pub fn reset_viewers(
+        creator: String,
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::ResetViewers {
+            creator,
+            address, 
+            file_owner
+        }
+    }
+
+    pub fn change_owner(
+        creator: String,
+        address: String, 
+        file_owner: String,
+        new_owner: String,
+    ) -> Self {
+        JackalMsg::ChangeOwner {
+            creator,
+            address, 
+            file_owner,
+            new_owner
         }
     }
 }

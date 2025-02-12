@@ -211,6 +211,28 @@ pub fn execute(
                 address, 
                 file_owner
             ),
+        ExecuteMsg::ResetViewers {
+            address, 
+            file_owner,
+        } => filetree::reset_viewers(
+                deps,
+                info, 
+                env,
+                address, 
+                file_owner
+            ),
+        ExecuteMsg::ChangeOwner {
+            address, 
+            file_owner,
+            new_owner,
+        } => filetree::change_owner(
+                deps,
+                info, 
+                env,
+                address, 
+                file_owner,
+                new_owner
+            ),
     }
 }
 

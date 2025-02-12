@@ -282,3 +282,61 @@ pub fn reset_editors(
         .add_message(reset_editors);
     Ok(res)
 }
+
+pub fn reset_viewers(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    address: String, 
+    file_owner: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let reset_viewers = JackalMsg::reset_viewers(
+        creator,
+        address, 
+        file_owner
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "reset_viewers")
+        .add_message(reset_viewers);
+    Ok(res)
+}
+
+pub fn change_owner(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    address: String, 
+    file_owner: String,
+    new_owner: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let change_owner = JackalMsg::change_owner(
+        creator,
+        address, 
+        file_owner,
+        new_owner
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "change_owner")
+        .add_message(change_owner);
+    Ok(res)
+}
