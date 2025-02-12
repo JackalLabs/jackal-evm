@@ -21,6 +21,8 @@ type ExecuteMsg struct {
 	AddEditors        *ExecuteMsg_AddEditors        `json:"add_editors,omitempty"`
 	RemoveEditors     *ExecuteMsg_RemoveEditors     `json:"remove_editors,omitempty"`
 	ResetEditors      *ExecuteMsg_ResetEditors      `json:"reset_editors,omitempty"`
+	ResetViewers      *ExecuteMsg_ResetViewers      `json:"reset_viewers,omitempty"`
+	ChangeOwner       *ExecuteMsg_ChangeOwner       `json:"change_owner,omitempty"`
 }
 
 type ExecuteMsg_PostFile struct {

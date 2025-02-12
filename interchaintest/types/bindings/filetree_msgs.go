@@ -55,3 +55,14 @@ type ExecuteMsg_ResetEditors struct {
 	Address   string `json:"address"`
 	FileOwner string `json:"file_owner"`
 }
+
+type ExecuteMsg_ResetViewers struct {
+	Address   string `json:"address"`
+	FileOwner string `json:"file_owner"`
+}
+
+type ExecuteMsg_ChangeOwner struct {
+	Address   string `json:"address"`
+	FileOwner string `json:"file_owner"`
+	NewOwner  string `json:"new_owner"`
+}

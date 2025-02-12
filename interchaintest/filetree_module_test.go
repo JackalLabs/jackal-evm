@@ -286,6 +286,53 @@ func (s *ContractTestSuite) TestFiletreeModule() {
 			"dispatch: submessages: dispatch: submessages: perform reset editors: reset editors error from message: " +
 			"file not found"
 		s.Require().EqualError(err, expectedErrorMsg)
+
+		resetViewersMsg := allbindingstypes.ExecuteMsg{
+			ResetViewers: &allbindingstypes.ExecuteMsg_ResetViewers{
+				Address:   "nobody",
+				FileOwner: "nobody",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &resetViewersMsg,
+			},
+		}
+
+		res9, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post file tree msg does get saved into canine-chain
+		fmt.Println(res9)
+		expectedErrorMsg = "transaction failed with code 1102: failed to execute message; message index: 0: " +
+			"dispatch: submessages: dispatch: submessages: perform reset viewers: reset viewers error from message: " +
+			"file not found"
+		s.Require().EqualError(err, expectedErrorMsg)
+
+		changeOwnerMsg := allbindingstypes.ExecuteMsg{
+			ChangeOwner: &allbindingstypes.ExecuteMsg_ChangeOwner{
+				Address:   "nobody",
+				FileOwner: "nobody",
+				NewOwner:  "nobody",
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &changeOwnerMsg,
+			},
+		}
+
+		res10, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the post file tree msg does get saved into canine-chain
+		fmt.Println(res10)
+		expectedErrorMsg = "transaction failed with code 1102: failed to execute message; message index: 0: " +
+			"dispatch: submessages: dispatch: submessages: perform change owner: change owner error from message: " +
+			"file not found"
+		s.Require().EqualError(err, expectedErrorMsg)
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)
