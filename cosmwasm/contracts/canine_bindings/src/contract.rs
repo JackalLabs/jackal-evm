@@ -189,6 +189,28 @@ pub fn execute(
                 address, 
                 file_owner
             ),
+        ExecuteMsg::RemoveEditors {
+            editor_ids, 
+            address, 
+            file_owner,
+        } => filetree::remove_editors(
+                deps,
+                info, 
+                env,
+                editor_ids, 
+                address, 
+                file_owner
+            ),
+        ExecuteMsg::ResetEditors {
+            address, 
+            file_owner,
+        } => filetree::reset_editors(
+                deps,
+                info, 
+                env,
+                address, 
+                file_owner
+            ),
     }
 }
 

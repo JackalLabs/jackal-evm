@@ -224,3 +224,61 @@ pub fn add_editors(
         .add_message(add_editors);
     Ok(res)
 }
+
+pub fn remove_editors(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    editor_ids: String, 
+    address: String, 
+    file_owner: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let remove_editors = JackalMsg::remove_editors(
+        creator,
+        editor_ids, 
+        address, 
+        file_owner
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "remove_editors")
+        .add_message(remove_editors);
+    Ok(res)
+}
+
+pub fn reset_editors(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    address: String, 
+    file_owner: String,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let creator = env.contract.address.to_string();
+
+    let reset_editors = JackalMsg::reset_editors(
+        creator,
+        address, 
+        file_owner
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "reset_editors")
+        .add_message(reset_editors);
+    Ok(res)
+}

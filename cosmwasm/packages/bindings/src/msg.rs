@@ -83,6 +83,17 @@ pub enum JackalMsg {
         address: String, 
         file_owner: String,
     },
+    RemoveEditors {
+        creator: String,
+        editor_ids: String, 
+        address: String, 
+        file_owner: String,
+    },
+    ResetEditors {
+        creator: String,
+        address: String, 
+        file_owner: String,
+    },
 }
 
 impl JackalMsg {
@@ -254,6 +265,32 @@ impl JackalMsg {
             creator,
             editor_ids, 
             editor_keys, 
+            address, 
+            file_owner
+        }
+    }
+
+    pub fn remove_editors(
+        creator: String,
+        editor_ids: String, 
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::RemoveEditors {
+            creator,
+            editor_ids, 
+            address, 
+            file_owner
+        }
+    }
+
+    pub fn reset_editors(
+        creator: String,
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::ResetEditors {
+            creator,
             address, 
             file_owner
         }

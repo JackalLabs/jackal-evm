@@ -80,6 +80,17 @@ pub enum ExecuteMsg {
         address: String, 
         file_owner: String,
     },
+
+    RemoveEditors {
+        editor_ids: String, 
+        address: String, 
+        file_owner: String,
+    },
+
+    ResetEditors {
+        address: String, 
+        file_owner: String,
+    },
     
 }
 
