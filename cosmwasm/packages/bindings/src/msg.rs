@@ -105,6 +105,22 @@ pub enum JackalMsg {
         file_owner: String,
         new_owner: String,
     },
+    CreateNotification {
+        creator: String,
+        to: String,
+        contents: String,
+        private_contents: Vec<u8>,
+    },
+    DeleteNotification {
+        creator: String,
+        from: String,
+        time: i64,
+    },
+    BlockSenders {
+        creator: String,
+        to_block: Vec<String> // WARNING: might cause issues
+    },
+
 }
 
 impl JackalMsg {
@@ -330,6 +346,42 @@ impl JackalMsg {
             address, 
             file_owner,
             new_owner
+        }
+    }
+
+    pub fn create_notification(
+        creator: String,
+        to: String,
+        contents: String,
+        private_contents: Vec<u8>,
+    ) -> Self {
+        JackalMsg::CreateNotification {
+            creator,
+            to, 
+            contents,
+            private_contents
+        }
+    }
+
+    pub fn delete_notification(
+        creator: String,
+        from: String,
+        time: i64,
+    ) -> Self {
+        JackalMsg::DeleteNotification {
+            creator,
+            from, 
+            time,
+        }
+    }
+
+    pub fn block_senders(
+        creator: String,
+        to_block: Vec<String>,
+    ) -> Self {
+        JackalMsg::BlockSenders {
+            creator,
+            to_block, 
         }
     }
 }

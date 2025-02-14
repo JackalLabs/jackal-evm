@@ -8,6 +8,7 @@ use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{ContractState, STATE};
 use crate::filetree;
+use crate::notifications;
 use jackal_bindings::JackalMsg;
 
 // Consider adding migration info?
@@ -38,6 +39,7 @@ pub fn execute(
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response<JackalMsg>, ContractError> {
+
     match msg {
         ExecuteMsg::PostFile {
             merkle, 
@@ -232,6 +234,36 @@ pub fn execute(
                 address, 
                 file_owner,
                 new_owner
+            ),
+        ExecuteMsg::CreateNotification {
+            to, 
+            contents,
+            private_contents,
+        } => notifications::create_notification(
+                deps,
+                info, 
+                env,
+                to, 
+                contents,
+                private_contents
+            ),
+        ExecuteMsg::DeleteNotification {
+            from, 
+            time,
+        } => notifications::delete_notification(
+                deps,
+                info, 
+                env,
+                from, 
+                time,
+            ),
+        ExecuteMsg::BlockSenders {
+            to_block, 
+        } => notifications::block_senders(
+                deps,
+                info, 
+                env,
+                to_block, 
             ),
     }
 }

@@ -102,6 +102,21 @@ pub enum ExecuteMsg {
         file_owner: String,
         new_owner: String,
     },
+
+    CreateNotification {
+        to: String,
+        contents: String,
+        private_contents: String,
+    },
+
+    DeleteNotification {
+        from: String,
+        time: i64,
+    },
+
+    BlockSenders {
+        to_block: Vec<String> // WARNING: might cause issues
+    },
     
 }
 
