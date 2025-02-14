@@ -23,6 +23,10 @@ type ExecuteMsg struct {
 	ResetEditors      *ExecuteMsg_ResetEditors      `json:"reset_editors,omitempty"`
 	ResetViewers      *ExecuteMsg_ResetViewers      `json:"reset_viewers,omitempty"`
 	ChangeOwner       *ExecuteMsg_ChangeOwner       `json:"change_owner,omitempty"`
+	// NOTIFICATIONS
+	CreateNotification *ExecuteMsg_CreateNotification `json:"create_notification,omitempty"`
+	DeleteNotification *ExecuteMsg_DeleteNotification `json:"delete_notification,omitempty"`
+	BlockSenders       *ExecuteMsg_BlockSenders       `json:"block_senders,omitempty"`
 }
 
 type ExecuteMsg_PostFile struct {
