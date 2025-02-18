@@ -7,6 +7,8 @@ use cosmwasm_std::{
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::state::{ContractState, STATE};
+use crate::filetree;
+use crate::notifications;
 use jackal_bindings::JackalMsg;
 
 // Consider adding migration info?
@@ -37,6 +39,7 @@ pub fn execute(
     info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response<JackalMsg>, ContractError> {
+
     match msg {
         ExecuteMsg::PostFile {
             merkle, 
@@ -45,7 +48,8 @@ pub fn execute(
             proof_type, 
             max_proofs, 
             expires, 
-            note } => post_file(
+            note
+        } => post_file(
                 deps,
                 info, 
                 env,
@@ -57,12 +61,23 @@ pub fn execute(
                 expires, 
                 note
             ),
+        ExecuteMsg::DeleteFile {
+            merkle, 
+            start,  
+        } => delete_file(
+                deps,
+                info, 
+                env,
+                merkle, 
+                start
+            ),
         ExecuteMsg::BuyStorage { 
             for_address, 
             duration_days, 
             bytes, 
             payment_denom, 
-            referral } => buy_storage(
+            referral 
+        } => buy_storage(
                 deps,
                 info, 
                 env,
@@ -72,7 +87,184 @@ pub fn execute(
                 payment_denom, 
                 referral
             ),
-
+        ExecuteMsg::RequestReportForm {
+            prover,
+            merkle, 
+            owner,
+            start
+        } => request_report_form(
+                deps,
+                info, 
+                env,
+                prover,
+                merkle, 
+                owner,
+                start
+            ),
+        ExecuteMsg::PostFileTree {
+            account,
+            hash_parent,
+            hash_child,
+            contents,
+            viewers,
+            editors,
+            tracking_number
+        } => filetree::post_file_tree(
+                deps,
+                info, 
+                env,
+                account,
+                hash_parent,
+                hash_child,
+                contents,
+                viewers,
+                editors,
+                tracking_number
+            ),
+        ExecuteMsg::AddViewers {
+            viewer_ids,
+            viewer_keys,
+            address,
+            file_owner,
+        } => filetree::add_viewers(
+                deps,
+                info, 
+                env,
+                viewer_ids,
+                viewer_keys,
+                address,
+                file_owner
+            ),
+        ExecuteMsg::PostKey {
+            key,
+        } => filetree::post_key(
+                deps,
+                info, 
+                env,
+                key
+            ),
+        ExecuteMsg::DeleteFileTree {
+            hash_path,
+            account
+        } => filetree::delete_file_tree(
+                deps,
+                info, 
+                env,
+                hash_path,
+                account
+            ),
+        ExecuteMsg::RemoveViewers {
+            viewer_ids,
+            address,
+            file_owner
+        } => filetree::remove_viewers(
+                deps,
+                info, 
+                env,
+                viewer_ids,
+                address,
+                file_owner
+            ),
+        ExecuteMsg::ProvisionFileTree {
+            editors, 
+            viewers, 
+            tracking_number,
+        } => filetree::provision_file_tree(
+                deps,
+                info, 
+                env,
+                editors, 
+                viewers, 
+                tracking_number
+            ),
+        ExecuteMsg::AddEditors {
+            editor_ids, 
+            editor_keys, 
+            address, 
+            file_owner,
+        } => filetree::add_editors(
+                deps,
+                info, 
+                env,
+                editor_ids, 
+                editor_keys, 
+                address, 
+                file_owner
+            ),
+        ExecuteMsg::RemoveEditors {
+            editor_ids, 
+            address, 
+            file_owner,
+        } => filetree::remove_editors(
+                deps,
+                info, 
+                env,
+                editor_ids, 
+                address, 
+                file_owner
+            ),
+        ExecuteMsg::ResetEditors {
+            address, 
+            file_owner,
+        } => filetree::reset_editors(
+                deps,
+                info, 
+                env,
+                address, 
+                file_owner
+            ),
+        ExecuteMsg::ResetViewers {
+            address, 
+            file_owner,
+        } => filetree::reset_viewers(
+                deps,
+                info, 
+                env,
+                address, 
+                file_owner
+            ),
+        ExecuteMsg::ChangeOwner {
+            address, 
+            file_owner,
+            new_owner,
+        } => filetree::change_owner(
+                deps,
+                info, 
+                env,
+                address, 
+                file_owner,
+                new_owner
+            ),
+        ExecuteMsg::CreateNotification {
+            to, 
+            contents,
+            private_contents,
+        } => notifications::create_notification(
+                deps,
+                info, 
+                env,
+                to, 
+                contents,
+                private_contents
+            ),
+        ExecuteMsg::DeleteNotification {
+            from, 
+            time,
+        } => notifications::delete_notification(
+                deps,
+                info, 
+                env,
+                from, 
+                time,
+            ),
+        ExecuteMsg::BlockSenders {
+            to_block, 
+        } => notifications::block_senders(
+                deps,
+                info, 
+                env,
+                to_block, 
+            ),
     }
 }
 
@@ -126,6 +318,36 @@ pub fn post_file(
     Ok(res)
 }
 
+pub fn delete_file(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    merkle: String,
+    start: i64,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let merkle_bytes = cosmwasm_std::Binary::from_base64(&merkle).expect("could not get merkle from base64");
+
+    let creator = env.contract.address.to_string();
+
+    let delete_file_msg = JackalMsg::delete_file(
+        creator,
+        merkle_bytes.to_vec(),
+        start,
+
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "delete_file")
+        .add_message(delete_file_msg);
+    Ok(res)
+}
 
 pub fn buy_storage(
     deps: DepsMut,
@@ -158,6 +380,40 @@ pub fn buy_storage(
     let res = Response::new()
         .add_attribute("method", "buy_storage")
         .add_message(buy_storage_msg);
+    Ok(res)
+}
+
+pub fn request_report_form(
+    deps: DepsMut,
+    info: MessageInfo,
+    env: Env,
+    prover: String,
+    merkle: String,
+    owner: String,
+    start: i64,
+) -> Result<Response<JackalMsg>, ContractError> {
+
+    let state = STATE.load(deps.storage)?;
+
+    if info.sender != state.owner.to_string() {
+        return Err(ContractError::Unauthorized {})
+    }
+
+    let merkle_bytes = cosmwasm_std::Binary::from_base64(&merkle).expect("could not get merkle from base64");
+
+    let creator = env.contract.address.to_string();
+
+    let request_report_form_msg = JackalMsg::request_report_form(
+        creator,
+        prover,
+        merkle_bytes.to_vec(),
+        owner,
+        start
+    );
+
+    let res = Response::new()
+        .add_attribute("method", "request_report_form")
+        .add_message(request_report_form_msg);
     Ok(res)
 }
 

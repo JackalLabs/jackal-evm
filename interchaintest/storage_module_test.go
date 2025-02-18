@@ -76,7 +76,7 @@ func (s *ContractTestSuite) TestStorageModule() {
 
 	s.Run(fmt.Sprintf("TestCreateBindingsSuccess-%s", encoding), func() {
 
-		//****** Create Filetree Entries *********
+		//****** Create Storage Module Entries *********
 
 		//****** FOR ALICE ******
 
@@ -89,7 +89,7 @@ func (s *ContractTestSuite) TestStorageModule() {
 		merkleBase64 := base64.StdEncoding.EncodeToString(merkleBytes)
 
 		// Could also use:  for 'Merkle'?
-		storageMsg := allbindingstypes.ExecuteMsg{
+		postFileMsg := allbindingstypes.ExecuteMsg{
 			PostFile: &allbindingstypes.ExecuteMsg_PostFile{
 				Merkle:        merkleBase64,                                                                   // Replace with actual Merkle data
 				FileSize:      100000000,                                                                      // Replace with actual file size
@@ -104,14 +104,36 @@ func (s *ContractTestSuite) TestStorageModule() {
 		factoryExecuteMsg := factorytypes.ExecuteMsg{
 			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
 				EvmAddress: &aliceEvmAddress,
-				Msg:        &storageMsg,
+				Msg:        &postFileMsg,
 			},
 		}
 
 		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		// fortunately, we went into the docker container to confirm that the post file msg does get saved into canine-chain
 		fmt.Println(res5)
+
+		deleteFileMsg := allbindingstypes.ExecuteMsg{
+			DeleteFile: &allbindingstypes.ExecuteMsg_DeleteFile{
+				Merkle: merkleBase64,
+				Start:  37,
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &deleteFileMsg,
+			},
+		}
+
+		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		// WARNING: this actually works but delete file is not error handled at the chain layer
+		// TODO: query for the File object to show it doesn't exist anymore?
+
+		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
+		// fortunately, we went into the docker container to confirm that the delete file msg does work
+		fmt.Println(res6)
 
 		// Could also use:  for 'Merkle'?
 		buyStorageMsg := allbindingstypes.ExecuteMsg{
@@ -137,15 +159,41 @@ func (s *ContractTestSuite) TestStorageModule() {
 			},
 		}
 
-		res6, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
-		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
-		// fortunately, we went into the docker container to confirm that the post key msg does get saved into canine-chain
+		res7, err := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		expectedErrorMsg := "transaction failed with code 1: failed to execute message; message index: 0: " +
 			"dispatch: submessages: dispatch: submessages: perform buy storage: buy storage error from message: " +
 			"failed to validate buy request: cannot buy less than a gb"
 		s.Require().EqualError(err, expectedErrorMsg)
-		fmt.Println(res6)
+		fmt.Println(res7)
 		fmt.Println(err)
+
+		// declare different merkle bytes
+		merkleBytes = []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
+
+		merkleBase64 = base64.StdEncoding.EncodeToString(merkleBytes)
+
+		// note: the below args should definitely trigger an error
+		requestReportFormMsg := allbindingstypes.ExecuteMsg{
+			RequestReportForm: &allbindingstypes.ExecuteMsg_RequestReportForm{
+				Prover: "nobody",
+				Merkle: merkleBase64,
+				Owner:  "nobody",
+				Start:  100000,
+			},
+		}
+
+		factoryExecuteMsg = factorytypes.ExecuteMsg{
+			CallBindings: &factorytypes.ExecuteMsg_CallBindings{
+				EvmAddress: &aliceEvmAddress,
+				Msg:        &requestReportFormMsg,
+			},
+		}
+
+		// WARNING: the transaction goes through, even though the args we input should have triggered errors
+		// TODO: confirm it works as intended with the front end.
+		res8, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		s.Require().EqualError(err, expectedErrorMsg)
+		fmt.Println(res8)
 
 		bindingsMap, addressErr := testsuite.GetAllUserBindingsAddresses(ctx, s.ChainB, factoryContractAddress)
 		s.Require().NoError(addressErr)

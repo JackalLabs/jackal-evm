@@ -1,4 +1,6 @@
 pub mod contract;
+pub mod filetree;
+pub mod notifications;
 pub mod bindings_helpers;
 mod error;
 pub mod msg;

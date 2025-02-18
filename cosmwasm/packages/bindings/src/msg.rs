@@ -5,17 +5,7 @@ use cosmwasm_std::{CosmosMsg, CustomMsg};
 #[cw_serde]
 pub enum JackalMsg {
 
-    PostKey {
-        // need creator?
-        sender: String, // WARNING: This can be spoofed atm. 
-        key: String,
-    },
-    MakeRoot {
-        // need creator?
-        editors: String,
-        viewers: String,
-        trackingnumber: String,
-    },
+    // STORAGE MODULE 
     PostFile {
         creator: String,
         merkle: Vec<u8>,
@@ -26,7 +16,11 @@ pub enum JackalMsg {
         expires: i64,
         note: String,
     },
-    // DeleteFile goes here
+    DeleteFile {
+        creator: String,
+        merkle: Vec<u8>,
+        start: i64,
+    },
     BuyStorage {
         creator: String,
         for_address: String,
@@ -35,16 +29,101 @@ pub enum JackalMsg {
         payment_denom: String,
         referral: String,
     },
+    RequestReportForm {
+        creator: String,
+        prover: String,
+        merkle: Vec<u8>,
+        owner: String,
+        start: i64,
+    },
+    // FILETREE MODULE
+    PostFileTree {
+        creator: String,
+        account: String,
+        hash_parent: String,
+        hash_child: String,
+        contents: String,
+        viewers: String,
+        editors: String,
+        tracking_number: String,
+    },
+    AddViewers {
+        creator: String,
+        viewer_ids: String, 
+        viewer_keys: String,
+        address: String, 
+        file_owner: String,
+    },
+    PostKey {
+        creator: String,
+        key: String,
+    },
+    DeleteFileTree {
+        creator: String,
+        hash_path: String, 
+        account: String,
+
+    },
+    RemoveViewers {
+        creator: String,
+        viewer_ids: String, 
+        address: String, 
+        file_owner: String,
+    },
+    ProvisionFileTree {
+        creator: String,
+        editors: String, 
+        viewers: String, 
+        tracking_number: String,
+    },
+    AddEditors {
+        creator: String,
+        editor_ids: String, 
+        editor_keys: String, 
+        address: String, 
+        file_owner: String,
+    },
+    RemoveEditors {
+        creator: String,
+        editor_ids: String, 
+        address: String, 
+        file_owner: String,
+    },
+    ResetEditors {
+        creator: String,
+        address: String, 
+        file_owner: String,
+    },
+    ResetViewers {
+        creator: String,
+        address: String, 
+        file_owner: String,
+    },
+    ChangeOwner {
+        creator: String,
+        address: String, 
+        file_owner: String,
+        new_owner: String,
+    },
+    CreateNotification {
+        creator: String,
+        to: String,
+        contents: String,
+        private_contents: Vec<u8>,
+    },
+    DeleteNotification {
+        creator: String,
+        from: String,
+        time: i64,
+    },
+    BlockSenders {
+        creator: String,
+        to_block: Vec<String> // WARNING: might cause issues
+    },
+
 }
 
 impl JackalMsg {
-
-    pub fn post_key(sender: String, key: String) -> Self {
-        JackalMsg::PostKey {
-            sender,
-            key,
-        }
-    }
 
     pub fn post_file(
         creator: String,
@@ -68,6 +147,18 @@ impl JackalMsg {
         }
     }
 
+    pub fn delete_file(
+        creator: String,
+        merkle: Vec<u8>,
+        start: i64,
+    ) -> Self {
+        JackalMsg::DeleteFile {
+            creator,
+            merkle,
+            start,
+        }
+    }
+
     pub fn buy_storage(
         creator: String,
         for_address: String,
@@ -86,12 +177,211 @@ impl JackalMsg {
         }
     }
 
-    // Not putting sender in just yet 
-    pub fn make_root(editors: String, viewers: String, trackingnumber: String) -> Self {
-        JackalMsg::MakeRoot {
-            editors,
+    pub fn request_report_form(
+        creator: String,
+        prover: String,
+        merkle: Vec<u8>,
+        owner: String,
+        start: i64,
+    ) -> Self {
+        JackalMsg::RequestReportForm {
+            creator,
+            prover,
+            merkle,
+            owner,
+            start,
+        }
+    }
+
+    pub fn post_file_tree(
+        creator: String,
+        account: String,
+        hash_parent: String,
+        hash_child: String,
+        contents: String,
+        viewers: String,
+        editors: String,
+        tracking_number: String,
+    ) -> Self {
+        JackalMsg::PostFileTree {
+            creator,
+            account,
+            hash_parent,
+            hash_child,
+            contents,
             viewers,
-            trackingnumber,
+            editors,
+            tracking_number,
+        }
+    }
+
+    pub fn add_viewers(
+        creator: String, 
+        viewer_ids: String,
+        viewer_keys: String, 
+        address: String,
+        file_owner: String, 
+    ) -> Self {
+        JackalMsg::AddViewers { 
+            creator, 
+            viewer_ids, 
+            viewer_keys, 
+            address, 
+            file_owner,
+        } 
+    }
+
+    pub fn post_key(
+        creator: String, 
+        key: String
+    ) -> Self {
+        JackalMsg::PostKey {
+            creator,
+            key,
+        }
+    }
+
+    pub fn delete_file_tree(
+        creator: String,
+        hash_path: String, 
+        account: String
+    ) -> Self {
+        JackalMsg::DeleteFileTree {
+            creator,
+            hash_path,
+            account
+        }
+    }
+
+    pub fn remove_viewers(
+        creator: String,
+        viewer_ids: String, 
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::RemoveViewers {
+            creator,
+            viewer_ids,
+            address,
+            file_owner
+        }
+    }
+
+    pub fn provision_file_tree(
+        creator: String,
+        editors: String, 
+        viewers: String, 
+        tracking_number: String,
+    ) -> Self {
+        JackalMsg::ProvisionFileTree {
+            creator,
+            editors, 
+            viewers, 
+            tracking_number
+        }
+    }
+
+    pub fn add_editors(
+        creator: String,
+        editor_ids: String, 
+        editor_keys: String, 
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::AddEditors {
+            creator,
+            editor_ids, 
+            editor_keys, 
+            address, 
+            file_owner
+        }
+    }
+
+    pub fn remove_editors(
+        creator: String,
+        editor_ids: String, 
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::RemoveEditors {
+            creator,
+            editor_ids, 
+            address, 
+            file_owner
+        }
+    }
+
+    pub fn reset_editors(
+        creator: String,
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::ResetEditors {
+            creator,
+            address, 
+            file_owner
+        }
+    }
+
+    pub fn reset_viewers(
+        creator: String,
+        address: String, 
+        file_owner: String,
+    ) -> Self {
+        JackalMsg::ResetViewers {
+            creator,
+            address, 
+            file_owner
+        }
+    }
+
+    pub fn change_owner(
+        creator: String,
+        address: String, 
+        file_owner: String,
+        new_owner: String,
+    ) -> Self {
+        JackalMsg::ChangeOwner {
+            creator,
+            address, 
+            file_owner,
+            new_owner
+        }
+    }
+
+    pub fn create_notification(
+        creator: String,
+        to: String,
+        contents: String,
+        private_contents: Vec<u8>,
+    ) -> Self {
+        JackalMsg::CreateNotification {
+            creator,
+            to, 
+            contents,
+            private_contents
+        }
+    }
+
+    pub fn delete_notification(
+        creator: String,
+        from: String,
+        time: i64,
+    ) -> Self {
+        JackalMsg::DeleteNotification {
+            creator,
+            from, 
+            time,
+        }
+    }
+
+    pub fn block_senders(
+        creator: String,
+        to_block: Vec<String>,
+    ) -> Self {
+        JackalMsg::BlockSenders {
+            creator,
+            to_block, 
         }
     }
 }
