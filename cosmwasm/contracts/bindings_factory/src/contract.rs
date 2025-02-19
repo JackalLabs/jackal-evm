@@ -86,6 +86,9 @@ mod execute {
             return Err(ContractError::NotAllowed())
         }
 
+        let binary_msg: Binary = to_json_binary(&msg).expect("Failed to convert msg to Binary");
+        let string_msg: String = String::from_utf8(binary_msg.to_vec()).expect("Failed to convert binary_msg to String");
+
         let mut bindings_address: String = String::new();
 
         // declare empty cosmos msg here to be assigned by else block:
@@ -134,6 +137,7 @@ mod execute {
         
         // Execute the bindings contract with given msg
         let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
+        // TODO: can/we need 'CosmosMsg' be converted to a string?
 
         // We only add the factory_cosmos_msg if it's non empty--i.e., we actually need it for creating a bindings contract 
 
@@ -146,13 +150,17 @@ mod execute {
                 id = code_id;
            }
         }
-
+        // might move collision checking down here
+        // if a collision happens, we want the tx to still succeed
+        // we can likely accomplish this by broadcasting an empty or dummy msg if there's a collision
         if id != 0 {
             messages.push(factory_cosmos_msg);
         }
         messages.push(cosmos_msg);
         
-        Ok(Response::new().add_messages(messages)) 
+        Ok(Response::new()
+        .add_messages(messages)
+        .add_attribute("log_call_bindings", string_msg)) 
     }
 
     pub fn add_to_white_list(
@@ -219,4 +227,3 @@ mod query {
         Ok(white_list)
     }
 }
-
