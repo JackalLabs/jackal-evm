@@ -145,6 +145,8 @@ mod execute {
 
         let mut id: u64 = 0;
 
+        // if 'factory_cosmos_msg' contains a WasmMsg::Instantiate2 variant
+        // we extract the code_id from it and assign it to the above 'id' 
         if let CosmosMsg::Wasm(wasm_msg) = factory_cosmos_msg.clone() {
            if let WasmMsg::Instantiate2 { admin: _, code_id, label: _, msg: _, funds: _, salt: _ } = wasm_msg {
                 id = code_id;
@@ -153,9 +155,23 @@ mod execute {
         // might move collision checking down here
         // if a collision happens, we want the tx to still succeed
         // we can likely accomplish this by broadcasting an empty or dummy msg if there's a collision
+        
+        // a non-zero id means that factory_cosmos_msg is no longer considered empty
+        // and should be broadcasted 
+        // TODO: if id is non-zero AND there is NO collision--i.e., it's a different msg--it's ok to add 'factory_cosmos_msg'  
+
+ 
         if id != 0 {
             messages.push(factory_cosmos_msg);
         }
+
+
+        // add the bindings msg for the user
+        // TODO: only do this if there are NO collisions. If we do broadcast 'cosmos_msg', be sure to update our map
+        // and note that it's been broadcast with a 'true' value 
+
+        // 'cosmos_msg' will not have a 'creator' field but it's okay for Alice and Bob to have identical msgs because 
+        // We can track which msgs they've broadcasted using our map with a subkey
         messages.push(cosmos_msg);
         
         Ok(Response::new()
