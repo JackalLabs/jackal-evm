@@ -1,6 +1,6 @@
 use sha2::{Sha256, Digest};
 use cosmwasm_std::Binary;
-use hex::encode as hex_encode; // Use the `hex` crate for conversion
+use hex::encode as hex_encode; 
 
 /// Hashes a given message using SHA-256 and returns the result as a `[u8; 32]` byte array.
 pub fn hash_msg(msg: &Binary) -> [u8; 32] {

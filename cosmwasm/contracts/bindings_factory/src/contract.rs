@@ -62,6 +62,7 @@ mod execute {
 
     use canine_bindings::bindings_helpers::{BindingsCode, BindingsContract};
     use canine_bindings::msg::ExecuteMsg as BindingsExecuteMsg;
+    use crate::utils::{hash_msg, hash_to_hex};
 
     use super::*;
 
@@ -88,6 +89,9 @@ mod execute {
 
         let binary_msg: Binary = to_json_binary(&msg).expect("Failed to convert msg to Binary");
         let string_msg: String = String::from_utf8(binary_msg.to_vec()).expect("Failed to convert binary_msg to String");
+        let hashed_msg: [u8; 32] = hash_msg(&binary_msg);
+        let hashed_msg_hex = hash_to_hex(hashed_msg);
+
 
         let mut bindings_address: String = String::new();
 
@@ -176,7 +180,8 @@ mod execute {
         
         Ok(Response::new()
         .add_messages(messages)
-        .add_attribute("log_call_bindings", string_msg)) 
+        .add_attribute("log_call_bindings", string_msg)
+        .add_attribute("hashed_msg", hashed_msg_hex)) 
     }
 
     pub fn add_to_white_list(
