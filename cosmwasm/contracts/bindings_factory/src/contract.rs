@@ -52,6 +52,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::GetUserBindingsAddress { user_address } => to_json_binary(&query::user_bindings_address(deps, user_address)?),
         QueryMsg::GetAllUserBindingsAddresses {} => to_json_binary(&query::all_user_bindings_addresses(deps)?),
         QueryMsg::GetWhiteList {} => to_json_binary(&query::white_list(deps)?),
+        QueryMsg::GetAllBroadcastedMsgs {} => to_json_binary(&query::all_broadcasted_msgs(deps)?),
     }
 }
 
@@ -212,7 +213,7 @@ mod execute {
 mod query {
     use cosmwasm_std::Order;
 
-    use crate::state::USER_ADDR_TO_BINDINGS_ADDR;
+    use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, BROADCASTED_MSGS};
 
     use super::*;
 
@@ -250,5 +251,18 @@ mod query {
         }
 
         Ok(white_list)
+    }
+
+    /// Returns the entire map of broadcasted messages along with their status (true/false)
+    pub fn all_broadcasted_msgs(deps: Deps) -> StdResult<Vec<(String, String, bool)>> {
+        let mut all_messages = vec![];
+
+        let iter = BROADCASTED_MSGS.range(deps.storage, None, None, Order::Ascending);
+        for item in iter {
+            let ((user_address, msg_hash), status) = item?;
+            all_messages.push((user_address, msg_hash, status));
+        }
+
+        Ok(all_messages)
     }
 }

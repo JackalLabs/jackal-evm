@@ -38,5 +38,9 @@ pub enum QueryMsg {
     /// GetWhiteList returns the white list
     #[returns(Vec<(String, bool)>)]
     GetWhiteList {},
+    /// GetAllBroadcastedMsgs all broadcasted msgs, in their hashed form, for all users 
+    #[returns(Vec<(String, String, bool)>)]
+    GetAllBroadcastedMsgs {},
+
 }
 
