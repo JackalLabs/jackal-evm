@@ -57,7 +57,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 
 mod execute {
     use cosmwasm_std::{CosmosMsg, Event, WasmMsg};
-    use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, WHITE_LIST};
+    use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, WHITE_LIST, BROADCASTED_MSGS};
     use shared::shared_msg::SharedExecuteMsg;
 
     use canine_bindings::bindings_helpers::{BindingsCode, BindingsContract};
@@ -86,12 +86,6 @@ mod execute {
         if allowed == false {
             return Err(ContractError::NotAllowed())
         }
-
-        let binary_msg: Binary = to_json_binary(&msg).expect("Failed to convert msg to Binary");
-        let string_msg: String = String::from_utf8(binary_msg.to_vec()).expect("Failed to convert binary_msg to String");
-        let hashed_msg: [u8; 32] = hash_msg(&binary_msg);
-        let hashed_msg_hex = hash_to_hex(hashed_msg);
-
 
         let mut bindings_address: String = String::new();
 
@@ -139,9 +133,11 @@ mod execute {
         let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
         let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
         
+        // clone msg first for later use 
+        let msg_clone = msg.clone();
+
         // Execute the bindings contract with given msg
         let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
-        // TODO: can/we need 'CosmosMsg' be converted to a string?
 
         // We only add the factory_cosmos_msg if it's non empty--i.e., we actually need it for creating a bindings contract 
 
@@ -166,7 +162,7 @@ mod execute {
 
  
         if id != 0 {
-            messages.push(factory_cosmos_msg);
+            messages.push(factory_cosmos_msg); // This only gets called if it's the user's first time using the evm outpost 
         }
 
 
@@ -178,8 +174,16 @@ mod execute {
         // We can track which msgs they've broadcasted using our map with a subkey
         messages.push(cosmos_msg);
         
+        let binary_msg: Binary = to_json_binary(&msg_clone).expect("Failed to convert msg to Binary");
+        let string_msg: String = String::from_utf8(binary_msg.to_vec()).expect("Failed to convert binary_msg to String");
+        let hashed_msg: [u8; 32] = hash_msg(&binary_msg);
+        let hashed_msg_hex = hash_to_hex(hashed_msg);
+        
+        // save the hash here if there's no collision
+        BROADCASTED_MSGS.save(deps.storage, (evm_address, hashed_msg_hex.clone()), &true)?;
+
         Ok(Response::new()
-        .add_messages(messages)
+        .add_messages(messages) // what happens if 'messages' vector is empty?
         .add_attribute("log_call_bindings", string_msg)
         .add_attribute("hashed_msg", hashed_msg_hex)) 
     }

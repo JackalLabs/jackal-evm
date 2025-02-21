@@ -15,7 +15,7 @@ pub const WHITE_LIST: Map<&str, bool> = Map::new("white list");
 
 /// Tracks which messages have been broadcasted per user.
 /// The primary key is the user address, and the subkey is the hashed message.
-/// pub const BROADCASTED_MSGS: Map<(&Addr, &[u8]), bool> = Map::new("broadcasted_msgs");
+pub const BROADCASTED_MSGS: Map<(String, String), bool> = Map::new("broadcasted_msgs");
 
 mod contract {
 
