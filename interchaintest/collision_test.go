@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -110,6 +111,18 @@ func (s *ContractTestSuite) TestCollision() {
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post file msg does get saved into canine-chain
 		fmt.Println(res5)
+
+		resp, err := testsuite.GetAllBroadcastedMsgs(ctx, s.ChainB, factoryContractAddress)
+		s.Require().NoError(err)
+		// Decode response
+		messages, err := testsuite.DecodeGetAllBroadcastedMsgsResponse(resp)
+		if err != nil {
+			log.Fatalf("Decoding failed: %v", err)
+		}
+		// Print results
+		for _, msg := range messages {
+			fmt.Printf("User: %s, Msg Hash: %s, Status: %t\n", msg.UserAddress, msg.MsgHash, msg.Status)
+		}
 
 	},
 	)
