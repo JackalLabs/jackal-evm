@@ -173,19 +173,30 @@ mod execute {
 
         // 'cosmos_msg' will not have a 'creator' field but it's okay for Alice and Bob to have identical msgs because 
         // We can track which msgs they've broadcasted using our map with a subkey
-        messages.push(cosmos_msg);
-        
+
+        // If there's a collision, DO NOT broadcast
+
         let binary_msg: Binary = to_json_binary(&msg_clone).expect("Failed to convert msg to Binary");
-        let string_msg: String = String::from_utf8(binary_msg.to_vec()).expect("Failed to convert binary_msg to String");
         let hashed_msg: [u8; 32] = hash_msg(&binary_msg);
         let hashed_msg_hex = hash_to_hex(hashed_msg);
+
+        let mut collision: bool = false;
+
+        if let Some(value) = BROADCASTED_MSGS.may_load(deps.storage, (&evm_address, hashed_msg_hex.clone()))? {
+            // If the key exists, return the value
+            collision = value
+        } 
+
+        // If no collision, broadcast the msg 
+        if collision == false {
+            messages.push(cosmos_msg);
+        }
         
-        // save the hash here if there's no collision
-        BROADCASTED_MSGS.save(deps.storage, (evm_address, hashed_msg_hex.clone()), &true)?;
+        // save the hash here for future collisions
+        BROADCASTED_MSGS.save(deps.storage, (&evm_address, hashed_msg_hex.clone()), &true)?;
 
         Ok(Response::new()
         .add_messages(messages) // what happens if 'messages' vector is empty?
-        .add_attribute("log_call_bindings", string_msg)
         .add_attribute("hashed_msg", hashed_msg_hex)) 
     }
 
