@@ -59,7 +59,6 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 mod execute {
     use cosmwasm_std::{CosmosMsg, Event, WasmMsg};
     use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, WHITE_LIST, BROADCASTED_MSGS};
-    use shared::shared_msg::SharedExecuteMsg;
 
     use canine_bindings::bindings_helpers::{BindingsCode, BindingsContract};
     use canine_bindings::msg::ExecuteMsg as BindingsExecuteMsg;
@@ -137,45 +136,28 @@ mod execute {
         // clone msg first for later use 
         let msg_clone = msg.clone();
 
-        // Execute the bindings contract with given msg
+        // Prepare the bindings msg for broadcast below 
         let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
-
-        // We only add the factory_cosmos_msg if it's non empty--i.e., we actually need it for creating a bindings contract 
 
         let mut messages: Vec<CosmosMsg> = Vec::new();
 
-        let mut id: u64 = 0;
-
+        // iff the factory_cosmos_msg--an instantiate variant--has a non zero code id, it will be added
+        // to the above 'messages' for broadcasted 
+        // to figure this out:
         // if 'factory_cosmos_msg' contains a WasmMsg::Instantiate2 variant
         // we extract the code_id from it and assign it to the above 'id' 
+        let mut id: u64 = 0;
+
         if let CosmosMsg::Wasm(wasm_msg) = factory_cosmos_msg.clone() {
            if let WasmMsg::Instantiate2 { admin: _, code_id, label: _, msg: _, funds: _, salt: _ } = wasm_msg {
                 id = code_id;
            }
         }
-        // might move collision checking down here
-        // if a collision happens, we want the tx to still succeed
-        // we can likely accomplish this by broadcasting an empty or dummy msg if there's a collision
-        
-        // a non-zero id means that factory_cosmos_msg is no longer considered empty
-        // and should be broadcasted 
-        // TODO: if id is non-zero AND there is NO collision--i.e., it's a different msg--it's ok to add 'factory_cosmos_msg'  
-
- 
         if id != 0 {
             messages.push(factory_cosmos_msg); // This only gets called if it's the user's first time using the evm outpost 
         }
 
-
-        // add the bindings msg for the user
-        // TODO: only do this if there are NO collisions. If we do broadcast 'cosmos_msg', be sure to update our map
-        // and note that it's been broadcast with a 'true' value 
-
-        // 'cosmos_msg' will not have a 'creator' field but it's okay for Alice and Bob to have identical msgs because 
-        // We can track which msgs they've broadcasted using our map with a subkey
-
         // If there's a collision, DO NOT broadcast
-
         let binary_msg: Binary = to_json_binary(&msg_clone).expect("Failed to convert msg to Binary");
         let hashed_msg: [u8; 32] = hash_msg(&binary_msg);
         let hashed_msg_hex = hash_to_hex(hashed_msg);
@@ -183,23 +165,23 @@ mod execute {
         let mut collision: bool = false;
 
         if let Some(value) = BROADCASTED_MSGS.may_load(deps.storage, (&evm_address, hashed_msg_hex.clone()))? {
-            // If the key exists, return the value
+            // If the key exists, set the 'true' value to collision
             collision = value
         } 
 
         let mut attributes = vec![("attributes", "empty")];
 
-        // If no collision, broadcast the msg 
+        // If no collision, broadcast the msg and emit logs
         if collision == false {
             messages.push(cosmos_msg);
             attributes.push(("hashed_msg", &hashed_msg_hex));
         }
         
-        // save the hash here for future collisions
+        // save the hash here to check for collisions
         BROADCASTED_MSGS.save(deps.storage, (&evm_address, hashed_msg_hex.clone()), &true)?;
 
         Ok(Response::new()
-        .add_messages(messages) // what happens if 'messages' vector is empty?
+        .add_messages(messages) 
         .add_attributes(attributes)) 
     }
 
