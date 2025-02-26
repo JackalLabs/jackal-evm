@@ -124,6 +124,9 @@ func (s *ContractTestSuite) TestCollision() {
 			fmt.Printf("User: %s, Msg Hash: %s, Status: %t\n", msg.UserAddress, msg.MsgHash, msg.Status)
 		}
 
+		// TODO: attempt post file again with same msg and check to make sure collision checking worked
+		// We didn't return an error if there's a collision, so we check to see if the second tx is using
+		// much lower gas because it's not broadcasting any msgs?
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)

@@ -187,9 +187,12 @@ mod execute {
             collision = value
         } 
 
+        let mut attributes = vec![("attributes", "empty")];
+
         // If no collision, broadcast the msg 
         if collision == false {
             messages.push(cosmos_msg);
+            attributes.push(("hashed_msg", &hashed_msg_hex));
         }
         
         // save the hash here for future collisions
@@ -197,7 +200,7 @@ mod execute {
 
         Ok(Response::new()
         .add_messages(messages) // what happens if 'messages' vector is empty?
-        .add_attribute("hashed_msg", hashed_msg_hex)) 
+        .add_attributes(attributes)) 
     }
 
     pub fn add_to_white_list(
