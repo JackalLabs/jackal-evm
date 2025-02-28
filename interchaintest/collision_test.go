@@ -110,6 +110,9 @@ func (s *ContractTestSuite) TestCollision() {
 		res5, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
 		// NOTE: cannot parse res because of cosmos-sdk issue noted before, so we will get an error
 		// fortunately, we went into the docker container to confirm that the post file msg does get saved into canine-chain
+		fmt.Println(res5.TxHash)
+		// TODO: grab events from Txhash to make assertions and confirm collisions
+
 		fmt.Println(res5)
 
 		resp, err := testsuite.GetAllBroadcastedMsgs(ctx, s.ChainB, factoryContractAddress)
@@ -124,9 +127,9 @@ func (s *ContractTestSuite) TestCollision() {
 			fmt.Printf("User: %s, Msg Hash: %s, Status: %t\n", msg.UserAddress, msg.MsgHash, msg.Status)
 		}
 
-		// TODO: attempt post file again with same msg and check to make sure collision checking worked
-		// We didn't return an error if there's a collision, so we check to see if the second tx is using
-		// much lower gas because it's not broadcasting any msgs?
+		res6, _ := s.ChainB.ExecuteContract(ctx, s.UserB.KeyName(), factoryContractAddress, factoryExecuteMsg.ToString(), "--gas", "500000", "--amount", "200000000ujkl")
+		fmt.Println(res6)
+
 	},
 	)
 	time.Sleep(time.Duration(10) * time.Hour)
