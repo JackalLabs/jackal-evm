@@ -16,6 +16,7 @@ type ExecuteMsg struct {
 	FundBindings   *ExecuteMsg_FundBindings   `json:"fund_bindings,omitempty"`
 	CallBindings   *ExecuteMsg_CallBindings   `json:"call_bindings,omitempty"`
 	AddToWhiteList *ExecuteMsg_AddToWhiteList `json:"add_to_white_list,omitempty"`
+	InitAccount    *ExecuteMsg_InitAccount    `json:"init_account,omitempty"`
 }
 
 type ExecuteMsg_AddToWhiteList struct {
@@ -30,6 +31,10 @@ type ExecuteMsg_CreateBindings struct {
 type ExecuteMsg_CallBindings struct {
 	EvmAddress *string                     `json:"evm_address,omitempty"`
 	Msg        *allbindingtypes.ExecuteMsg `json:"msg,omitempty"`
+}
+
+type ExecuteMsg_InitAccount struct {
+	EvmAddress *string `json:"evm_address,omitempty"`
 }
 
 type ExecuteMsg_FundBindings struct {
