@@ -20,6 +20,9 @@ pub enum ExecuteMsg {
     AddToWhiteList {
         jkl_address: String, 
     },
+    InitAccount {
+        evm_address: String, 
+    },
 
 }
 
