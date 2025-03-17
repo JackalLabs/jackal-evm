@@ -91,7 +91,7 @@ mod execute {
 
         // Declare empty cosmos msg here to be assigned by else block.
         let mut factory_cosmos_msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate2 {
-            admin: None, // TODO: Set as admin for migration purposes. Write test to make sure info.sender is admin.
+            admin: None, 
             code_id: 0,
             label: String::new(),
             msg: Binary::default(),
