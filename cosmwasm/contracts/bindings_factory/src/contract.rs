@@ -41,6 +41,7 @@ pub fn execute(
     match msg {
         ExecuteMsg::CallBindings { evm_address, msg } => execute::call_bindings(deps, env, info, evm_address, msg),
         ExecuteMsg::AddToWhiteList { jkl_address } => execute::add_to_white_list(deps, env, info, jkl_address),
+        ExecuteMsg::InitAccount { evm_address } => execute::init_account(deps, env, info, evm_address),
 
     }
 }
@@ -201,6 +202,93 @@ mod execute {
 
         Ok(Response::new()) 
 
+    }
+
+    pub fn init_account(
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        evm_address: String,
+    ) -> Result<Response, ContractError> {
+        let state = STATE.load(deps.storage)?;
+
+        let mut allowed: bool = false;
+
+        // If the sender is in the whitelist, we should be able to find a bool value of 'true' 
+        if let Some(value) = WHITE_LIST.may_load(deps.storage, &info.sender.to_string())? {
+            // If the key exists, return the value
+            allowed = value
+        } 
+
+        if allowed == false {
+            return Err(ContractError::NotAllowed())
+        }
+
+        let mut bindings_address: String = String::new();
+
+        // declare empty cosmos msg here to be assigned by else block:
+        let mut factory_cosmos_msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate2 {
+            admin: None, // TODO: Set as admin for migration purposes. Write test to make sure info.sender is admin
+            code_id: 0,
+            label: String::new(),
+            msg: Binary::default(),
+            funds: vec![],
+            salt: Binary::default(),
+        });
+
+        // If the evm address already has a bindings contract, we proceed. 
+        if let Some(value) = USER_ADDR_TO_BINDINGS_ADDR.may_load(deps.storage, &evm_address)? {
+        
+        bindings_address = value
+        } else {
+        // If the evm address does not have a bindings contract, we make one for them before calling it 
+            let bindings_code_id = BindingsCode::new(state.bindings_code_id);
+            let instantiate_msg = canine_bindings::msg::InstantiateMsg {};
+
+            let label
+            = format!("bindings contract-owned by: {}", &evm_address);
+
+            let (instantiate2_cosmos_msg, bindings_contract_address) = bindings_code_id.instantiate2(
+                deps.api,
+                &deps.querier,
+                &env,
+                instantiate_msg,
+                label,
+                Some(env.contract.address.to_string()), // TODO: should be address that owns the factory for migration purposes
+                // NOTE: is it okay to use current block time as salt? Shoul this only be a fall back option?
+                env.block.time.seconds().to_string(), 
+            )?;
+
+            factory_cosmos_msg = instantiate2_cosmos_msg;
+
+            USER_ADDR_TO_BINDINGS_ADDR.save(deps.storage, &evm_address, &bindings_contract_address.to_string())?; 
+            bindings_address = bindings_contract_address.to_string();
+
+        }
+
+        // Convert the bech32 string back to 'Addr' type before passing to the canine_bindings helper API
+        let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
+        let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
+        
+        // We only add the factory_cosmos_msg if it's non empty--i.e., we actually need it for creating a bindings contract 
+
+        let mut messages: Vec<CosmosMsg> = Vec::new();
+
+        let mut id: u64 = 0;
+
+        if let CosmosMsg::Wasm(wasm_msg) = factory_cosmos_msg.clone() {
+           if let WasmMsg::Instantiate2 { admin: _, code_id, label: _, msg: _, funds: _, salt: _ } = wasm_msg {
+                id = code_id;
+           }
+        }
+
+        if id != 0 {
+            messages.push(factory_cosmos_msg);
+        }
+
+        Ok(Response::new()
+        .add_messages(messages)
+        .add_attribute("bindings address:", bindings_address)) 
     }
 
 }
