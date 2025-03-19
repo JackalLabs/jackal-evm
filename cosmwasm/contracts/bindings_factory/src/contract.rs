@@ -25,7 +25,7 @@ pub fn instantiate(
         deps.storage,
         &ContractState::new(msg.bindings_code_id, info.sender.to_string()),
     )?;
-    // Add the owner to the white list of senders
+    // Add the owner to the white list of senders.
     WHITE_LIST.save(deps.storage, &info.sender.to_string(), &true)?; 
 
     Ok(Response::default())
@@ -53,16 +53,17 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::GetUserBindingsAddress { user_address } => to_json_binary(&query::user_bindings_address(deps, user_address)?),
         QueryMsg::GetAllUserBindingsAddresses {} => to_json_binary(&query::all_user_bindings_addresses(deps)?),
         QueryMsg::GetWhiteList {} => to_json_binary(&query::white_list(deps)?),
+        QueryMsg::GetAllBroadcastedMsgs {} => to_json_binary(&query::all_broadcasted_msgs(deps)?),
     }
 }
 
 mod execute {
     use cosmwasm_std::{CosmosMsg, Event, WasmMsg};
-    use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, WHITE_LIST};
-    use shared::shared_msg::SharedExecuteMsg;
+    use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, WHITE_LIST, BROADCASTED_MSGS};
 
     use canine_bindings::bindings_helpers::{BindingsCode, BindingsContract};
     use canine_bindings::msg::ExecuteMsg as BindingsExecuteMsg;
+    use crate::utils::{hash_msg, hash_to_hex};
 
     use super::*;
 
@@ -77,9 +78,9 @@ mod execute {
 
         let mut allowed: bool = false;
 
-        // If the sender is in the whitelist, we should be able to find a bool value of 'true' 
+        // If the sender is in the whitelist, we should be able to find a bool value of 'true'. 
         if let Some(value) = WHITE_LIST.may_load(deps.storage, &info.sender.to_string())? {
-            // If the key exists, return the value
+            // If the key exists, return the value.
             allowed = value
         } 
 
@@ -89,9 +90,9 @@ mod execute {
 
         let mut bindings_address: String = String::new();
 
-        // declare empty cosmos msg here to be assigned by else block:
+        // Declare empty cosmos msg here to be assigned by else block.
         let mut factory_cosmos_msg: CosmosMsg = CosmosMsg::Wasm(WasmMsg::Instantiate2 {
-            admin: None, // TODO: Set as admin for migration purposes. Write test to make sure info.sender is admin
+            admin: None, 
             code_id: 0,
             label: String::new(),
             msg: Binary::default(),
@@ -104,7 +105,7 @@ mod execute {
         
         bindings_address = value
         } else {
-        // If the evm address does not have a bindings contract, we make one for them before calling it 
+        // If the evm address does not have a bindings contract, we make one for them before calling it. 
             let bindings_code_id = BindingsCode::new(state.bindings_code_id);
             let instantiate_msg = canine_bindings::msg::InstantiateMsg {};
 
@@ -117,10 +118,9 @@ mod execute {
                 &env,
                 instantiate_msg,
                 label,
-                Some(env.contract.address.to_string()), // TODO: should be address that owns the factory for migration purposes
-                // NOTE: is it okay to use current block time as salt? Shoul this only be a fall back option?
-                env.block.time.seconds().to_string(), 
-            )?;
+                Some(env.contract.address.to_string()), // TODO: note that this is the factory's address, which means the factory needs 
+                env.block.time.seconds().to_string(),   //  to perform migration via cross contract call. Consider making the jkl address--
+            )?;                                             //    which owns the factory--be the admin for migration purposes
 
             factory_cosmos_msg = instantiate2_cosmos_msg;
 
@@ -129,17 +129,23 @@ mod execute {
 
         }
 
-        // Convert the bech32 string back to 'Addr' type before passing to the canine_bindings helper API
+        // Convert the bech32 string back to 'Addr' type before passing to the canine_bindings helper API.
         let error_msg: String = String::from("Bindings contract address is not a valid bech32 address. Conversion back to addr failed");
         let bindings_contract = BindingsContract::new(deps.api.addr_validate(&bindings_address).expect(&error_msg));
         
-        // Execute the bindings contract with given msg
-        let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
+        // Clone msg first for later use. 
+        let msg_clone = msg.clone();
 
-        // We only add the factory_cosmos_msg if it's non empty--i.e., we actually need it for creating a bindings contract 
+        // Prepare the bindings msg for broadcast below. 
+        let cosmos_msg = bindings_contract.execute(msg, info.funds)?;
 
         let mut messages: Vec<CosmosMsg> = Vec::new();
 
+        // Iff the factory_cosmos_msg--an instantiate variant--has a non zero code id, it will be added
+        // to the above 'messages' for broadcast.
+        // To figure this out:
+        // If 'factory_cosmos_msg' contains a WasmMsg::Instantiate2 variant,
+        // we extract the code_id from it and assign it to the above 'id'. 
         let mut id: u64 = 0;
 
         if let CosmosMsg::Wasm(wasm_msg) = factory_cosmos_msg.clone() {
@@ -147,13 +153,36 @@ mod execute {
                 id = code_id;
            }
         }
-
         if id != 0 {
-            messages.push(factory_cosmos_msg);
+            messages.push(factory_cosmos_msg); // This only happens if it's the user's first time using the evm outpost 
         }
-        messages.push(cosmos_msg);
+
+        // If there is a collision, DO NOT broadcast.
+        let binary_msg: Binary = to_json_binary(&msg_clone).expect("Failed to convert msg to Binary");
+        let hashed_msg: [u8; 32] = hash_msg(&binary_msg);
+        let hashed_msg_hex = hash_to_hex(hashed_msg);
+
+        let mut collision: bool = false;
+
+        if let Some(value) = BROADCASTED_MSGS.may_load(deps.storage, (&evm_address, hashed_msg_hex.clone()))? {
+            // If the key exists, set the 'true' value to collision.
+            collision = value
+        } 
+
+        let mut attributes = vec![("attributes", "empty")];
+
+        // If no collision, broadcast the msg and emit logs.
+        if collision == false {
+            messages.push(cosmos_msg);
+            attributes.push(("hashed_msg", &hashed_msg_hex));
+        }
         
-        Ok(Response::new().add_messages(messages)) 
+        // Save the hash here to check for collisions.
+        BROADCASTED_MSGS.save(deps.storage, (&evm_address, hashed_msg_hex.clone()), &true)?;
+
+        Ok(Response::new()
+        .add_messages(messages) 
+        .add_attributes(attributes)) 
     }
 
     pub fn add_to_white_list(
@@ -164,7 +193,7 @@ mod execute {
     ) -> Result<Response, ContractError> {
         let state = STATE.load(deps.storage)?;
 
-        // Only the factory owner can add an address to the white list
+        // Only the factory owner can add an address to the white list.
         if info.sender.to_string() != state.owner {
             return Err(ContractError::CannotUpdate())
         }
@@ -267,7 +296,7 @@ mod execute {
 mod query {
     use cosmwasm_std::Order;
 
-    use crate::state::USER_ADDR_TO_BINDINGS_ADDR;
+    use crate::state::{USER_ADDR_TO_BINDINGS_ADDR, BROADCASTED_MSGS};
 
     use super::*;
 
@@ -276,12 +305,12 @@ mod query {
         STATE.load(deps.storage)
     }
 
-    /// Returns the bindings address this user owns
+    /// Returns the bindings address this user owns.
     pub fn user_bindings_address(deps: Deps, user_address: String) -> StdResult<String> {
         USER_ADDR_TO_BINDINGS_ADDR.load(deps.storage, &user_address)
     }
 
-    /// Returns the entire map of user addresses to their bindings addresses
+    /// Returns the entire map of user addresses to their bindings addresses.
     pub fn all_user_bindings_addresses(deps: Deps) -> StdResult<Vec<(String, String)>> {
         let mut all_bindings = vec![];
 
@@ -294,7 +323,7 @@ mod query {
         Ok(all_bindings)
     }
 
-    /// Returns entire white list
+    /// Returns entire white list.
     pub fn white_list(deps: Deps) -> StdResult<Vec<(String, bool)>> {
         let mut white_list = vec![];
 
@@ -306,5 +335,17 @@ mod query {
 
         Ok(white_list)
     }
-}
 
+    /// Returns the entire map of broadcasted messages along with their status (true/false).
+    pub fn all_broadcasted_msgs(deps: Deps) -> StdResult<Vec<(String, String, bool)>> {
+        let mut all_messages = vec![];
+
+        let iter = BROADCASTED_MSGS.range(deps.storage, None, None, Order::Ascending);
+        for item in iter {
+            let ((user_address, msg_hash), status) = item?;
+            all_messages.push((user_address, msg_hash, status));
+        }
+
+        Ok(all_messages)
+    }
+}

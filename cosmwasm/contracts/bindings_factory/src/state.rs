@@ -13,6 +13,10 @@ pub const USER_ADDR_TO_BINDINGS_ADDR: Map<&str, String> = Map::new("user_addr_to
 /// A whitelist of users that can call bindings
 pub const WHITE_LIST: Map<&str, bool> = Map::new("white list");
 
+/// Tracks which messages have been broadcasted per user.
+/// The primary key is the user address, and the subkey is the hashed message.
+pub const BROADCASTED_MSGS: Map<(&String, String), bool> = Map::new("broadcasted_msgs");
+
 mod contract {
 
     use super::*;
